@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
-import moment from "moment";
 import axios from "axios";
 import Cookie from "js-cookie";
 import { generateTimes } from "../../helpers/helpers";
@@ -53,8 +52,6 @@ const EventsEdit = inject("store")(
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             const data = error.response.data;
-            const status = error.response.status;
-            const headers = error.response.headers;
 
             window.alert(data.message);
           } else if (error.request) {
@@ -62,11 +59,12 @@ const EventsEdit = inject("store")(
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
             // http.ClientRequest in node.js
             const request = error.request;
+            console.error("Error: No response from server.", request);
           } else {
             // Something happened in setting up the request that triggered an Error
             const message = error.message;
+            console.error("Error: Could not retrieve events.", message);
           }
-          const config = error.config;
         });
     }
 
@@ -100,22 +98,17 @@ const EventsEdit = inject("store")(
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             const data = error.response.data;
-            const status = error.response.status;
-            const headers = error.response.headers;
 
             window.alert(data.message);
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
             // http.ClientRequest in node.js
-            const request = error.request;
             window.alert("Error: no response received from server.");
           } else {
             // Something happened in setting up the request that triggered an Error
-            const message = error.message;
             window.alert("Error: could not submit form.");
           }
-          const config = error.config;
         });
     }
 
@@ -140,22 +133,17 @@ const EventsEdit = inject("store")(
               // The request was made and the server responded with a status code
               // that falls out of the range of 2xx
               const data = error.response.data;
-              const status = error.response.status;
-              const headers = error.response.headers;
 
               window.alert(data.message);
             } else if (error.request) {
               // The request was made but no response was received
               // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
               // http.ClientRequest in node.js
-              const request = error.request;
               window.alert("Error: no response received from server.");
             } else {
               // Something happened in setting up the request that triggered an Error
-              const message = error.message;
               window.alert("Error: could not submit form.");
             }
-            const config = error.config;
           });
       }
     }

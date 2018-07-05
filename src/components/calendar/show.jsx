@@ -3,7 +3,6 @@ import { inject, observer } from "mobx-react";
 import { withRouter } from "react-router-dom";
 import SideBar from "./side_bar";
 
-import { getCalendarInfo } from "../../helpers/helpers";
 import Cookie from "js-cookie";
 import moment from "moment";
 
@@ -123,7 +122,6 @@ const Calendar = inject("store")(
                     match={this.props.match}
                   />
                 );
-                break;
 
               case "common-house-reservations":
                 return (
@@ -132,7 +130,6 @@ const Calendar = inject("store")(
                     match={this.props.match}
                   />
                 );
-                break;
 
               case "events":
                 return (
@@ -141,7 +138,6 @@ const Calendar = inject("store")(
                     match={this.props.match}
                   />
                 );
-                break;
 
               default:
                 return null;
@@ -158,7 +154,6 @@ const Calendar = inject("store")(
                     handleCloseModal={this.handleCloseModal}
                   />
                 );
-                break;
 
               case "common-house-reservations":
                 return (
@@ -167,7 +162,6 @@ const Calendar = inject("store")(
                     handleCloseModal={this.handleCloseModal}
                   />
                 );
-                break;
 
               case "events":
                 return (
@@ -176,10 +170,9 @@ const Calendar = inject("store")(
                     handleCloseModal={this.handleCloseModal}
                   />
                 );
-                break;
 
               default:
-                null;
+                return null;
             }
           }
 
@@ -193,10 +186,9 @@ const Calendar = inject("store")(
                     handleCloseModal={this.handleCloseModal}
                   />
                 );
-                break;
 
               default:
-                null;
+                return null;
             }
           }
         }

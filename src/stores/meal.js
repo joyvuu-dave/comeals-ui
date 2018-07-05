@@ -84,29 +84,24 @@ const Meal = types
               // The request was made and the server responded with a status code
               // that falls out of the range of 2xx
               const data = error.response.data;
-              const status = error.response.status;
-              const headers = error.response.headers;
 
               window.alert(data.message);
             } else if (error.request) {
               // The request was made but no response was received
               // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
               // http.ClientRequest in node.js
-              const request = error.request;
               window.alert("Error: no response received from server.");
             } else {
               // Something happened in setting up the request that triggered an Error
-              const message = error.message;
               window.alert("Error: could not submit form.");
             }
-            const config = error.config;
 
             return previousExtras; // return old value of extras as feedback when running function from console
           });
       }
 
       // Scenario #2: positive integer
-      const num = parseInt(Number(val));
+      const num = parseInt(Number(val), 10);
       if (Number.isInteger(num) && num >= 0) {
         self.extras = num;
 
@@ -136,22 +131,17 @@ const Meal = types
               // The request was made and the server responded with a status code
               // that falls out of the range of 2xx
               const data = error.response.data;
-              const status = error.response.status;
-              const headers = error.response.headers;
 
               window.alert(data.message);
             } else if (error.request) {
               // The request was made but no response was received
               // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
               // http.ClientRequest in node.js
-              const request = error.request;
               window.alert("Error: no response received from server.");
             } else {
               // Something happened in setting up the request that triggered an Error
-              const message = error.message;
               window.alert("Error: could not submit form.");
             }
-            const config = error.config;
 
             return previousExtras; // return old value of extras as feedback when running function from console
           });
@@ -162,7 +152,7 @@ const Meal = types
         return;
       }
 
-      const num = parseInt(Number(self.extras));
+      const num = parseInt(Number(self.extras), 10);
       if (Number.isInteger(num)) {
         const temp = num + 1;
         self.extras = temp;
@@ -173,7 +163,7 @@ const Meal = types
         return;
       }
 
-      const num = parseInt(Number(self.extras));
+      const num = parseInt(Number(self.extras), 10);
       if (Number.isInteger(num)) {
         const temp = num - 1;
         self.extras = temp;

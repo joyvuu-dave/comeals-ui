@@ -63,22 +63,17 @@ const EventsNew = inject("store")(
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             const data = error.response.data;
-            const status = error.response.status;
-            const headers = error.response.headers;
 
             window.alert(data.message);
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
             // http.ClientRequest in node.js
-            const request = error.request;
             window.alert("Error: no response received from server.");
           } else {
             // Something happened in setting up the request that triggered an Error
-            const message = error.message;
             window.alert("Error: could not submit form.");
           }
-          const config = error.config;
         });
     }
 

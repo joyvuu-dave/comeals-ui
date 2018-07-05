@@ -52,7 +52,6 @@ class WebcalLinks extends Component {
             // Something happened in setting up the request that triggered an Error
             console.error("Error: Could not get resident.");
           }
-          const config = error.config;
         });
     } else {
       this.setState({

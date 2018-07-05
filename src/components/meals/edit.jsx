@@ -3,8 +3,6 @@ import { inject, observer } from "mobx-react";
 import { withRouter } from "react-router-dom";
 
 import Header from "../meal/header";
-import Extras from "../meal/extras";
-import ButtonBar from "../meal/button_bar";
 import DateBox from "../meal/date_box";
 import MenuBox from "../meal/menu_box";
 import CooksBox from "../meal/cooks_box";
