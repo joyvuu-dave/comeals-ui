@@ -19,12 +19,7 @@ const ResidentsLogin = inject("store")(
         constructor(props) {
           super(props);
 
-          var topLevel = window.location.hostname.split(".");
-          topLevel = topLevel[topLevel.length - 1];
-
           this.state = {
-            host: `${window.location.protocol}//`,
-            topLevel: `.${topLevel}`,
             createCommunityVisible: false
           };
 
@@ -73,42 +68,31 @@ const ResidentsLogin = inject("store")(
         }
 
         handleSubmit(values) {
-          var myState = this.state;
-
           axios
-            .post(
-              `${myState.host}api.comeals${
-                myState.topLevel
-              }/api/v1/residents/token`,
-              {
-                email: values.email,
-                password: values.password
-              }
-            )
+            .post(`/api/v1/residents/token`, {
+              email: values.email,
+              password: values.password
+            })
             .then(function(response) {
               if (response.status === 200) {
                 console.log("data", response.data);
                 // set token cookie
                 Cookie.set("token", response.data.token, {
-                  expires: 7300,
-                  domain: `.comeals${myState.topLevel}`
+                  expires: 7300
                 });
                 // set community_id cookie
                 Cookie.set("community_id", response.data.community_id, {
-                  expires: 7300,
-                  domain: `.comeals${myState.topLevel}`
+                  expires: 7300
                 });
 
                 // set community_id cookie
                 Cookie.set("resident_id", response.data.resident_id, {
-                  expires: 7300,
-                  domain: `.comeals${myState.topLevel}`
+                  expires: 7300
                 });
 
                 // set username cookie
                 Cookie.set("username", response.data.username, {
-                  expires: 7300,
-                  domain: `.comeals${myState.topLevel}`
+                  expires: 7300
                 });
 
                 window.location.reload(true);

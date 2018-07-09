@@ -15,13 +15,7 @@ const CommonHouseReservationsEdit = inject("store")(
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = topLevel[topLevel.length - 1];
-
       this.state = {
-        host: `${window.location.protocol}//`,
-        topLevel: `.${topLevel}`,
-        slug: window.location.hostname.split(".")[0],
         ready: false,
         event: {},
         residents: []
@@ -32,9 +26,7 @@ const CommonHouseReservationsEdit = inject("store")(
       var self = this;
       axios
         .get(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/common-house-reservations/${
+          `/api/v1/common-house-reservations/${
             self.props.eventId
           }?token=${Cookie.get("token")}`
         )
@@ -75,9 +67,7 @@ const CommonHouseReservationsEdit = inject("store")(
       var self = this;
       axios
         .patch(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/common-house-reservations/${
+          `/api/v1/common-house-reservations/${
             this.props.eventId
           }/update?token=${Cookie.get("token")}`,
           {
@@ -121,9 +111,7 @@ const CommonHouseReservationsEdit = inject("store")(
         var self = this;
         axios
           .delete(
-            `${self.state.host}api.comeals${
-              self.state.topLevel
-            }/api/v1/common-house-reservations/${
+            `/api/v1/common-house-reservations/${
               self.props.eventId
             }/delete?token=${Cookie.get("token")}`
           )

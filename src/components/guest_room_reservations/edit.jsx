@@ -14,13 +14,7 @@ const GuestRoomReservationsEdit = inject("store")(
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = topLevel[topLevel.length - 1];
-
       this.state = {
-        host: `${window.location.protocol}//`,
-        topLevel: `.${topLevel}`,
-        slug: window.location.hostname.split(".")[0],
         ready: false,
         event: {},
         hosts: []
@@ -28,14 +22,10 @@ const GuestRoomReservationsEdit = inject("store")(
     }
 
     componentDidMount() {
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       var self = this;
       axios
         .get(
-          `${host}api.comeals${topLevel}/api/v1/guest-room-reservations/${
+          `/api/v1/guest-room-reservations/${
             self.props.eventId
           }?token=${Cookie.get("token")}`
         )
@@ -76,9 +66,7 @@ const GuestRoomReservationsEdit = inject("store")(
       var self = this;
       axios
         .patch(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/guest-room-reservations/${
+          `/api/v1/guest-room-reservations/${
             self.props.eventId
           }/update?token=${Cookie.get("token")}`,
           {
@@ -115,9 +103,7 @@ const GuestRoomReservationsEdit = inject("store")(
         var self = this;
         axios
           .delete(
-            `${self.state.host}api.comeals${
-              self.state.topLevel
-            }/api/v1/guest-room-reservations/${
+            `/api/v1/guest-room-reservations/${
               self.props.eventId
             }/delete?token=${Cookie.get("token")}`
           )

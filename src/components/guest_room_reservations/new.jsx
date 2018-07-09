@@ -15,13 +15,7 @@ const GuestRoomReservationsNew = inject("store")(
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = topLevel[topLevel.length - 1];
-
       this.state = {
-        host: `${window.location.protocol}//`,
-        topLevel: `.${topLevel}`,
-        slug: window.location.hostname.split(".")[0],
         communityId: Cookie.get("community_id"),
         hosts: [],
         ready: false
@@ -29,14 +23,10 @@ const GuestRoomReservationsNew = inject("store")(
     }
 
     componentDidMount() {
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       var self = this;
       axios
         .get(
-          `${host}api.comeals${topLevel}/api/v1/communities/${
+          `/api/v1/communities/${
             self.state.communityId
           }/hosts?token=${Cookie.get("token")}`
         )
@@ -73,9 +63,7 @@ const GuestRoomReservationsNew = inject("store")(
       var self = this;
       axios
         .post(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/guest-room-reservations?community_id=${
+          `/api/v1/guest-room-reservations?community_id=${
             self.state.communityId
           }&token=${Cookie.get("token")}`,
           {

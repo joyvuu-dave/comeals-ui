@@ -3,30 +3,13 @@ import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 
 class ResidentsPasswordReset extends Component {
-  constructor(props) {
-    super(props);
-
-    var topLevel = window.location.hostname.split(".");
-    topLevel = topLevel[topLevel.length - 1];
-
-    this.state = {
-      host: `${window.location.protocol}//`,
-      topLevel: `.${topLevel}`
-    };
-  }
-
   handleSubmit(values) {
     var self = this;
 
     axios
-      .post(
-        `${self.state.host}api.comeals${
-          self.state.topLevel
-        }/api/v1/residents/password-reset`,
-        {
-          email: values.email
-        }
-      )
+      .post(`/api/v1/residents/password-reset`, {
+        email: values.email
+      })
       .then(function(response) {
         if (response.status === 200) {
           window.alert(response.data.message);

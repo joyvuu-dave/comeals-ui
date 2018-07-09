@@ -162,16 +162,11 @@ export const DataStore = types
       const val = !self.meal.closed;
       self.meal.closed = val;
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       axios({
         method: "patch",
-        url: `${
-          window.location.protocol
-        }//api.comeals${topLevel}/api/v1/meals/${
-          self.meal.id
-        }/closed?token=${Cookie.get("token")}`,
+        url: `/api/v1/meals/${self.meal.id}/closed?token=${Cookie.get(
+          "token"
+        )}`,
         withCredentials: true,
         data: {
           closed: val,
@@ -239,15 +234,11 @@ export const DataStore = types
 
       console.log(obj);
 
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       axios({
         method: "patch",
-        url: `${host}api.comeals${topLevel}/api/v1/meals/${
-          self.meal.id
-        }/description?token=${Cookie.get("token")}`,
+        url: `/api/v1/meals/${self.meal.id}/description?token=${Cookie.get(
+          "token"
+        )}`,
         data: obj,
         withCredentials: true
       })
@@ -314,15 +305,9 @@ export const DataStore = types
 
       console.log(obj);
 
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       axios({
         method: "patch",
-        url: `${host}api.comeals${topLevel}/api/v1/meals/${
-          self.meal.id
-        }/bills?token=${Cookie.get("token")}`,
+        url: `/api/v1/meals/${self.meal.id}/bills?token=${Cookie.get("token")}`,
         data: obj,
         withCredentials: true
       })
@@ -352,16 +337,8 @@ export const DataStore = types
         });
     },
     loadDataAsync() {
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       axios
-        .get(
-          `${host}api.comeals${topLevel}/api/v1/meals/${
-            self.meal.id
-          }/cooks?token=${Cookie.get("token")}`
-        )
+        .get(`/api/v1/meals/${self.meal.id}/cooks?token=${Cookie.get("token")}`)
         .then(function(response) {
           if (response.status === 200) {
             localforage
@@ -391,15 +368,12 @@ export const DataStore = types
     },
     loadMonthAsync() {
       console.log("loadMonthAsync...");
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
 
       axios
         .get(
-          `${host}api.comeals${topLevel}/api/v1/communities/${Cookie.get(
-            "community_id"
-          )}/calendar/${self.currentDate}?token=${Cookie.get("token")}`
+          `/api/v1/communities/${Cookie.get("community_id")}/calendar/${
+            self.currentDate
+          }?token=${Cookie.get("token")}`
         )
         .then(function(response) {
           if (response.status === 200) {
@@ -434,15 +408,9 @@ export const DataStore = types
         });
     },
     loadNext() {
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       axios
         .get(
-          `${host}api.comeals${topLevel}/api/v1/meals/${
-            self.meal.nextId
-          }/cooks?token=${Cookie.get("token")}`
+          `/api/v1/meals/${self.meal.nextId}/cooks?token=${Cookie.get("token")}`
         )
         .then(function(response) {
           if (response.status === 200) {
@@ -469,15 +437,9 @@ export const DataStore = types
         });
     },
     loadPrev() {
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       axios
         .get(
-          `${host}api.comeals${topLevel}/api/v1/meals/${
-            self.meal.prevId
-          }/cooks?token=${Cookie.get("token")}`
+          `/api/v1/meals/${self.meal.prevId}/cooks?token=${Cookie.get("token")}`
         )
         .then(function(response) {
           if (response.status === 200) {

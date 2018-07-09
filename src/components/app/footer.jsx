@@ -12,13 +12,9 @@ class Footer extends Component {
   }
 
   componentDidMount() {
-    var host = `${window.location.protocol}//`;
-    var topLevel = window.location.hostname.split(".");
-    topLevel = `.${topLevel[topLevel.length - 1]}`;
-
     var self = this;
     axios
-      .get(`${host}api.comeals${topLevel}/api/v1/version`)
+      .get("/api/v1/version")
       .then(function(response) {
         if (response.status === 200) {
           self.setState({

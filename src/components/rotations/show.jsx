@@ -12,12 +12,7 @@ class RotationsShow extends Component {
   constructor(props) {
     super(props);
 
-    var topLevel = window.location.hostname.split(".");
-    topLevel = topLevel[topLevel.length - 1];
-
     this.state = {
-      host: `${window.location.protocol}//`,
-      topLevel: `.${topLevel}`,
       rotation: {
         id: null,
         description: "",
@@ -30,11 +25,7 @@ class RotationsShow extends Component {
   componentDidMount() {
     var self = this;
     axios
-      .get(
-        `${self.state.host}api.comeals${self.state.topLevel}/api/v1/rotations/${
-          self.props.id
-        }?token=${Cookie.get("token")}`
-      )
+      .get(`/api/v1/rotations/${self.props.id}?token=${Cookie.get("token")}`)
       .then(function(response) {
         if (response.status === 200) {
           self.setState({

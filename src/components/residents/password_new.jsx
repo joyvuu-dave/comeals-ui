@@ -6,12 +6,7 @@ class ResidentsPasswordNew extends Component {
   constructor(props) {
     super(props);
 
-    var topLevel = window.location.hostname.split(".");
-    topLevel = topLevel[topLevel.length - 1];
-
     this.state = {
-      host: `${window.location.protocol}//`,
-      topLevel: `.${topLevel}`,
       ready: false,
       name: ""
     };
@@ -20,11 +15,7 @@ class ResidentsPasswordNew extends Component {
   componentDidMount() {
     var self = this;
     axios
-      .get(
-        `${self.state.host}api.comeals${
-          self.state.topLevel
-        }/api/v1/residents/name/${self.props.match.params.token}`
-      )
+      .get(`/api/v1/residents/name/${self.props.match.params.token}`)
       .then(function(response) {
         if (response.status === 200) {
           self.setState({
@@ -58,9 +49,7 @@ class ResidentsPasswordNew extends Component {
 
     axios
       .post(
-        `${self.state.host}api.comeals${
-          self.state.topLevel
-        }/api/v1/residents/password-reset/${self.props.match.params.token}`,
+        `/api/v1/residents/password-reset/${self.props.match.params.token}`,
         {
           password: values.password
         }

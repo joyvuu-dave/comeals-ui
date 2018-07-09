@@ -16,13 +16,7 @@ const EventsNew = inject("store")(
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = topLevel[topLevel.length - 1];
-
       this.state = {
-        host: `${window.location.protocol}//`,
-        topLevel: `.${topLevel}`,
-        slug: window.location.hostname.split(".")[0],
         communityId: Cookie.get("community_id")
       };
     }
@@ -31,9 +25,7 @@ const EventsNew = inject("store")(
       var self = this;
       axios
         .post(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/events?community_id=${
+          `/api/v1/events?community_id=${
             self.state.communityId
           }&token=${Cookie.get("token")}`,
           {

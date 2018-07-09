@@ -18,11 +18,7 @@ class WebcalLinks extends Component {
     if (typeof this.state.resident_id === "undefined") {
       var self = this;
       axios
-        .get(
-          `${self.state.host}api.comeals.${
-            self.state.topLevel
-          }/api/v1/residents/id?token=${Cookie.get("token")}`
-        )
+        .get(`/api/v1/residents/id?token=${Cookie.get("token")}`)
         .then(function(response) {
           if (response.status === 200) {
             Cookie.set("resident_id", response.data, {

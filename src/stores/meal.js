@@ -50,9 +50,6 @@ const Meal = types
     },
     setExtras(val) {
       const previousExtras = self.extras;
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
 
       // Scenario #1: empty string
       if (val === null) {
@@ -60,9 +57,7 @@ const Meal = types
 
         axios({
           method: "patch",
-          url: `${host}api.comeals${topLevel}/api/v1/meals/${
-            self.id
-          }/max?token=${Cookie.get("token")}`,
+          url: `/api/v1/meals/${self.id}/max?token=${Cookie.get("token")}`,
           data: {
             max: null,
             socket_id: window.Comeals.socketId
@@ -107,9 +102,7 @@ const Meal = types
 
         axios({
           method: "patch",
-          url: `${host}api.comeals${topLevel}/api/v1/meals/${
-            self.id
-          }/max?token=${Cookie.get("token")}`,
+          url: `/api/v1/meals/${self.id}/max?token=${Cookie.get("token")}`,
           data: {
             max: self.max,
             socket_id: window.Comeals.socketId

@@ -16,13 +16,7 @@ const CommonHouseReservationsNew = inject("store")(
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = topLevel[topLevel.length - 1];
-
       this.state = {
-        host: `${window.location.protocol}//`,
-        topLevel: `.${topLevel}`,
-        slug: window.location.hostname.split(".")[0],
         communityId: Cookie.get("community_id"),
         residents: [],
         ready: false
@@ -33,9 +27,7 @@ const CommonHouseReservationsNew = inject("store")(
       var self = this;
       axios
         .get(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/communities/${
+          `/api/v1/communities/${
             self.state.communityId
           }/hosts?token=${Cookie.get("token")}`
         )
@@ -72,9 +64,7 @@ const CommonHouseReservationsNew = inject("store")(
       var self = this;
       axios
         .post(
-          `${self.state.host}api.comeals${
-            self.state.topLevel
-          }/api/v1/common-house-reservations?community_id=${
+          `/api/v1/common-house-reservations?community_id=${
             self.state.communityId
           }&token=${Cookie.get("token")}`,
           {

@@ -15,29 +15,17 @@ const EventsEdit = inject("store")(
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);
 
-      var topLevel = window.location.hostname.split(".");
-      topLevel = topLevel[topLevel.length - 1];
-
       this.state = {
-        host: `${window.location.protocol}//`,
-        topLevel: `.${topLevel}`,
-        slug: window.location.hostname.split(".")[0],
         ready: false,
         event: {}
       };
     }
 
     componentDidMount() {
-      var host = `${window.location.protocol}//`;
-      var topLevel = window.location.hostname.split(".");
-      topLevel = `.${topLevel[topLevel.length - 1]}`;
-
       var self = this;
       axios
         .get(
-          `${host}api.comeals${topLevel}/api/v1/events/${
-            self.props.eventId
-          }?token=${Cookie.get("token")}`
+          `/api/v1/events/${self.props.eventId}?token=${Cookie.get("token")}`
         )
         .then(function(response) {
           if (response.status === 200) {
@@ -72,9 +60,9 @@ const EventsEdit = inject("store")(
       var self = this;
       axios
         .patch(
-          `${self.state.host}api.comeals${self.state.topLevel}/api/v1/events/${
-            self.props.eventId
-          }/update?token=${Cookie.get("token")}`,
+          `/api/v1/events/${self.props.eventId}/update?token=${Cookie.get(
+            "token"
+          )}`,
           {
             title: values.title,
             description: values.description,
@@ -117,9 +105,7 @@ const EventsEdit = inject("store")(
         var self = this;
         axios
           .delete(
-            `${self.state.host}api.comeals${
-              self.state.topLevel
-            }/api/v1/events/${self.state.event.id}/delete?token=${Cookie.get(
+            `/api/v1/events/${self.state.event.id}/delete?token=${Cookie.get(
               "token"
             )}`
           )

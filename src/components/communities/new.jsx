@@ -3,32 +3,15 @@ import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 
 class CommunitiesNew extends Component {
-  constructor(props) {
-    super(props);
-
-    var topLevel = window.location.hostname.split(".");
-    topLevel = topLevel[topLevel.length - 1];
-
-    this.state = {
-      host: `${window.location.protocol}//`,
-      topLevel: `.${topLevel}`
-    };
-  }
-
   handleSubmit(values) {
     var self = this;
 
     axios
-      .post(
-        `${self.state.host}api.comeals${
-          self.state.topLevel
-        }/api/v1/communities`,
-        {
-          name: values.name,
-          email: values.email,
-          password: values.password
-        }
-      )
+      .post(`/api/v1/communities`, {
+        name: values.name,
+        email: values.email,
+        password: values.password
+      })
       .then(function(response) {
         if (response.status === 200) {
           self.props.history.push("/");
