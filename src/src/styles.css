@@ -1,16 +1,7 @@
-@import "../../node_modules/normalize.css/normalize.css";
-@import "../../node_modules/pretty-checkbox/dist/pretty-checkbox.css";
-@import "../../node_modules/react-day-picker/lib/style.css";
-@import "../../node_modules/shoelace-css/source/css/content.css";
-@import "../../node_modules/shoelace-css/source/css/badges.css";
-@import "../../node_modules/shoelace-css/source/css/buttons.css";
-@import "../../node_modules/shoelace-css/source/css/dropdowns.css";
-@import "../../node_modules/shoelace-css/source/css/forms.css";
-@import "../../node_modules/shoelace-css/source/css/switches.css";
-@import "../../node_modules/shoelace-css/source/css/tables.css";
-@import "../../node_modules/shoelace-css/source/css/utilities.css";
-@import "../../node_modules/shoelace-css/source/css/variables.css";
-@import "../../node_modules/react-big-calendar/lib/css/react-big-calendar.css";
+@import "pretty-checkbox/dist/pretty-checkbox.css";
+@import "react-day-picker/lib/style.css";
+@import "shoelace.css";
+@import "react-big-calendar/lib/css/react-big-calendar.css";
 
 :root {
   /* Colors */
@@ -21,10 +12,6 @@
   --almost-black: #444;
   --offwhite: #ebebe4;
   --state-primary: tomato;
-
-  /* Sizes */
-  --dropdown-min-width: 5rem;
-  --dropdown-max-width: 10rem;
 }
 
 body {
@@ -91,12 +78,6 @@ body {
   align-items: center;
   justify-content: center;
   margin: 1rem 1rem 1rem 1rem;
-}
-
-#main {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
 }
 
 .comeals-container {

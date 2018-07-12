@@ -16,8 +16,13 @@ import { DataStore } from "./stores/data_store";
 import MealsEdit from "./components/meals/edit";
 import Calendar from "./components/calendar/show";
 import ResidentsLogin from "./components/residents/login";
+import PrivateRoute from "./components/app/private_route";
 
 import ScrollToTop from "./components/app/scroll_to_top";
+
+function isAuthenticated() {
+  return typeof Cookie.get("token") !== "undefined";
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const store = DataStore.create();
@@ -54,11 +59,16 @@ document.addEventListener("DOMContentLoaded", () => {
               path="/:url*"
               render={props => <Redirect to={`${props.location.pathname}/`} />}
             />
-            <Route
+            <PrivateRoute
               path="/calendar/:type/:date/:modal?/:view?/:id?"
+              auth={isAuthenticated()}
               component={Calendar}
             />
-            <Route path="/meals/:id/edit/:history?" component={MealsEdit} />
+            <PrivateRoute
+              path="/meals/:id/edit/:history?"
+              auth={isAuthenticated()}
+              component={MealsEdit}
+            />
             <Route path="/:modal?/:token?" component={ResidentsLogin} />
           </Switch>
         </ScrollToTop>

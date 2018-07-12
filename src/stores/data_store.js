@@ -208,19 +208,10 @@ export const DataStore = types
         });
     },
     logout() {
-      var topLevel = window.location.hostname.split(".")[2];
-
-      Cookie.remove("token", { domain: `.comeals.${topLevel}` });
-      Cookie.remove("community_id", { domain: `.comeals.${topLevel}` });
-      Cookie.remove("resident_id", { domain: `.comeals.${topLevel}` });
-      Cookie.remove("username", { domain: `.comeals.${topLevel}` });
-
-      setTimeout(
-        () =>
-          (window.location.href = `${
-            window.location.protocol
-          }//comeals.${topLevel}/`)
-      );
+      Cookie.remove("token", { path: "/" });
+      Cookie.remove("community_id", { path: "/" });
+      Cookie.remove("resident_id", { path: "/" });
+      Cookie.remove("username", { path: "/" });
     },
     toggleHistory() {
       self.showHistory = !self.showHistory;

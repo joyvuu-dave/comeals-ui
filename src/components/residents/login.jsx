@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
-import { withRouter } from "react-router-dom";
+import { Redirect, Link, withRouter } from "react-router-dom";
 import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 import Cookie from "js-cookie";
-import { Link } from "react-router-dom";
+import moment from "moment";
 import Modal from "react-modal";
 
 import ResidentsPasswordReset from "./password_reset";
@@ -20,7 +20,8 @@ const ResidentsLogin = inject("store")(
           super(props);
 
           this.state = {
-            createCommunityVisible: false
+            createCommunityVisible: false,
+            redirectToReferrer: false
           };
 
           this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -118,6 +119,18 @@ const ResidentsLogin = inject("store")(
         }
 
         render() {
+          const { from } = this.props.location.state || {
+            from: { pathname: `/calendar/all/${moment().format("YYYY-MM-DD")}` }
+          };
+          const { redirectToReferrer } = this.state;
+
+          if (
+            redirectToReferrer ||
+            typeof Cookie.get("token") !== "undefined"
+          ) {
+            return <Redirect to={from} />;
+          }
+
           return (
             <div>
               <header className="flex space-between header">

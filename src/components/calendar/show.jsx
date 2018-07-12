@@ -89,6 +89,7 @@ const Calendar = inject("store")(
           this.handleSelectEvent = this.handleSelectEvent.bind(this);
           this.filterEvents = this.filterEvents.bind(this);
           this.formatEvent = this.formatEvent.bind(this);
+          this.handleClickLogout = this.handleClickLogout.bind(this);
         }
 
         componentDidMount() {
@@ -201,6 +202,11 @@ const Calendar = inject("store")(
           );
         }
 
+        handleClickLogout() {
+          this.props.store.logout();
+          setTimeout(() => this.props.history.push("/"), 100);
+        }
+
         formatEvent(event) {
           var styles = { style: {} };
 
@@ -230,7 +236,7 @@ const Calendar = inject("store")(
                 )}
                 <span>
                   <button
-                    onClick={this.props.store.logout}
+                    onClick={this.handleClickLogout}
                     className="button-link text-secondary"
                   >
                     {`logout ${Cookie.get("username")}`}
