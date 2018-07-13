@@ -3,26 +3,41 @@ import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 
 class ResidentsPasswordReset extends Component {
-  handleSubmit(values) {
-    var self = this;
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      loading: false
+    };
+  }
+
+  handleSubmit(values) {
+    this.setState({ loading: true });
+
+    var self = this;
     axios
       .post(`/api/v1/residents/password-reset`, {
         email: values.email
       })
       .then(function(response) {
+        self.setState({ loading: false });
         if (response.status === 200) {
           window.alert(response.data.message);
           self.props.history.push("/");
         }
       })
       .catch(function(error) {
+        self.setState({ loading: false });
         if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
           const data = error.response.data;
 
-          window.alert(data.message);
+          if (data.message) {
+            window.alert(data.message);
+          } else {
+            window.alert("Error: bad response from server.");
+          }
         } else if (error.request) {
           // The request was made but no response was received
           // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -45,11 +60,18 @@ class ResidentsPasswordReset extends Component {
               model=".email"
               placeholder="Email"
               autoCapitalize="none"
+              disabled={this.state.loading}
             />
           </label>
         </fieldset>
 
-        <button type="submit">Reset</button>
+        <button
+          className={this.state.loading ? "button-loader" : ""}
+          type="submit"
+          disabled={this.state.loading}
+        >
+          Reset
+        </button>
       </LocalForm>
     );
   }

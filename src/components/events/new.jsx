@@ -56,7 +56,11 @@ const EventsNew = inject("store")(
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of

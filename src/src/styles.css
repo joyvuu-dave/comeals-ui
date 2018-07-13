@@ -1,7 +1,7 @@
-@import "pretty-checkbox/dist/pretty-checkbox.css";
-@import "react-day-picker/lib/style.css";
-@import "shoelace.css";
-@import "react-big-calendar/lib/css/react-big-calendar.css";
+@import "../../node_modules/pretty-checkbox/dist/pretty-checkbox.css";
+@import "../../node_modules/react-day-picker/lib/style.css";
+@import "./shoelace.css";
+@import "../../node_modules/react-big-calendar/lib/css/react-big-calendar.css";
 
 :root {
   /* Colors */
@@ -380,4 +380,13 @@ Allow for all content to be seen
 */
 .rbc-month-row {
   overflow: scroll !important;
+}
+
+/*
+Give links the ability to be disabled
+*/
+a[disabled] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
 }

@@ -19,7 +19,8 @@ const styles = {
   },
   disabled: {
     cursor: "not-allowed",
-    opacity: "0.5"
+    opacity: "0.5",
+    pointerEvents: "none"
   }
 };
 

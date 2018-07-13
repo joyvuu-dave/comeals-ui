@@ -21,7 +21,8 @@ const ResidentsLogin = inject("store")(
 
           this.state = {
             createCommunityVisible: false,
-            redirectToReferrer: false
+            redirectToReferrer: false,
+            loading: false
           };
 
           this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -69,12 +70,17 @@ const ResidentsLogin = inject("store")(
         }
 
         handleSubmit(values) {
+          this.setState({ loading: true });
+
+          const self = this;
           axios
             .post(`/api/v1/residents/token`, {
               email: values.email,
               password: values.password
             })
             .then(function(response) {
+              self.setState({ loading: false });
+
               if (response.status === 200) {
                 console.log("data", response.data);
                 // set token cookie
@@ -96,16 +102,24 @@ const ResidentsLogin = inject("store")(
                   expires: 7300
                 });
 
-                window.location.reload(true);
+                self.props.history.push(
+                  `/calendar/all/${moment().format("YYYY-MM-DD")}`
+                );
               }
             })
             .catch(function(error) {
+              self.setState({ loading: false });
+
               if (error.response) {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
                 const data = error.response.data;
 
-                window.alert(data.message);
+                if (data.message) {
+                  window.alert(data.message);
+                } else {
+                  window.alert("Error: bad response from server.");
+                }
               } else if (error.request) {
                 // The request was made but no response was received
                 // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -126,7 +140,9 @@ const ResidentsLogin = inject("store")(
 
           if (
             redirectToReferrer ||
-            typeof Cookie.get("token") !== "undefined"
+            (typeof Cookie.get("token") !== "undefined" &&
+              Cookie.get("token") !== "undefined" &&
+              Cookie.get("token") !== undefined)
           ) {
             return <Redirect to={from} />;
           }
@@ -158,6 +174,7 @@ const ResidentsLogin = inject("store")(
                           model=".email"
                           placeholder="Email"
                           autoCapitalize="none"
+                          disabled={this.state.loading}
                         />
                       </label>
                       <br />
@@ -166,14 +183,25 @@ const ResidentsLogin = inject("store")(
                           type="password"
                           model=".password"
                           placeholder="Password"
+                          disabled={this.state.loading}
                         />
                       </label>
                     </fieldset>
 
-                    <button type="submit">Submit</button>
+                    <button
+                      className={this.state.loading ? "button-loader" : ""}
+                      type="submit"
+                      disabled={this.state.loading}
+                    >
+                      Submit
+                    </button>
                   </LocalForm>
                   <br />
-                  <Link to="/reset-password" className="text-black">
+                  <Link
+                    to="/reset-password"
+                    className="text-black"
+                    disabled={this.state.loading}
+                  >
                     Reset your password
                   </Link>
                 </div>
@@ -187,7 +215,11 @@ const ResidentsLogin = inject("store")(
                     <p className="text-black">
                       Start managing your common meals today!
                     </p>
-                    <Link className="button" to="/create-community">
+                    <Link
+                      className="button"
+                      to="/create-community"
+                      disabled={this.state.loading}
+                    >
                       Sign Up
                     </Link>
                   </div>

@@ -15,10 +15,6 @@
     "@fortawesome/free-solid-svg-icons": "^5.1.0",
     "@fortawesome/react-fontawesome": "^0.1.0",
     "axios": "0.18.0",
-    "babel-preset-react": "6.24.1",
-    "caniuse-lite": "^1.0.30000842",
-    "html-webpack-harddisk-plugin": "^0.2.0",
-    "html-webpack-plugin": "^3.2.0",
     "js-cookie": "2.2.0",
     "localforage": "^1.7.1",
     "mobx": "^4.x.x",
@@ -42,17 +38,11 @@
     "shoelace-css": "1.0.0-beta24",
     "uuid": "3.3.2"
   },
-  "resolutions": {
-    "caniuse-lite": "^1.0.30000842",
-    "webpack": "^3.x.x"
-  },
   "devDependencies": {
-    "postcss-import": "^11.1.0",
-    "postcss-preset-env": "^5.2.1",
     "prettier": "1.13.7",
-    "react-app-rewire-postcss": "^1.0.2",
-    "react-app-rewire-unplug": "^0.9.0",
-    "react-app-rewired": "^1.5.2"
+    "react-app-rewire-workbox": "^2.0.1",
+    "react-app-rewired": "^1.5.2",
+    "workbox-webpack-plugin": "^3.4.1"
   },
   "scripts": {
     "start": "react-app-rewired start",

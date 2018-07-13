@@ -195,7 +195,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -244,7 +248,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -313,7 +321,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -345,7 +357,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -386,7 +402,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -414,7 +434,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -443,7 +467,11 @@ export const DataStore = types
             // that falls out of the range of 2xx
             const data = error.response.data;
 
-            window.alert(data.message);
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.alert("Error: bad response from server.");
+            }
           } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -571,6 +599,13 @@ export const DataStore = types
     loadMonth(data) {
       console.log("loadMonth...");
       console.log("data", data);
+
+      if (typeof data === "string") {
+        self.isLoading = false;
+        window.alert("Error loading data.");
+        return true;
+      }
+
       if (self.calendarEvents) {
         self.clearCalendarEvents();
       }
@@ -681,7 +716,7 @@ export const DataStore = types
       console.log("key: ", key);
 
       localforage.getItem(key).then(function(value) {
-        if (value === null) {
+        if (value === null || typeof value === "undefined") {
           console.log("no key!");
           self.loadMonthAsync();
         } else {

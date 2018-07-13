@@ -21,7 +21,11 @@ import PrivateRoute from "./components/app/private_route";
 import ScrollToTop from "./components/app/scroll_to_top";
 
 function isAuthenticated() {
-  return typeof Cookie.get("token") !== "undefined";
+  return (
+    typeof Cookie.get("token") !== "undefined" &&
+    Cookie.get("token") !== "undefined" &&
+    Cookie.get("token") !== undefined
+  );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
