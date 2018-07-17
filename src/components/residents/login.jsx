@@ -102,9 +102,7 @@ const ResidentsLogin = inject("store")(
                   expires: 7300
                 });
 
-                self.props.history.push(
-                  `/calendar/all/${moment().format("YYYY-MM-DD")}`
-                );
+                window.location.reload(true);
               }
             })
             .catch(function(error) {
