@@ -12,6 +12,11 @@
   --almost-black: #444;
   --offwhite: #ebebe4;
   --state-primary: tomato;
+  --font-monospace: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --color-green: #2ecc40;
+  --component-border-radius: 0.25rem;
+  --button-border-radius: var(--component-border-radius);
+  --input-height: 2.25rem;
 }
 
 body {
