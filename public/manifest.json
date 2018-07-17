@@ -1,15 +1,28 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "background_color": "#6699cc",
+  "description":
+    "Post your common meal. Sign up for others. Reconcile the costs.",
+  "dir": "ltl",
+  "display": "fullscreen",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "letter-j-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
     }
   ],
+  "lang": "en",
+  "name": "Comeals",
+  "orientation": "landscape",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/",
+  "short_name": "Comeals",
   "start_url": "./index.html",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#6699cc"
 }
