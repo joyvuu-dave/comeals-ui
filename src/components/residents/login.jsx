@@ -154,12 +154,6 @@ const ResidentsLogin = inject("store")(
                 ) : (
                   <span className="offline">OFFLINE</span>
                 )}
-                <a
-                  href="https://admin.comeals.com/"
-                  className="pad-r-sm text-secondary"
-                >
-                  admin
-                </a>
               </header>
               <div className="box">
                 <br />
