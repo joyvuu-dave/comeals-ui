@@ -155,7 +155,7 @@ const ResidentsLogin = inject("store")(
                   <span className="offline">OFFLINE</span>
                 )}
                 <a
-                  href={`${this.state.host}admin.comeals${this.state.topLevel}`}
+                  href="https://admin.comeals.com/"
                   className="pad-r-sm text-secondary"
                 >
                   admin

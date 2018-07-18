@@ -7,8 +7,6 @@ class WebcalLinks extends Component {
     super(props);
 
     this.state = {
-      topLevel: window.location.hostname.split(".")[2],
-      host: `${window.location.protocol}//`,
       resident_id: Cookie.get("resident_id"),
       ready: false
     };
@@ -22,8 +20,7 @@ class WebcalLinks extends Component {
         .then(function(response) {
           if (response.status === 200) {
             Cookie.set("resident_id", response.data, {
-              expires: 7300,
-              domain: `.comeals.${self.state.topLevel}`
+              expires: 7300
             });
 
             self.setState({
@@ -64,17 +61,17 @@ class WebcalLinks extends Component {
     return (
       <div className="flex space-between w-100">
         <a
-          href={`webcal://api.comeals.${
-            this.state.topLevel
-          }/api/v1/communities/${Cookie.get("community_id")}/ical.ics`}
+          href={`webcal://api.comeals.com/api/v1/communities/${Cookie.get(
+            "community_id"
+          )}/ical.ics`}
         >
           Subscribe to All Meals
         </a>
         {this.state.ready && (
           <a
-            href={`webcal://api.comeals.${
-              this.state.topLevel
-            }/api/v1/residents/${this.state.resident_id}/ical.ics`}
+            href={`webcal://api.comeals.com/api/v1/residents/${
+              this.state.resident_id
+            }/ical.ics`}
           >
             Subscribe to My Meals
           </a>
