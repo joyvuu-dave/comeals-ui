@@ -23,25 +23,27 @@ const InfoBox = inject("store")(
         <h2>Signed Up</h2>
         <CloseButton />
       </div>
-      <div className="flex nowrap space-between">
-        <h4 className="info-circle">
-          <div>Total</div>
-          <div style={store.isLoading ? styles.hidden : styles.shown}>
-            {store.attendeesCount}
-          </div>
-        </h4>
-        <h4 className="info-circle">
-          <div>Veg</div>
-          <div style={store.isLoading ? styles.hidden : styles.shown}>
-            {store.vegetarianCount}
-          </div>
-        </h4>
-        <h4 className="info-circle">
-          <div>Late</div>
-          <div style={store.isLoading ? styles.hidden : styles.shown}>
-            {store.lateCount}
-          </div>
-        </h4>
+      <div id="info_box" className="flex wrap space-between">
+        <div id="info_circles">
+          <h4 className="info-circle">
+            <div>Total</div>
+            <div style={store.isLoading ? styles.hidden : styles.shown}>
+              {store.attendeesCount}
+            </div>
+          </h4>
+          <h4 className="info-circle">
+            <div>Veg</div>
+            <div style={store.isLoading ? styles.hidden : styles.shown}>
+              {store.vegetarianCount}
+            </div>
+          </h4>
+          <h4 className="info-circle">
+            <div>Late</div>
+            <div style={store.isLoading ? styles.hidden : styles.shown}>
+              {store.lateCount}
+            </div>
+          </h4>
+        </div>
         <Extras />
       </div>
     </div>

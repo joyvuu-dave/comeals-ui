@@ -145,6 +145,18 @@ body {
   .ReactModal__Content--after-open {
     width: auto;
   }
+
+  #dropdown_add::after {
+    content: "+";
+  }
+
+  #dropdown_remove::after {
+    content: "-";
+  }
+
+  #info_box {
+    flex-direction: column !important;
+  }
 }
 
 @media all and (min-width: 825px) {
@@ -193,6 +205,14 @@ body {
     width: 50%;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  #dropdown_add::after {
+    content: "+ Guest";
+  }
+
+  #dropdown_remove::after {
+    content: "- Guest";
   }
 }
 
@@ -394,4 +414,16 @@ a[disabled] {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
+}
+
+/*
+Allow AttendeesBox component to fit on mobile
+*/
+table td {
+  padding: 0.5rem 0.25rem !important;
+}
+
+#info_circles {
+  display: flex;
+  flex-wrap: wrap;
 }

@@ -3,7 +3,6 @@ import { inject, observer } from "mobx-react";
 
 const styles = {
   main: {
-    gridArea: "a1",
     display: "flex",
     justifyContent: "space-between"
   }

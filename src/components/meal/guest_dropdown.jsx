@@ -32,7 +32,11 @@ class GuestDropdown extends Component {
   render() {
     return (
       <div
-        className={this.state.open ? "dropdown active" : "dropdown"}
+        className={
+          this.state.open
+            ? "dropdown dropdown-left active"
+            : "dropdown dropdown-left"
+        }
         onClick={this.handleClick}
       >
         <button
@@ -41,7 +45,7 @@ class GuestDropdown extends Component {
           style={styles.topButton}
           disabled={this.props.reconciled || !this.props.canAdd}
         >
-          + Guest
+          <div id="dropdown_add" />
         </button>
         <div className="dropdown-menu">
           <a onClick={e => this.props.resident.addGuest({ vegetarian: false })}>
