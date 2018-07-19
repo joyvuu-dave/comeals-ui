@@ -27,13 +27,15 @@ BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
 const styles = {
   main: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    flexWrap: "noWrap"
   },
   chevron: {
     backgroundColor: "#444",
-    border: "none",
+    border: "1px solid black",
     opacity: "0.75",
-    width: "4rem"
+    width: "4rem",
+    marginTop: "1rem"
   }
 };
 
@@ -42,7 +44,7 @@ class MyToolbar extends Component {
     return (
       <div style={styles.main}>
         <h2>{moment(this.props.date).format("MMMM YYYY")}</h2>
-        <span>
+        <span style={styles.main}>
           <button
             className="mar-sm"
             onClick={this.navigate.bind(null, "TODAY")}
