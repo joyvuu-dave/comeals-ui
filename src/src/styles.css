@@ -229,10 +229,8 @@ button:focus {
   background-color: var(--offwhite);
 }
 
-.arrow:hover {
-  color: var(--almost-white);
+.arrow {
   cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .arrow[disabled] {

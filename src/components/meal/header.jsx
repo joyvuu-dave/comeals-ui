@@ -4,6 +4,9 @@ import moment from "moment";
 import ButtonBar from "./button_bar";
 import Cookie from "js-cookie";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+
 const styles = {
   header: {
     display: "flex",
@@ -32,7 +35,9 @@ const Header = inject("store")(
               }
               className="text-black button-link"
             >
-              Calendar
+              <h5>
+                <FontAwesomeIcon icon={faArrowLeft} /> <strong>Calendar</strong>
+              </h5>
             </button>
             {this.props.store.isOnline ? (
               <span className="online">ONLINE</span>
