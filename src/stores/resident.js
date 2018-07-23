@@ -154,12 +154,10 @@ const Resident = types
         })
           .then(function(response) {
             if (response.status === 200) {
-              console.log("Post - Success!", response.data);
               self.setAttendingAt(new Date());
             }
           })
           .catch(function(error) {
-            console.log("Post - Fail!");
             self.setAttending(false);
             self.setAttendingAt(null);
             self.form.form.meal.incrementExtras();
@@ -208,13 +206,11 @@ const Resident = types
         })
           .then(function(response) {
             if (response.status === 200) {
-              console.log("Delete - Success!", response.data);
               self.setLate(false);
               self.setAttendingAt(null);
             }
           })
           .catch(function(error) {
-            console.log("Delete - Fail!");
             self.setAttending(true);
             self.form.form.meal.decrementExtras();
 
@@ -259,36 +255,29 @@ const Resident = types
           socket_id: window.Comeals.socketId
         },
         withCredentials: true
-      })
-        .then(function(response) {
-          if (response.status === 200) {
-            console.log("Late click - Success!", response.data);
-          }
-        })
-        .catch(function(error) {
-          console.log("Late click - Fail!");
-          self.setLate(!val);
+      }).catch(function(error) {
+        self.setLate(!val);
 
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const data = error.response.data;
 
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              window.alert("Error: bad response from server.");
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            window.alert("Error: no response received from server.");
+          if (data.message) {
+            window.alert(data.message);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            window.alert("Error: could not submit form.");
+            window.alert("Error: bad response from server.");
           }
-        });
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          window.alert("Error: no response received from server.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          window.alert("Error: could not submit form.");
+        }
+      });
     },
     toggleVeg() {
       if (self.attending === false) {
@@ -309,36 +298,29 @@ const Resident = types
           socket_id: window.Comeals.socketId
         },
         withCredentials: true
-      })
-        .then(function(response) {
-          if (response.status === 200) {
-            console.log("Veg click - Success!", response.data);
-          }
-        })
-        .catch(function(error) {
-          console.log("Veg click - Fail!");
-          self.setVeg(!val);
+      }).catch(function(error) {
+        self.setVeg(!val);
 
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const data = error.response.data;
 
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              window.alert("Error: bad response from server.");
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            window.alert("Error: no response received from server.");
+          if (data.message) {
+            window.alert(data.message);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            window.alert("Error: could not submit form.");
+            window.alert("Error: bad response from server.");
           }
-        });
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          window.alert("Error: no response received from server.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          window.alert("Error: could not submit form.");
+        }
+      });
     },
     addGuest(options = { vegetarian: false }) {
       self.form.form.meal.decrementExtras();
@@ -356,7 +338,6 @@ const Resident = types
       })
         .then(function(response) {
           if (response.status === 200) {
-            console.log("Guests Post - Success!", response.data);
             const guest = response.data;
             guest.name = null;
             guest.created_at = new Date(guest.created_at);
@@ -364,7 +345,6 @@ const Resident = types
           }
         })
         .catch(function(error) {
-          console.log("Guests Post - Fail!");
           self.form.form.meal.incrementExtras();
 
           if (error.response) {
@@ -389,8 +369,6 @@ const Resident = types
         });
     },
     removeGuest() {
-      console.log("This Resident Can Remove Guests: ", self.canRemoveGuest);
-
       if (!self.canRemoveGuest) {
         return false;
       }
@@ -421,12 +399,9 @@ const Resident = types
           if (response.status === 200) {
             self.form.form.guestStore.removeGuest(guestId);
             self.form.form.meal.incrementExtras();
-            console.log("Guests Delete - Success!", response.data);
           }
         })
         .catch(function(error) {
-          console.log("Guests Delete - Fail!");
-
           if (error.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx

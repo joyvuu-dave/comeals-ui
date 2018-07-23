@@ -29,23 +29,19 @@ const Meal = types
   .actions(self => ({
     toggleClosed() {
       self.closed = !self.closed;
-      console.log("Closed toggled.");
       return self.closed;
     },
     resetExtras() {
       self.extras = null;
-      console.log("Extras reset to null.");
       return null;
     },
     resetClosedAt() {
       self.closed_at = null;
-      console.log("Closed At reset to null.");
       return null;
     },
     setClosedAt() {
       const time = new Date();
       self.closed_at = time;
-      console.log("Closed At updated to current time.");
       return time;
     },
     setExtras(val) {
@@ -63,40 +59,31 @@ const Meal = types
             socket_id: window.Comeals.socketId
           },
           withCredentials: true
-        })
-          .then(function(response) {
-            if (response.status === 200) {
-              console.log("Patch Extras - Success!", response.data);
-            }
+        }).catch(function(error) {
+          self.extras = previousExtras;
 
-            return null; // return new value of extras as feedback when running function from console
-          })
-          .catch(function(error) {
-            console.log("Patch Extras - Fail!");
-            self.extras = previousExtras;
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const data = error.response.data;
 
-            if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
-              const data = error.response.data;
-
-              if (data.message) {
-                window.alert(data.message);
-              } else {
-                window.alert("Error: bad response from server.");
-              }
-            } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
-              window.alert("Error: no response received from server.");
+            if (data.message) {
+              window.alert(data.message);
             } else {
-              // Something happened in setting up the request that triggered an Error
-              window.alert("Error: could not submit form.");
+              window.alert("Error: bad response from server.");
             }
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            window.alert("Error: no response received from server.");
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            window.alert("Error: could not submit form.");
+          }
 
-            return previousExtras; // return old value of extras as feedback when running function from console
-          });
+          return previousExtras; // return old value of extras as feedback when running function from console
+        });
       }
 
       // Scenario #2: positive integer
@@ -112,40 +99,31 @@ const Meal = types
             socket_id: window.Comeals.socketId
           },
           withCredentials: true
-        })
-          .then(function(response) {
-            if (response.status === 200) {
-              console.log("Patch Extras - Success!", response.data);
-            }
+        }).catch(function(error) {
+          self.extras = previousExtras;
 
-            return num; // return new value of extras as feedback when running function from console
-          })
-          .catch(function(error) {
-            console.log("Patch Extras - Fail!");
-            self.extras = previousExtras;
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const data = error.response.data;
 
-            if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
-              const data = error.response.data;
-
-              if (data.message) {
-                window.alert(data.message);
-              } else {
-                window.alert("Error: bad response from server.");
-              }
-            } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
-              window.alert("Error: no response received from server.");
+            if (data.message) {
+              window.alert(data.message);
             } else {
-              // Something happened in setting up the request that triggered an Error
-              window.alert("Error: could not submit form.");
+              window.alert("Error: bad response from server.");
             }
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            window.alert("Error: no response received from server.");
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            window.alert("Error: could not submit form.");
+          }
 
-            return previousExtras; // return old value of extras as feedback when running function from console
-          });
+          return previousExtras; // return old value of extras as feedback when running function from console
+        });
       }
     },
     incrementExtras() {

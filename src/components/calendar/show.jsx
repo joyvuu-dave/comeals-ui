@@ -99,13 +99,10 @@ const Calendar = inject("store")(
         }
 
         componentDidUpdate(prevProps) {
-          console.log("calendar updated!");
-
           if (
             prevProps.match.params.type !== this.props.match.params.type ||
             prevProps.match.params.date !== this.props.match.params.date
           ) {
-            console.log("different calendar!");
             this.props.store.goToMonth(this.props.match.params.date);
           }
         }
@@ -288,8 +285,6 @@ const Calendar = inject("store")(
         }
 
         handleNavigate(event) {
-          console.log("handleNavigate fired!");
-          console.log("event", event);
           this.props.history.push(
             `/calendar/${this.props.match.params.type}/${moment(event).format(
               "YYYY-MM-DD"

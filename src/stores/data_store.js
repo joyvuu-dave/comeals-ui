@@ -175,8 +175,6 @@ export const DataStore = types
       })
         .then(function(response) {
           if (response.status === 200) {
-            console.log(response.data);
-
             // If meal has been opened, re-set extras value
             if (val === false) {
               self.meal.resetExtras();
@@ -188,8 +186,6 @@ export const DataStore = types
         })
         .catch(function(error) {
           self.meal.toggleClosed();
-          console.log("Meal closed patch - Fail!");
-
           if (error.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
@@ -227,8 +223,6 @@ export const DataStore = types
         socket_id: window.Comeals.socketId
       };
 
-      console.log(obj);
-
       axios({
         method: "patch",
         url: `/api/v1/meals/${self.meal.id}/description?token=${Cookie.get(
@@ -236,33 +230,27 @@ export const DataStore = types
         )}`,
         data: obj,
         withCredentials: true
-      })
-        .then(function(response) {
-          if (response.status === 200) {
-            console.log(response.data);
-          }
-        })
-        .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
+      }).catch(function(error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const data = error.response.data;
 
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              window.alert("Error: bad response from server.");
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            window.alert("Error: no response received from server.");
+          if (data.message) {
+            window.alert(data.message);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            window.alert("Error: could not submit form.");
+            window.alert("Error: bad response from server.");
           }
-        });
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          window.alert("Error: no response received from server.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          window.alert("Error: could not submit form.");
+        }
+      });
     },
     submitBills() {
       // Check for errors with bills
@@ -302,42 +290,34 @@ export const DataStore = types
         socket_id: window.Comeals.socketId
       };
 
-      console.log(obj);
-
       axios({
         method: "patch",
         url: `/api/v1/meals/${self.meal.id}/bills?token=${Cookie.get("token")}`,
         data: obj,
         withCredentials: true
-      })
-        .then(function(response) {
-          if (response.status === 200) {
-            console.log(response.data);
-          }
-        })
-        .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
+      }).catch(function(error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const data = error.response.data;
 
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              window.alert("Error: bad response from server.");
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            window.alert("Error: no response received from server.");
+          if (data.message) {
+            window.alert(data.message);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            window.alert("Error: could not submit form.");
+            window.alert("Error: bad response from server.");
           }
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          window.alert("Error: no response received from server.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          window.alert("Error: could not submit form.");
+        }
 
-          self.loadDataAsync();
-        });
+        self.loadDataAsync();
+      });
     },
     loadDataAsync() {
       axios
@@ -374,8 +354,6 @@ export const DataStore = types
         });
     },
     loadMonthAsync() {
-      console.log("loadMonthAsync...");
-
       axios
         .get(
           `/api/v1/communities/${Cookie.get("community_id")}/calendar/${
@@ -592,14 +570,10 @@ export const DataStore = types
         `meal-${self.meal.id}`
       );
       window.Comeals.channel.bind("update", function(data) {
-        console.log(data.message);
         self.loadDataAsync();
       });
     },
     loadMonth(data) {
-      console.log("loadMonth...");
-      console.log("data", data);
-
       if (typeof data === "string") {
         self.isLoading = false;
         window.alert("Error loading data.");
@@ -659,11 +633,9 @@ export const DataStore = types
       )}-calendar-${moment(self.currentDate).format("YYYY")}-${moment(
         self.currentDate
       ).format("M")}`;
-      console.log("subscribeString", subscribeString);
       window.Comeals.channel = window.Comeals.pusher.subscribe(subscribeString);
 
       window.Comeals.channel.bind("update", function(data) {
-        console.log(data.message);
         self.loadMonthAsync();
       });
     },
@@ -705,22 +677,17 @@ export const DataStore = types
       });
     },
     switchMonths(date) {
-      console.log("currentDate switched from:", self.currentDate);
       self.currentDate = date;
-      console.log("to", self.currentDate);
 
       var myDate = moment(date);
       const key = `community-${Cookie.get(
         "community_id"
       )}-calendar-${myDate.format("YYYY")}-${myDate.format("M")}`;
-      console.log("key: ", key);
 
       localforage.getItem(key).then(function(value) {
         if (value === null || typeof value === "undefined") {
-          console.log("no key!");
           self.loadMonthAsync();
         } else {
-          console.log("yes key!");
           self.loadMonth(value);
           self.loadMonthAsync();
         }
@@ -731,7 +698,6 @@ export const DataStore = types
       self.switchMeals(Number.parseInt(mealId, 10));
     },
     goToMonth(date) {
-      console.log(date);
       self.isLoading = true;
       self.switchMonths(date);
     },

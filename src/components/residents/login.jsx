@@ -82,7 +82,6 @@ const ResidentsLogin = inject("store")(
               self.setState({ loading: false });
 
               if (response.status === 200) {
-                console.log("data", response.data);
                 // set token cookie
                 Cookie.set("token", response.data.token, {
                   expires: 7300

@@ -12,8 +12,7 @@ class ScrollToTop extends Component {
     pages.push(currentPage[1]);
     pages.push(prevPage[1]);
 
-    if (pages.indexOf("calendar") !== -1 && pages.indexOf("meal") !== -1) {
-      console.log("changing between calendar and meal");
+    if (pages.indexOf("calendar") !== -1 && pages.indexOf("meals") !== -1) {
       window.scrollTo(0, 0);
       return;
     }
@@ -27,10 +26,8 @@ class ScrollToTop extends Component {
         prevPage[1] === "calendar" &&
         currentPage[2] === prevPage[2]
       ) {
-        console.log("desktop: changing between calendar months");
         return;
       } else {
-        console.log("desktop: not changing between calendar months");
         window.scrollTo(0, 0);
         return;
       }
@@ -38,7 +35,6 @@ class ScrollToTop extends Component {
 
     // MOBILE
     if (window.innerWidth < 825) {
-      console.log("mobile");
       return;
     }
   }
