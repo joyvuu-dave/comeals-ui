@@ -233,7 +233,7 @@ const Calendar = inject("store")(
                 ) : (
                   <span className="offline">OFFLINE</span>
                 )}
-                <span>
+                <span hidden={Cookie.get("resident_id") === "60"}>
                   <button
                     onClick={this.handleClickLogout}
                     className="button-link text-secondary"
@@ -265,7 +265,7 @@ const Calendar = inject("store")(
                     views={["month"]}
                     components={components}
                   />
-                  <WebcalLinks />
+                  {Cookie.get("resident_id" !== "60") && <WebcalLinks />}
                 </div>
               </div>
               <Modal

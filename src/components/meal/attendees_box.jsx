@@ -21,9 +21,6 @@ const styles = {
     cursor: "not-allowed",
     opacity: "0.5",
     pointerEvents: "none"
-  },
-  remove: {
-    paddingRight: "1.125rem"
   }
 };
 
@@ -120,7 +117,6 @@ const AttendeeComponent = inject("store")(
               <button
                 id="dropdown_remove"
                 className="monospace"
-                style={styles.remove}
                 onClick={e => resident.removeGuest()}
                 disabled={
                   this.props.store.meal.reconciled || !resident.canRemoveGuest

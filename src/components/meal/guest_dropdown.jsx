@@ -41,7 +41,7 @@ class GuestDropdown extends Component {
       >
         <button
           key={`dropdown_${this.props.resident.id}`}
-          className="dropdown-trigger mar-r-sm"
+          className="mar-r-sm"
           style={styles.topButton}
           disabled={this.props.reconciled || !this.props.canAdd}
         >
