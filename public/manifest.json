@@ -1,5 +1,5 @@
 {
-  "background_color": "#6699cc",
+  "background_color": "#CCDEEA",
   "description":
     "Post your common meal. Sign up for others. Reconcile the costs.",
   "dir": "ltl",
@@ -11,8 +11,13 @@
       "type": "image/x-icon"
     },
     {
-      "src": "letter-j-144.png",
-      "sizes": "144x144",
+      "src": "letter-j-ffa500-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "letter-j-ffa500-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ],
@@ -24,5 +29,5 @@
   "scope": "/",
   "short_name": "Comeals",
   "start_url": ".",
-  "theme_color": "#6699cc"
+  "theme_color": "#CCDEEA"
 }

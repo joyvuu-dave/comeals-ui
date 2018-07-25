@@ -7,11 +7,13 @@
   /* Colors */
   --mango-tango: #ff8c42;
   --hasana-yellow: #e9c46a;
-  --livid: #6699cc;
+  --livid: #ccdeea;
   --almost-white: hsl(0, 0%, 98%);
   --almost-black: #444;
   --offwhite: #ebebe4;
-  --state-primary: tomato;
+
+  /* Shoelace variables */
+  --state-primary: #851500;
   --font-monospace: Menlo, Consolas, "DejaVu Sans Mono", monospace;
   --color-green: #2ecc40;
   --component-border-radius: 0.25rem;

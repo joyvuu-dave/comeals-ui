@@ -193,7 +193,7 @@ const DateBox = inject("store")(
                 onRequestClose={this.handleCloseModal}
                 style={{
                   content: {
-                    backgroundColor: "#6699cc"
+                    backgroundColor: "#CCDEEA"
                   }
                 }}
               >

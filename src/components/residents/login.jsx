@@ -166,6 +166,7 @@ const ResidentsLogin = inject("store")(
                           placeholder="Email"
                           autoCapitalize="none"
                           disabled={this.state.loading}
+                          aria-label="email"
                         />
                       </label>
                       <br />
@@ -175,6 +176,7 @@ const ResidentsLogin = inject("store")(
                           model=".password"
                           placeholder="Password"
                           disabled={this.state.loading}
+                          aria-label="password"
                         />
                       </label>
                     </fieldset>
@@ -222,7 +224,7 @@ const ResidentsLogin = inject("store")(
                 onRequestClose={this.handleCloseModal}
                 style={{
                   content: {
-                    backgroundColor: "#6699cc"
+                    backgroundColor: "#CCDEEA"
                   }
                 }}
               >

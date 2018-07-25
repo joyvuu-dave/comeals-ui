@@ -54,12 +54,14 @@ class MyToolbar extends Component {
           <button
             style={styles.chevron}
             onClick={this.navigate.bind(null, "PREV")}
+            aria-label="Goto Last Month"
           >
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>{" "}
           <button
             style={styles.chevron}
             onClick={this.navigate.bind(null, "NEXT")}
+            aria-label="Goto Next Month"
           >
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
@@ -216,7 +218,7 @@ const Calendar = inject("store")(
             moment(startString).isBefore(todayString, "day") &&
             typeof event.url !== "undefined"
           ) {
-            styles.style["opacity"] = "0.5";
+            styles.style["opacity"] = "0.6";
           }
 
           styles.style["backgroundColor"] = event.color;
@@ -274,7 +276,7 @@ const Calendar = inject("store")(
                 onRequestClose={this.handleCloseModal}
                 style={{
                   content: {
-                    backgroundColor: "#6699cc"
+                    backgroundColor: "#CCDEEA"
                   }
                 }}
               >
