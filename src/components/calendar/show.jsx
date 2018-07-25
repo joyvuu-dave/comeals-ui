@@ -265,7 +265,7 @@ const Calendar = inject("store")(
                     views={["month"]}
                     components={components}
                   />
-                  {Cookie.get("resident_id" !== "60") && <WebcalLinks />}
+                  {Cookie.get("resident_id") !== "60" && <WebcalLinks />}
                 </div>
               </div>
               <Modal
