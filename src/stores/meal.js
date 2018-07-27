@@ -4,15 +4,15 @@ import Cookie from "js-cookie";
 
 const Meal = types
   .model("Meal", {
-    id: types.identifier(types.number),
+    id: types.identifierNumber,
     description: "",
-    extras: types.maybe(types.number),
+    extras: types.maybeNull(types.number),
     closed: false,
-    closed_at: types.maybe(types.Date),
-    date: types.maybe(types.Date),
+    closed_at: types.maybeNull(types.Date),
+    date: types.maybeNull(types.Date),
     reconciled: false,
-    nextId: types.maybe(types.number),
-    prevId: types.maybe(types.number)
+    nextId: types.maybeNull(types.number),
+    prevId: types.maybeNull(types.number)
   })
   .views(self => ({
     get max() {

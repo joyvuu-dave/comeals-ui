@@ -4,11 +4,11 @@ import Cookie from "js-cookie";
 
 const Resident = types
   .model("Resident", {
-    id: types.identifier(types.number),
+    id: types.identifierNumber,
     meal_id: types.number,
     name: types.string,
     attending: false,
-    attending_at: types.maybe(types.Date),
+    attending_at: types.maybeNull(types.Date),
     late: false,
     vegetarian: false,
     can_cook: true,

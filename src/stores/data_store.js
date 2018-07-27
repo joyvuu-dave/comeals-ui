@@ -18,7 +18,7 @@ export const DataStore = types
     isLoading: true,
     editDescriptionMode: true,
     editBillsMode: true,
-    meal: types.maybe(types.reference(Meal)),
+    meal: types.maybeNull(types.reference(Meal)),
     meals: types.optional(types.array(Meal), []),
     residentStore: types.optional(ResidentStore, {
       residents: {}
@@ -33,12 +33,12 @@ export const DataStore = types
     userName: types.optional(types.string, ""),
     eventSources: types.optional(types.array(EventSource), []),
     modalActive: false,
-    modalName: types.maybe(types.string),
-    modalId: types.maybe(types.number),
+    modalName: types.maybeNull(types.string),
+    modalId: types.maybeNull(types.number),
     modalIsChanging: false,
     modalChangedData: false,
     showHistory: false,
-    calendarEvents: types.optional(types.array(types.frozen), []),
+    calendarEvents: types.optional(types.array(types.frozen()), []),
     currentDate: types.optional(types.string, moment().format("YYYY-MM-DD")),
     isOnline: false
   })
@@ -474,6 +474,8 @@ export const DataStore = types
         });
     },
     loadData(data) {
+      // FIXME: this causes dead tree warnings
+      //        with mobx-state-tree 3
       if (self.billStore && self.billStore.bills) {
         self.clearBills();
       }
