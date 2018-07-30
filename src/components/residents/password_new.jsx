@@ -33,7 +33,7 @@ class ResidentsPasswordNew extends Component {
           if (data.message) {
             window.alert(data.message);
           } else {
-            window.alert("Error: bad response from server.");
+            window.bugsnagClient.notify(new Error("Bad response from server"));
           }
           self.props.history.push("/");
         } else if (error.request) {
@@ -60,7 +60,9 @@ class ResidentsPasswordNew extends Component {
       )
       .then(function(response) {
         if (response.status === 200) {
-          window.alert(response.data.message);
+          if (response.data.message) {
+            window.alert(response.data.message);
+          }
           self.props.history.push("/");
         }
       })
@@ -73,7 +75,7 @@ class ResidentsPasswordNew extends Component {
           if (data.message) {
             window.alert(data.message);
           } else {
-            window.alert("Error: bad response from server.");
+            window.bugsnagClient.notify(new Error("Bad response from server"));
           }
         } else if (error.request) {
           // The request was made but no response was received

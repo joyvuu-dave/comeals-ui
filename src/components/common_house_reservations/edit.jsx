@@ -48,7 +48,9 @@ const CommonHouseReservationsEdit = inject("store")(
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.alert("Error: bad response from server.");
+              window.bugsnagClient.notify(
+                new Error("Bad response from server")
+              );
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -100,7 +102,9 @@ const CommonHouseReservationsEdit = inject("store")(
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.alert("Error: bad response from server.");
+              window.bugsnagClient.notify(
+                new Error("Bad response from server")
+              );
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -137,7 +141,9 @@ const CommonHouseReservationsEdit = inject("store")(
               if (data.message) {
                 window.alert(data.message);
               } else {
-                window.alert("Error: bad response from server.");
+                window.bugsnagClient.notify(
+                  new Error("Bad response from server")
+                );
               }
             } else if (error.request) {
               // The request was made but no response was received
