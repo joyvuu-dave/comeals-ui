@@ -3,14 +3,6 @@ import axios from "axios";
 import Cookie from "js-cookie";
 import moment from "moment";
 
-const styles = {
-  sticky: {
-    position: "sticky",
-    top: 0,
-    zIndex: "9999"
-  }
-};
-
 class MealHistoryShow extends Component {
   constructor(props) {
     super(props);
@@ -70,18 +62,10 @@ class MealHistoryShow extends Component {
             <table className="table-striped background-white">
               <thead>
                 <tr>
-                  <th style={styles.sticky} className="background-white">
-                    ID
-                  </th>
-                  <th style={styles.sticky} className="background-white">
-                    User
-                  </th>
-                  <th style={styles.sticky} className="background-white">
-                    Action
-                  </th>
-                  <th style={styles.sticky} className="background-white">
-                    Time
-                  </th>
+                  <th className="background-white sticky-header">ID</th>
+                  <th className="background-white sticky-header">User</th>
+                  <th className="background-white sticky-header">Action</th>
+                  <th className="background-white sticky-header">Time</th>
                 </tr>
               </thead>
               <tbody>

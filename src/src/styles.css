@@ -427,3 +427,10 @@ table td {
   display: flex;
   flex-wrap: wrap;
 }
+
+.sticky-header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+}

@@ -12,11 +12,6 @@ const styles = {
   icon: {
     maxHeight: "1rem"
   },
-  sticky: {
-    position: "sticky",
-    top: 0,
-    zIndex: "9999"
-  },
   disabled: {
     cursor: "not-allowed",
     opacity: "0.5",
@@ -139,22 +134,16 @@ const AttendeesBox = inject("store")(
             <table className="background-white">
               <thead>
                 <tr>
-                  <th style={styles.sticky} className="background-white">
+                  <th className="background-white sticky-header">
                     Name{" "}
                     <span className="text-small text-italic text-secondary text-nowrap">
                       (click to add)
                     </span>
                   </th>
-                  <th style={styles.sticky} className="background-white">
-                    Guests
-                  </th>
-                  <th style={styles.sticky} className="background-white">
-                    Late
-                  </th>
-                  <th style={styles.sticky} className="background-white">
-                    Veg
-                  </th>
-                  <th style={styles.sticky} />
+                  <th className="background-white sticky-header">Guests</th>
+                  <th className="background-white sticky-header">Late</th>
+                  <th className="background-white sticky-header">Veg</th>
+                  <th className="sticky-header" />
                 </tr>
               </thead>
               <tbody>
