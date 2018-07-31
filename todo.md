@@ -21,4 +21,5 @@ from calendar page to meal page and vice versa
 
 # Note
 
-icons from https://iconsplace.com/orange-icons/letter-j-icon-11/
+- icons from https://iconsplace.com/orange-icons/letter-j-icon-11/
+- https://www.ssllabs.com/ssltest/analyze.html?d=comeals.com
