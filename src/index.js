@@ -5,6 +5,7 @@ import { render } from "react-dom";
 import { Provider } from "mobx-react";
 import Cookie from "js-cookie";
 import registerServiceWorker from "./registerServiceWorker";
+import Loadable from "react-loadable";
 
 import {
   BrowserRouter as Router,
@@ -14,8 +15,7 @@ import {
 } from "react-router-dom";
 
 import { DataStore } from "./stores/data_store";
-import MealsEdit from "./components/meals/edit";
-import Calendar from "./components/calendar/show";
+
 import ResidentsLogin from "./components/residents/login";
 import PrivateRoute from "./components/app/private_route";
 
@@ -32,6 +32,24 @@ function isAuthenticated() {
     Cookie.get("token") !== undefined
   );
 }
+
+function Loading({ error }) {
+  if (error) {
+    return "Error";
+  } else {
+    return <h3>Loading...</h3>;
+  }
+}
+
+const Calendar = Loadable({
+  loader: () => import("./components/calendar/show"),
+  loading: Loading
+});
+
+const MealsEdit = Loadable({
+  loader: () => import("./components/meals/edit"),
+  loading: Loading
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   const store = DataStore.create();
