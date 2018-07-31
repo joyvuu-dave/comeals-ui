@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-import MealHistoryShow from "../history/show";
+import Loadable from "react-loadable";
 
 const styles = {
   main: {
@@ -34,6 +34,19 @@ const styles = {
     visibility: "visible"
   }
 };
+
+function Loading({ error }) {
+  if (error) {
+    return "Error";
+  } else {
+    return <h3>Loading...</h3>;
+  }
+}
+
+const MealHistoryShow = Loadable({
+  loader: () => import("../history/show"),
+  loading: Loading
+});
 
 Modal.setAppElement("#root");
 const DateBox = inject("store")(
