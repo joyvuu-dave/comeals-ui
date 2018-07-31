@@ -23,7 +23,7 @@ const InfoBox = inject("store")(
         <h2>Signed Up</h2>
         <CloseButton />
       </div>
-      <div id="info_box" className="flex wrap space-between">
+      <div id="info_box" className="flex space-between">
         <div id="info_circles">
           <h4 className="info-circle">
             <div>Total</div>

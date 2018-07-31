@@ -5,28 +5,16 @@
 
 :root {
   /* Colors */
-  --mango-tango: #ff8c42;
   --hasana-yellow: #e9c46a;
-  --livid: #ccdeea;
   --almost-white: hsl(0, 0%, 98%);
-  --almost-black: #444;
-  --offwhite: #ebebe4;
 
   /* Shoelace variables */
   --state-primary: #851500;
-  --font-monospace: Menlo, Consolas, "DejaVu Sans Mono", monospace;
   --color-green: #2ecc40;
-  --component-border-radius: 0.25rem;
-  --button-border-radius: var(--component-border-radius);
-  --input-height: 2.25rem;
 }
 
 body {
-  background-color: var(--livid);
-}
-
-.monospace {
-  font-family: var(--font-monospace);
+  background-color: #ccdeea;
 }
 
 .background-white {
@@ -50,7 +38,7 @@ body {
 }
 
 .text-black {
-  color: var(--almost-black) !important;
+  color: #444 !important;
 }
 
 .text-green {
@@ -66,11 +54,7 @@ body {
 }
 
 .button-border-radius {
-  border-radius: var(--button-border-radius);
-}
-
-.input-height {
-  height: var(--input-height);
+  border-radius: 0.25rem;
 }
 
 .info-circle {
@@ -85,22 +69,6 @@ body {
   align-items: center;
   justify-content: center;
   margin: 1rem 1rem 1rem 1rem;
-}
-
-.comeals-container {
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 0;
-  padding-left: 0;
-  width: 100%;
-}
-
-.box {
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 15px;
-  padding-left: 15px;
-  width: 100%;
 }
 
 @media all and (max-width: 825px) {
@@ -228,7 +196,7 @@ button:focus {
 }
 
 .offwhite {
-  background-color: var(--offwhite);
+  background-color: #ebebe4;
 }
 
 .arrow {

@@ -11,6 +11,16 @@ import ResidentsPasswordReset from "./password_reset";
 import CommunitiesNew from "../../components/communities/new";
 import ResidentsPasswordNew from "./password_new";
 
+const styles = {
+  box: {
+    marginRight: "auto",
+    marginLeft: "auto",
+    paddingRight: "15px",
+    paddingLeft: "15px",
+    width: "100%"
+  }
+};
+
 Modal.setAppElement("#root");
 const ResidentsLogin = inject("store")(
   withRouter(
@@ -156,7 +166,7 @@ const ResidentsLogin = inject("store")(
                   <span className="offline">OFFLINE</span>
                 )}
               </header>
-              <div className="box">
+              <div style={styles.box}>
                 <br />
                 <div>
                   <LocalForm onSubmit={values => this.handleSubmit(values)}>

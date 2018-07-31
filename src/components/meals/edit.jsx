@@ -12,6 +12,13 @@ import AttendeesBox from "../meal/attendees_box";
 const styles = {
   section: {
     margin: "1em 0 1em 0"
+  },
+  container: {
+    marginRight: "auto",
+    marginLeft: "auto",
+    paddingRight: 0,
+    paddingLeft: 0,
+    width: "100%"
   }
 };
 
@@ -21,13 +28,13 @@ const MealsEdit = inject("store")(
       class MealsEdit extends Component {
         render() {
           return (
-            <div className="comeals-container">
+            <div style={styles.container}>
               <Header
                 history={this.props.history}
                 location={this.props.location}
                 match={this.props.match}
               />
-              <div className="comeals-container">
+              <div style={styles.container}>
                 <section style={styles.section}>
                   <div className="wrapper">
                     <DateBox />

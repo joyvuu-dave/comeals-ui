@@ -16,6 +16,9 @@ const styles = {
     cursor: "not-allowed",
     opacity: "0.5",
     pointerEvents: "none"
+  },
+  monospace: {
+    fontFamily: "Menlo, Consolas, 'DejaVu Sans Mono', monospace"
   }
 };
 
@@ -111,7 +114,7 @@ const AttendeeComponent = inject("store")(
               />
               <button
                 id="dropdown_remove"
-                className="monospace"
+                style={styles.monospace}
                 onClick={e => resident.removeGuest()}
                 disabled={
                   this.props.store.meal.reconciled || !resident.canRemoveGuest

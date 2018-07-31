@@ -10,7 +10,8 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 const styles = {
   header: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    height: "2.25rem"
   }
 };
 
@@ -19,10 +20,7 @@ const Header = inject("store")(
     class Header extends Component {
       render() {
         return (
-          <header
-            style={styles.header}
-            className="header background-yellow input-height"
-          >
+          <header style={styles.header} className="header background-yellow">
             <button
               onClick={() =>
                 this.props.history.push(
