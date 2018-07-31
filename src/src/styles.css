@@ -13,10 +13,6 @@
   --color-green: #2ecc40;
 }
 
-body {
-  background-color: #ccdeea;
-}
-
 .background-white {
   background-color: var(--almost-white);
 }
