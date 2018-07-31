@@ -116,11 +116,11 @@ body {
     width: auto;
   }
 
-  #dropdown_add::after {
+  .dropdown-add::after {
     content: "+";
   }
 
-  #dropdown_remove::after {
+  .dropdown-remove::after {
     content: "-";
   }
 
@@ -177,11 +177,11 @@ body {
     margin-right: auto;
   }
 
-  #dropdown_add::after {
+  .dropdown-add::after {
     content: "+ Guest";
   }
 
-  #dropdown_remove::after {
+  .dropdown-remove::after {
     content: "- Guest";
   }
 }

@@ -32,6 +32,7 @@ const Extras = inject("store")(
                 checked={store.meal ? store.meal.extras === val : false}
                 onChange={e => store.meal.setExtras(e.target.value)}
                 disabled={store.meal ? store.meal.reconciled : false}
+                aria-label={`Set Extras to ${val}`}
               />
               <div className="state p-success">
                 <label>{val}</label>

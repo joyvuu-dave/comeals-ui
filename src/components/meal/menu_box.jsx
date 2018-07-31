@@ -35,6 +35,7 @@ const MenuBox = inject("store")(
           value={store.meal && store.meal.description}
           onChange={e => store.setDescription(e.target.value)}
           disabled={!store.editDescriptionMode}
+          aria-label="Enter meal description"
         />
       </div>
     </div>

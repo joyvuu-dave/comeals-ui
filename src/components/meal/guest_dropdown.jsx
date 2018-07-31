@@ -45,7 +45,10 @@ class GuestDropdown extends Component {
           style={styles.topButton}
           disabled={this.props.reconciled || !this.props.canAdd}
         >
-          <div id="dropdown_add" />
+          <div
+            className="dropdown-add"
+            aria-label={`Add Guest of ${this.props.resident.name}`}
+          />
         </button>
         <div className="dropdown-menu">
           <a onClick={e => this.props.resident.addGuest({ vegetarian: false })}>

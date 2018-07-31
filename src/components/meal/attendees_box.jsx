@@ -80,6 +80,7 @@ const AttendeeComponent = inject("store")(
                       !resident.attending &&
                       this.props.store.meal.extras < 1)
                   }
+                  aria-label={`Toggle Late for ${resident.name}`}
                 />
                 <label htmlFor={`late_switch_${resident.id}`} />
               </span>
@@ -102,6 +103,7 @@ const AttendeeComponent = inject("store")(
                       !resident.attending &&
                       this.props.store.meal.extras < 1)
                   }
+                  aria-label={`Toggle Veg for ${resident.name}`}
                 />
                 <label htmlFor={`veg_switch_${resident.id}`} />
               </span>
@@ -113,7 +115,9 @@ const AttendeeComponent = inject("store")(
                 canAdd={this.props.store.canAdd}
               />
               <button
-                id="dropdown_remove"
+                className="dropdown-remove"
+                key={`dropdown_remove_${resident.id}`}
+                aria-label={`Remove Guest of ${resident.name}`}
                 style={styles.monospace}
                 onClick={e => resident.removeGuest()}
                 disabled={

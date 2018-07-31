@@ -23,6 +23,7 @@ const BillEdit = inject("store")(
         value={bill.resident_id}
         onChange={e => bill.setResident(e.target.value)}
         style={styles.select}
+        aria-label="Select meal cook"
       >
         <option value={""} key={-1}>
           ¯\_(ツ)_/¯
@@ -45,6 +46,7 @@ const BillEdit = inject("store")(
           value={bill.amount}
           onChange={e => bill.setAmount(e.target.value)}
           className={bill.amountIsValid ? "" : "input-invalid"}
+          aria-label="Set meal cost"
         />
       </div>
     </div>
