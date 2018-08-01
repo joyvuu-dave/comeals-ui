@@ -27,11 +27,8 @@ const styles = {
     justifyContent: "center",
     alignItems: "center"
   },
-  hidden: {
-    visibility: "hidden"
-  },
-  shown: {
-    visibility: "visible"
+  topDate: {
+    width: "200px"
   }
 };
 
@@ -121,7 +118,7 @@ const DateBox = inject("store")(
           }
 
           if (this.props.store.meal.date === null) {
-            return "";
+            return "loading...";
           }
 
           var today = moment([
@@ -164,7 +161,7 @@ const DateBox = inject("store")(
                 >
                   <FontAwesomeIcon icon={faChevronLeft} size="3x" />
                 </div>
-                <h2>{this.displayTopDate()}</h2>
+                <h2 style={styles.topDate}>{this.displayTopDate()}</h2>
                 <div
                   className="arrow"
                   style={styles.arrow}
@@ -176,23 +173,13 @@ const DateBox = inject("store")(
               </div>
               <h3 className="text-black">{this.displayDate()}</h3>
               {this.props.store.meal && this.props.store.meal.reconciled ? (
-                <h1
-                  className="text-black"
-                  style={
-                    this.props.store.isLoading ? styles.hidden : styles.shown
-                  }
-                >
-                  RECONCILED
-                </h1>
+                <h1 className="text-black">RECONCILED</h1>
               ) : (
                 <h1
                   className={
                     this.props.store.meal && this.props.store.meal.closed
                       ? "text-primary"
                       : "text-green"
-                  }
-                  style={
-                    this.props.store.isLoading ? styles.hidden : styles.shown
                   }
                 >
                   {this.props.store.meal && this.props.store.meal.closed

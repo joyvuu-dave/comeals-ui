@@ -4,7 +4,7 @@ import { inject, observer } from "mobx-react";
 const styles = {
   main: {
     gridArea: "a4",
-    border: "0.5px solid"
+    border: "1px solid"
   },
   grid: {
     display: "flex",

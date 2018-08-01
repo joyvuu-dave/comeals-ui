@@ -7,7 +7,7 @@ const styles = {
     gridArea: "a3",
     display: "grid",
     gridTemplateRows: "1fr 4fr",
-    border: "0.5px solid"
+    border: "1px solid"
   },
   text: {
     height: "100%",

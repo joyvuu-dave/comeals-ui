@@ -5,14 +5,8 @@ import CloseButton from "./close_button";
 
 const styles = {
   main: {
-    border: "0.5px solid",
+    border: "1px solid",
     gridArea: "a2"
-  },
-  hidden: {
-    visibility: "hidden"
-  },
-  shown: {
-    visibility: "visible"
   }
 };
 
@@ -27,21 +21,15 @@ const InfoBox = inject("store")(
         <div id="info_circles">
           <h4 className="info-circle">
             <div>Total</div>
-            <div style={store.isLoading ? styles.hidden : styles.shown}>
-              {store.attendeesCount}
-            </div>
+            <div>{store.attendeesCount}</div>
           </h4>
           <h4 className="info-circle">
             <div>Veg</div>
-            <div style={store.isLoading ? styles.hidden : styles.shown}>
-              {store.vegetarianCount}
-            </div>
+            <div>{store.vegetarianCount}</div>
           </h4>
           <h4 className="info-circle">
             <div>Late</div>
-            <div style={store.isLoading ? styles.hidden : styles.shown}>
-              {store.lateCount}
-            </div>
+            <div>{store.lateCount}</div>
           </h4>
         </div>
         <Extras />
