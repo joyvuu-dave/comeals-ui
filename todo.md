@@ -14,11 +14,6 @@
 - android app
 - auto-reconciliation
 
-# FIXME
-
-only do scroll to top when transitioning
-from calendar page to meal page and vice versa
-
 # Note
 
 - icons from https://iconsplace.com/orange-icons/letter-j-icon-11/

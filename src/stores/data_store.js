@@ -329,6 +329,7 @@ export const DataStore = types
             localforage
               .setItem(response.data.id.toString(), response.data)
               .then(function() {
+                self.preLoadData();
                 self.loadData(response.data);
               });
           }
@@ -473,9 +474,7 @@ export const DataStore = types
           }
         });
     },
-    loadData(data) {
-      // FIXME: this causes dead tree warnings
-      //        with mobx-state-tree 3
+    preLoadData() {
       if (self.billStore && self.billStore.bills) {
         self.clearBills();
       }
@@ -485,7 +484,8 @@ export const DataStore = types
       if (self.guestStore && self.guestStore.guests) {
         self.clearGuests();
       }
-
+    },
+    loadData(data) {
       // Assign Meal Data
       const dateArray = data.date.split("-");
       const date = new Date(
@@ -521,8 +521,9 @@ export const DataStore = types
 
       // Assign Residents
       residents.forEach(resident => {
-        if (resident.attending_at !== null)
+        if (resident.attending_at !== null) {
           resident.attending_at = new Date(resident.attending_at);
+        }
         self.residentStore.residents.put(resident);
       });
 
@@ -683,6 +684,7 @@ export const DataStore = types
         if (value === null) {
           self.loadDataAsync();
         } else {
+          self.preLoadData();
           self.loadData(value);
           self.loadDataAsync();
         }
