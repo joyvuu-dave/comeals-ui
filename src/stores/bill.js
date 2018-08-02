@@ -3,8 +3,8 @@ import Resident from "./resident";
 
 const Bill = types
   .model("Bill", {
-    id: types.identifier(),
-    resident: types.maybe(types.reference(Resident)),
+    id: types.identifier,
+    resident: types.maybeNull(types.reference(Resident)),
     amount: ""
   })
   .views(self => ({

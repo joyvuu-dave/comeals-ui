@@ -18,7 +18,7 @@ export const DataStore = types
     isLoading: true,
     editDescriptionMode: true,
     editBillsMode: true,
-    meal: types.maybe(types.reference(Meal)),
+    meal: types.maybeNull(types.reference(Meal)),
     meals: types.optional(types.array(Meal), []),
     residentStore: types.optional(ResidentStore, {
       residents: {}
@@ -33,12 +33,12 @@ export const DataStore = types
     userName: types.optional(types.string, ""),
     eventSources: types.optional(types.array(EventSource), []),
     modalActive: false,
-    modalName: types.maybe(types.string),
-    modalId: types.maybe(types.number),
+    modalName: types.maybeNull(types.string),
+    modalId: types.maybeNull(types.number),
     modalIsChanging: false,
     modalChangedData: false,
     showHistory: false,
-    calendarEvents: types.optional(types.array(types.frozen), []),
+    calendarEvents: types.optional(types.array(types.frozen()), []),
     currentDate: types.optional(types.string, moment().format("YYYY-MM-DD")),
     isOnline: false
   })
@@ -329,6 +329,7 @@ export const DataStore = types
             localforage
               .setItem(response.data.id.toString(), response.data)
               .then(function() {
+                self.preLoadData();
                 self.loadData(response.data);
               });
           }
@@ -473,7 +474,7 @@ export const DataStore = types
           }
         });
     },
-    loadData(data) {
+    preLoadData() {
       if (self.billStore && self.billStore.bills) {
         self.clearBills();
       }
@@ -483,7 +484,8 @@ export const DataStore = types
       if (self.guestStore && self.guestStore.guests) {
         self.clearGuests();
       }
-
+    },
+    loadData(data) {
       // Assign Meal Data
       const dateArray = data.date.split("-");
       const date = new Date(
@@ -519,8 +521,9 @@ export const DataStore = types
 
       // Assign Residents
       residents.forEach(resident => {
-        if (resident.attending_at !== null)
+        if (resident.attending_at !== null) {
           resident.attending_at = new Date(resident.attending_at);
+        }
         self.residentStore.residents.put(resident);
       });
 
@@ -681,6 +684,7 @@ export const DataStore = types
         if (value === null) {
           self.loadDataAsync();
         } else {
+          self.preLoadData();
           self.loadData(value);
           self.loadDataAsync();
         }
