@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
-import { withRouter } from "react-router-dom";
+import { Route, withRouter } from "react-router-dom";
 import moment from "moment";
 import Modal from "react-modal";
 
@@ -71,19 +71,6 @@ const DateBox = inject("store")(
 
         componentDidMount() {
           this.props.store.goToMeal(this.props.location.pathname.split("/")[2]);
-        }
-
-        renderModal() {
-          if (this.props.match.params.history !== "history") {
-            return null;
-          }
-
-          return (
-            <MealHistoryShow
-              id={this.props.store.meal.id}
-              date={moment(this.props.store.meal.date).format("ddd, MMM Do")}
-            />
-          );
         }
 
         handleCloseModal() {
@@ -187,18 +174,25 @@ const DateBox = inject("store")(
                     : "OPEN"}
                 </h1>
               )}
-              <Modal
-                isOpen={typeof this.props.match.params.history !== "undefined"}
-                contentLabel="History Modal"
-                onRequestClose={this.handleCloseModal}
-                style={{
-                  content: {
-                    backgroundColor: "#CCDEEA"
-                  }
-                }}
-              >
-                {this.renderModal()}
-              </Modal>
+              <div>
+                <Route
+                  path={this.props.match.url + "/history"}
+                  render={() => (
+                    <Modal
+                      isOpen={true}
+                      contentLabel="History Modal"
+                      onRequestClose={this.handleCloseModal}
+                      style={{
+                        content: {
+                          backgroundColor: "#CCDEEA"
+                        }
+                      }}
+                    >
+                      <MealHistoryShow id={this.props.match.params.id} />
+                    </Modal>
+                  )}
+                />
+              </div>
             </div>
           );
         }

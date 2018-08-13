@@ -8,6 +8,7 @@ class MealHistoryShow extends Component {
     super(props);
 
     this.state = {
+      date: "loading...",
       items: [],
       ready: false
     };
@@ -22,7 +23,8 @@ class MealHistoryShow extends Component {
       .then(function(response) {
         if (response.status === 200) {
           self.setState({
-            items: response.data,
+            items: response.data.items,
+            date: moment(response.data.date).format("ddd, MMM Do"),
             ready: true
           });
         }
@@ -57,7 +59,7 @@ class MealHistoryShow extends Component {
         {this.state.ready && (
           <div>
             <div className="flex center">
-              <h1 className="cell">{this.props.date}</h1>
+              <h1 className="cell">{this.state.date}</h1>
             </div>
             <table className="table-striped background-white">
               <thead>
