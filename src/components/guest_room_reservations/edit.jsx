@@ -4,6 +4,7 @@ import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 import axios from "axios";
 import Cookie from "js-cookie";
+import moment from "moment";
 import { inject } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -161,6 +162,15 @@ const GuestRoomReservationsEdit = inject("store")(
           parseDate={parseDate}
           onDayChange={this.handleDayChange}
           value={formatDate(this.state.event.date)}
+          dayPickerProps={{
+            disabledDays: [
+              {
+                after: moment(this.props.match.params.date)
+                  .add(6, "M")
+                  .toDate()
+              }
+            ]
+          }}
         />
       );
     }
