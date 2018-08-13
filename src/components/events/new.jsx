@@ -87,7 +87,14 @@ const EventsNew = inject("store")(
           placeholder={""}
           onDayChange={this.handleDayChange}
           dayPickerProps={{
-            initialMonth: moment(this.props.match.params.date).toDate()
+            initialMonth: moment(this.props.match.params.date).toDate(),
+            disabledDays: [
+              {
+                after: moment(this.props.match.params.date)
+                  .add(6, "M")
+                  .toDate()
+              }
+            ]
           }}
         />
       );
