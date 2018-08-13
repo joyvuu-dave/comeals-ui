@@ -195,7 +195,7 @@ const EventsEdit = inject("store")(
                 <button
                   onClick={this.handleDelete.bind(this)}
                   type="button"
-                  className="mar-md button-warning"
+                  className="mar-l-md button-warning"
                 >
                   Delete
                 </button>

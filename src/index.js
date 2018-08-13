@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 component={Calendar}
               />
               <PrivateRoute
-                path="/meals/:id/edit/:history?"
+                path="/meals/:id/edit"
                 auth={isAuthenticated()}
                 component={MealsEdit}
               />
