@@ -38,7 +38,6 @@
     "react-router-dom": "4.3.1",
     "react-scripts": "1.1.4",
     "redux": "4.0.0",
-    "shoelace-css": "1.0.0-beta24",
     "uuid": "3.3.2"
   },
   "devDependencies": {

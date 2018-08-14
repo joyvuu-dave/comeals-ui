@@ -167,7 +167,7 @@ const EventsEdit = inject("store")(
           dayPickerProps={{
             disabledDays: [
               {
-                after: moment(this.props.match.params.date)
+                after: moment(this.state.event.start_date)
                   .add(6, "M")
                   .toDate()
               }

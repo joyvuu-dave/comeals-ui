@@ -165,7 +165,7 @@ const GuestRoomReservationsEdit = inject("store")(
           dayPickerProps={{
             disabledDays: [
               {
-                after: moment(this.props.match.params.date)
+                after: moment(this.state.event.date)
                   .add(6, "M")
                   .toDate()
               }
