@@ -22,7 +22,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
+const localizer = BigCalendar.momentLocalizer(moment);
 
 const styles = {
   main: {
@@ -257,6 +257,7 @@ const Calendar = inject("store")(
                 />
                 <div style={{ height: 2000, marginRight: 15 }}>
                   <BigCalendar
+                    localizer={localizer}
                     defaultDate={moment(this.props.match.params.date).toDate()}
                     defaultView="month"
                     eventPropGetter={this.formatEvent.bind(this)}
