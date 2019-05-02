@@ -35,6 +35,7 @@ function isAuthenticated() {
 
 function Loading({ error }) {
   if (error) {
+    console.error(error);
     return "Error";
   } else {
     return <h3>Loading...</h3>;
