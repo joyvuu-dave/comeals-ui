@@ -16,13 +16,13 @@ import EventsEdit from "../events/edit";
 import RotationsShow from "../rotations/show";
 
 import WebcalLinks from "./webcal_links";
-import BigCalendar from "react-big-calendar";
+import { Calendar, momentLocalizer } from "react-big-calendar";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-const localizer = BigCalendar.momentLocalizer(moment);
+const localizer = momentLocalizer(moment);
 
 const styles = {
   main: {
@@ -80,10 +80,10 @@ let components = {
 };
 
 Modal.setAppElement("#root");
-const Calendar = inject("store")(
+const MainCalendar = inject("store")(
   withRouter(
     observer(
-      class Calendar extends Component {
+      class MainCalendar extends Component {
         constructor(props) {
           super(props);
 
@@ -256,7 +256,7 @@ const Calendar = inject("store")(
                   location={this.props.location}
                 />
                 <div style={{ height: 2000, marginRight: 15 }}>
-                  <BigCalendar
+                  <Calendar
                     localizer={localizer}
                     defaultDate={moment(this.props.match.params.date).toDate()}
                     defaultView="month"
@@ -336,4 +336,4 @@ const Calendar = inject("store")(
   )
 );
 
-export default Calendar;
+export default MainCalendar;
