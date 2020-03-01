@@ -159,6 +159,18 @@ export const DataStore = types
       return self.meal.description;
     },
     toggleClosed() {
+      if(!self.meal.closed) {
+        // There is a cook who hasn't filled in their cost
+        const cookNeedsToFillInCost = Array.from(self.bills.values()).some(
+          bill => bill.resident_id !== "" && bill.amount === "" && bill.no_cost === false
+        );
+
+        if (cookNeedsToFillInCost) {
+          window.alert("All cook costs must be set before closing.");
+          return;
+        }
+      }
+
       const val = !self.meal.closed;
       self.meal.closed = val;
 
@@ -369,9 +381,7 @@ export const DataStore = types
           if (response.status === 200) {
             localforage
               .setItem(
-                `community-${response.data.id}-calendar-${response.data.year}-${
-                  response.data.month
-                }`,
+                `community-${response.data.id}-calendar-${response.data.year}-${response.data.month}`,
                 response.data
               )
               .then(function() {

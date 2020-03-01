@@ -27,6 +27,8 @@ const Meal = types
     }
   }))
   .actions(self => ({
+    // This isn't the "real" toggleClosed. It's the backup
+    // for un-doing the UI change if the API request fails
     toggleClosed() {
       self.closed = !self.closed;
       return self.closed;

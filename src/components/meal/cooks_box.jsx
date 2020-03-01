@@ -11,7 +11,8 @@ const styles = {
     flexWrap: "no-wrap"
   },
   select: {
-    marginLeft: "1px"
+    marginLeft: "1px",
+    opacity: "1"
   }
 };
 
@@ -23,6 +24,7 @@ const BillEdit = inject("store")(
         value={bill.resident_id}
         onChange={e => bill.setResident(e.target.value)}
         style={styles.select}
+        disabled={store.meal.closed}
         aria-label="Select meal cook"
       >
         <option value={""} key={-1}>
@@ -45,10 +47,25 @@ const BillEdit = inject("store")(
           step="0.01"
           value={bill.amount}
           onChange={e => bill.setAmount(e.target.value)}
+          style={styles.select}
           className={bill.amountIsValid ? "" : "input-invalid"}
+          disabled={store.meal.closed}
           aria-label="Set meal cost"
         />
       </div>
+      <span className="switch">No cost
+        <input 
+          id={`no_cost_switch-${bill.id}`}
+          type="checkbox" 
+          className="switch"
+          key={`no_cost_switch_${bill.id}`}
+          checked={bill ? bill.no_cost : false}
+          onChange={e => bill.toggleNoCost()}
+          disabled={store.meal.closed || !bill.resident_id || bill.amount > 0}
+          aria-label={`No cost button for ${bill.id}`}
+        />
+        <label htmlFor={`no_cost_switch-${bill.id}`} />
+      </span>
     </div>
   ))
 );
