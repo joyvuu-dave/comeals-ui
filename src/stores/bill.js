@@ -5,7 +5,8 @@ const Bill = types
   .model("Bill", {
     id: types.identifier,
     resident: types.maybeNull(types.reference(Resident)),
-    amount: ""
+    amount: "",
+    no_cost: false
   })
   .views(self => ({
     get resident_id() {
@@ -37,6 +38,13 @@ const Bill = types
     },
     setAmount(val) {
       self.amount = val;
+      self.form.form.toggleEditBillsMode();
+      self.form.form.toggleEditBillsMode();
+      return val;
+    },
+    toggleNoCost() {
+      const val = !self.no_cost;
+      self.no_cost = val;
       self.form.form.toggleEditBillsMode();
       self.form.form.toggleEditBillsMode();
       return val;
