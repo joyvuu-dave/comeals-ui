@@ -8,6 +8,7 @@ import MenuBox from "../meal/menu_box";
 import CooksBox from "../meal/cooks_box";
 import InfoBox from "../meal/info_box";
 import AttendeesBox from "../meal/attendees_box";
+import moment from "moment";
 
 const styles = {
   section: {
@@ -26,6 +27,15 @@ const MealsEdit = inject("store")(
   withRouter(
     observer(
       class MealsEdit extends Component {
+        componentDidMount() {
+          const myHistory = this.props.history;
+
+          setTimeout(
+            function() { 
+              myHistory.push(`/calendar/all/${moment().format("YYYY-MM-DD")}`); 
+            }, 5 *60 * 1000);
+        }
+
         render() {
           return (
             <div style={styles.container}>
