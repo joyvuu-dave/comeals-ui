@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { inject } from "mobx-react";
-import moment from "moment";
+import Cookie from "js-cookie";
+import axios from "axios";
 
 const styles = {
   sideBar: {
@@ -35,42 +36,39 @@ const SideBar = inject("store")(
       this.props.history.push(`${this.props.location.pathname}events/new`);
     }
 
-    openAllCalendars() {
-      this.props.history.push(
-        `/calendar/all/${moment(this.getNavDate()).format("YYYY-MM-DD")}`
-      );
-    }
+    openNextMeal() {
+      const myHistory = this.props.history;
 
-    openMealCalendar() {
-      this.props.history.push(
-        `/calendar/meals/${moment(this.getNavDate()).format("YYYY-MM-DD")}`
-      );
-    }
+      axios
+        .get(`/api/v1/meals/next?token=${Cookie.get("token")}`)
+        .then(function(response) {
+          if (response.status === 200) {
+            myHistory.push(`/meals/${response.data.meal_id}/edit`);
+          }
+        })
+        .catch(function(error) {
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const data = error.response.data;
 
-    openGuestRoomCalendar() {
-      this.props.history.push(
-        `/calendar/guest-room/${moment(this.getNavDate()).format("YYYY-MM-DD")}`
-      );
-    }
-
-    openCommonHouseCalendar() {
-      this.props.history.push(
-        `/calendar/common-house/${moment(this.getNavDate()).format(
-          "YYYY-MM-DD"
-        )}`
-      );
-    }
-
-    openEventsCalendar() {
-      this.props.history.push(
-        `/calendar/events/${moment(this.getNavDate()).format("YYYY-MM-DD")}`
-      );
-    }
-
-    openBirthdaysCalendar() {
-      this.props.history.push(
-        `/calendar/birthdays/${moment(this.getNavDate()).format("YYYY-MM-DD")}`
-      );
+            if (data.message) {
+              window.alert(data.message);
+            } else {
+              window.bugsnagClient.notify(
+                new Error("Bad response from server")
+              );
+            }
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.error("Error: no response received from server.");
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Error: could not get meal.");
+          }
+        });
     }
 
     render() {
@@ -92,52 +90,6 @@ const SideBar = inject("store")(
             Common House
           </button>
           <hr />
-          <h3 className="mar-sm">Calendars</h3>
-          <button
-            onClick={this.openAllCalendars.bind(this)}
-            className="button-info mar-sm"
-            style={styles.button}
-          >
-            ALL
-          </button>
-          <hr />
-          <button
-            onClick={this.openMealCalendar.bind(this)}
-            className="button-info mar-sm"
-            style={styles.button}
-          >
-            Meals
-          </button>
-          <button
-            onClick={this.openGuestRoomCalendar.bind(this)}
-            className="button-info mar-sm"
-            style={styles.button}
-          >
-            Guest Room
-          </button>
-          <button
-            onClick={this.openCommonHouseCalendar.bind(this)}
-            className="button-info mar-sm"
-            style={styles.button}
-          >
-            Common House
-          </button>
-          <hr />
-          <button
-            onClick={this.openEventsCalendar.bind(this)}
-            className="button-info mar-sm"
-            style={styles.button}
-          >
-            Events
-          </button>
-          <button
-            onClick={this.openBirthdaysCalendar.bind(this)}
-            className="button-info mar-sm"
-            style={styles.button}
-          >
-            Birthdays
-          </button>
-          <hr />
           <h3 className="mar-sm">Add</h3>
           <button
             onClick={this.openNewEvent.bind(this)}
@@ -145,6 +97,15 @@ const SideBar = inject("store")(
             style={styles.button}
           >
             Event
+          </button>
+          <hr />
+          <h3 className="mar-sm">Goto</h3>
+          <button
+            onClick={this.openNextMeal.bind(this)}
+            className="button-info mar-sm"
+            style={styles.button}
+          >
+            Next Meal
           </button>
         </div>
       );
