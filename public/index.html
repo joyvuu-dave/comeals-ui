@@ -39,5 +39,26 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      function idleTimer() {
+        var t;
+        window.onmousemove = resetTimer;
+        window.onmousedown = resetTimer; 
+        window.onclick = resetTimer;     
+        window.onscroll = resetTimer;    
+        window.onkeypress = resetTimer;
+
+        function navHome() {
+          window.location.href = window.location.href = "https://comeals.com";
+        }
+
+        function resetTimer() {
+          clearTimeout(t);
+          t = setTimeout(navHome, 1000 * 60 * 5);
+        }
+      }
+
+      idleTimer();
+    </script>
   </body>
 </html>
