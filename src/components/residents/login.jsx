@@ -8,7 +8,6 @@ import moment from "moment";
 import Modal from "react-modal";
 
 import ResidentsPasswordReset from "./password_reset";
-import CommunitiesNew from "../../components/communities/new";
 import ResidentsPasswordNew from "./password_new";
 
 const styles = {
@@ -61,14 +60,6 @@ const ResidentsLogin = inject("store")(
                   />
                 );
               }
-
-            case "create-community":
-              return (
-                <CommunitiesNew
-                  handleCloseModal={this.handleCloseModal}
-                  history={this.props.history}
-                />
-              );
 
             default:
               return null;
@@ -209,25 +200,6 @@ const ResidentsLogin = inject("store")(
                   >
                     Reset your password
                   </Link>
-                </div>
-                <div>
-                  <br />
-                  <br />
-                  <br />
-                  <br />
-                  <div className="w-50">
-                    <h3 className="text-black">Add your Community</h3>
-                    <p className="text-black">
-                      Start managing your common meals today!
-                    </p>
-                    <Link
-                      className="button"
-                      to="/create-community"
-                      disabled={this.state.loading}
-                    >
-                      Sign Up
-                    </Link>
-                  </div>
                 </div>
               </div>
               <Modal
