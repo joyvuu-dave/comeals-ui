@@ -66,7 +66,7 @@ class RotationsShow extends Component {
           <div>
             <div className="flex center">
               <u className="cell">
-                <h1>{`Rotation ${this.props.id}`}</h1>
+                <h1>{`Rotation ${this.state.rotation.id}`}</h1>
               </u>
             </div>
             <br />
