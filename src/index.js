@@ -1,4 +1,3 @@
-import bugsnag from '@bugsnag/js'
 import "./src/styles.css";
 import React from "react";
 import { render } from "react-dom";
@@ -20,8 +19,6 @@ import ResidentsLogin from "./components/residents/login";
 import PrivateRoute from "./components/app/private_route";
 
 import ScrollToTop from "./components/app/scroll_to_top";
-
-window.bugsnagClient = bugsnag("f2843ac7619576fb6381ca69862bcfab");
 
 function isAuthenticated() {
   return (
