@@ -4,7 +4,7 @@ export function generateTimes() {
 
   for (var half = 0; half < 2; half++) {
     for (var hour = 0; hour < 12; hour++) {
-      for (var min = 0; min < 2; min++) {
+      for (var min = 0; min < 4; min++) {
         // Start at 8am
         if (half === 0 && hour < 8) {
           continue;
@@ -27,7 +27,7 @@ export function generateTimes() {
           valueHour += 12;
         }
 
-        var minutes = `${(min * 30).toString().padStart(2, "0")}`;
+        var minutes = `${(min * 15).toString().padStart(2, "0")}`;
 
         if (hour === 0) {
           time.display = `12:${minutes} ${ending}`;
