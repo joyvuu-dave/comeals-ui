@@ -5,9 +5,9 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": "16.3.0",
-    "yarn": "1.22.10",
-    "npm": "7.17.0"
+    "node": "14.18.0",
+    "yarn": "1.22.15",
+    "npm": "6.14.15"
   },
   "proxy": "http://localhost:3000",
   "dependencies": {
@@ -18,7 +18,7 @@
     "js-cookie": "2.2.1",
     "localforage": "1.9.0",
     "mobx": "5.15.4",
-    "mobx-react": "6.2.5",
+    "mobx-react": "6.3.1",
     "mobx-state-tree": "3.17.2",
     "moment": "2.27.0",
     "pretty-checkbox": "3.0.3",
