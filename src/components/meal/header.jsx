@@ -51,7 +51,6 @@ const Header = inject("store")(
               <a
                 className="button button-link text-secondary"
                 onClick={this.props.store.logout}
-                hidden={Cookie.get("resident_id") === "60"}
               >
                 logout {Cookie.get("username")}
               </a>
