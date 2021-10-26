@@ -235,7 +235,7 @@ const MainCalendar = inject("store")(
                 ) : (
                   <span className="offline">OFFLINE</span>
                 )}
-                <span hidden={Cookie.get("resident_id") === "60"}>
+                <span>
                   <button
                     onClick={this.handleClickLogout}
                     className="button-link text-secondary"
