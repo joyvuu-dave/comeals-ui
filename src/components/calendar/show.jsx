@@ -244,11 +244,6 @@ const MainCalendar = inject("store")(
                   </button>
                 </span>
               </header>
-              <h2 className="flex center">
-                <u>
-                  {this.props.match.params.type.toUpperCase().replace("-", " ")}
-                </u>
-              </h2>
               <div style={styles.main} className="responsive-calendar">
                 <SideBar
                   match={this.props.match}
@@ -308,25 +303,6 @@ const MainCalendar = inject("store")(
           switch (this.props.match.params.type) {
             case "all":
               return events;
-            case "meals":
-              return events.filter(
-                event =>
-                  event.type === "Meal" ||
-                  event.type === "Rotation" ||
-                  event.type === "Bill"
-              );
-            case "guest-room":
-              return events.filter(
-                event => event.type === "GuestRoomReservation"
-              );
-            case "common-house":
-              return events.filter(
-                event => event.type === "CommonHouseReservation"
-              );
-            case "events":
-              return events.filter(event => event.type === "Event");
-            case "birthdays":
-              return events.filter(event => event.type === "Birthday");
             default:
               return [];
           }
