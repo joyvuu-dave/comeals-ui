@@ -5,9 +5,9 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": "18.14.2",
+    "node": "18.17.0",
     "yarn": "1.22.19",
-    "npm": "9.5.1"
+    "npm": "9.6.7"
   },
   "proxy": "http://localhost:3000",
   "dependencies": {
