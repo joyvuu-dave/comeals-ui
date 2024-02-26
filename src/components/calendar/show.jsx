@@ -298,7 +298,7 @@ const MainCalendar = inject("store")(
         }
 
         filterEvents() {
-          var events = this.props.store.calendarEvents.toJS();
+          var events = this.props.store.calendarEvents.toJSON();
 
           switch (this.props.match.params.type) {
             case "all":
