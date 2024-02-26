@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import axios from "axios";
 import Cookie from "js-cookie";
 import moment from "moment";
 
-class MealHistoryShow extends Component {
+class MealHistoryShow extends React.Component {
   constructor(props) {
     super(props);
 

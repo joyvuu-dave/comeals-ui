@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import Cow from "../../images/cow.png";
 import Carrot from "../../images/carrot.png";
@@ -24,7 +24,7 @@ const styles = {
 
 const AttendeeComponent = inject("store")(
   observer(
-    class AttendeeComponent extends Component {
+    class AttendeeComponent extends React.Component {
       render() {
         const resident = this.props.resident;
         const guests = resident.guests;
@@ -134,7 +134,7 @@ const AttendeeComponent = inject("store")(
 
 const AttendeesBox = inject("store")(
   observer(
-    class AttendeesBox extends Component {
+    class AttendeesBox extends React.Component {
       render() {
         return (
           <div style={styles.main}>

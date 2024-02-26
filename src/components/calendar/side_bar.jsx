@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject } from "mobx-react";
 import Cookie from "js-cookie";
 import axios from "axios";
@@ -15,7 +15,7 @@ const styles = {
 };
 
 const SideBar = inject("store")(
-  class SideBar extends Component {
+  class SideBar extends React.Component {
     getNavDate() {
       return this.props.location.pathname.split("/")[3];
     }

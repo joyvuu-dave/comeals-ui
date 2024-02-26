@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import axios from "axios";
 import Cookie from "js-cookie";
 
@@ -8,7 +8,7 @@ const styles = {
   }
 };
 
-class RotationsShow extends Component {
+class RotationsShow extends React.Component {
   constructor(props) {
     super(props);
 

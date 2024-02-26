@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 
 const CloseButton = inject("store")(
   observer(
-    class CloseButton extends Component {
+    class CloseButton extends React.Component {
       buttonClass() {
         if (this.props.store.isLoading) {
           return "button-dark button-loader";

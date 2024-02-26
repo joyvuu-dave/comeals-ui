@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 
 const styles = {
@@ -10,7 +10,7 @@ const styles = {
 
 const ButtonBar = inject("store")(
   observer(
-    class ButtonBar extends Component {
+    class ButtonBar extends React.Component {
       constructor(props) {
         super(props);
         this.toggleHistory = this.toggleHistory.bind(this);

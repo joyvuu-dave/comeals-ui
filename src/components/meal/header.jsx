@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import moment from "moment";
 import ButtonBar from "./button_bar";
@@ -17,7 +17,7 @@ const styles = {
 
 const Header = inject("store")(
   observer(
-    class Header extends Component {
+    class Header extends React.Component {
       render() {
         return (
           <header style={styles.header} className="header background-yellow">

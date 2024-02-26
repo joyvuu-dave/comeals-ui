@@ -1,7 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import { withRouter } from "react-router-dom";
-
 import Header from "../meal/header";
 import DateBox from "../meal/date_box";
 import MenuBox from "../meal/menu_box";
@@ -25,7 +24,7 @@ const styles = {
 const MealsEdit = inject("store")(
   withRouter(
     observer(
-      class MealsEdit extends Component {
+      class MealsEdit extends React.Component {
         render() {
           return (
             <div style={styles.container}>

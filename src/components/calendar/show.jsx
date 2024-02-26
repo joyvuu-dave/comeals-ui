@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import { withRouter } from "react-router-dom";
 import SideBar from "./side_bar";
@@ -39,7 +39,7 @@ const styles = {
   }
 };
 
-class MyToolbar extends Component {
+class MyToolbar extends React.Component {
   render() {
     return (
       <div style={styles.main}>
@@ -83,7 +83,7 @@ Modal.setAppElement("#root");
 const MainCalendar = inject("store")(
   withRouter(
     observer(
-      class MainCalendar extends Component {
+      class MainCalendar extends React.Component {
         constructor(props) {
           super(props);
 

@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 
-class ResidentsPasswordReset extends Component {
+class ResidentsPasswordReset extends React.Component {
   constructor(props) {
     super(props);
 

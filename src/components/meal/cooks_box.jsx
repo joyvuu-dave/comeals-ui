@@ -54,9 +54,9 @@ const BillEdit = inject("store")(
         />
       </div>
       <span className="switch">No cost
-        <input 
+        <input
           id={`no_cost_switch-${bill.id}`}
-          type="checkbox" 
+          type="checkbox"
           className="switch"
           key={`no_cost_switch_${bill.id}`}
           checked={bill ? bill.no_cost : false}

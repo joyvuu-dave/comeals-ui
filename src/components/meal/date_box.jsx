@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import { Route, withRouter } from "react-router-dom";
 import moment from "moment";
@@ -49,7 +49,7 @@ Modal.setAppElement("#root");
 const DateBox = inject("store")(
   withRouter(
     observer(
-      class DateBox extends Component {
+      class DateBox extends React.Component {
         constructor(props) {
           super(props);
 

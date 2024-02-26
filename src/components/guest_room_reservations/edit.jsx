@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const GuestRoomReservationsEdit = inject("store")(
-  class GuestRoomReservationsEdit extends Component {
+  class GuestRoomReservationsEdit extends React.Component {
     constructor(props) {
       super(props);
       this.handleDayChange = this.handleDayChange.bind(this);

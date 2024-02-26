@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import Cow from "../../images/cow.png";
 import Carrot from "../../images/carrot.png";
 import onClickOutside from "react-onclickoutside";
@@ -9,7 +9,7 @@ const styles = {
   }
 };
 
-class GuestDropdown extends Component {
+class GuestDropdown extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);

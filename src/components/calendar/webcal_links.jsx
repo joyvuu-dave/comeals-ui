@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 import Cookie from "js-cookie";
 import axios from "axios";
 
-class WebcalLinks extends Component {
+class WebcalLinks extends React.Component {
   constructor(props) {
     super(props);
 

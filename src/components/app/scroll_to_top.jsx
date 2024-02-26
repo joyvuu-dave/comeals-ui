@@ -1,7 +1,7 @@
-import { Component } from "react";
+import React from "react";
 import { withRouter } from "react-router-dom";
 
-class ScrollToTop extends Component {
+class ScrollToTop extends React.Component {
   componentDidUpdate(prevProps) {
     // Always scroll up when changing
     // between calendar and meal pages

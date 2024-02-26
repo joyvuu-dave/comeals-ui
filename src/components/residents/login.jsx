@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import { Redirect, Link, withRouter } from "react-router-dom";
 import { LocalForm, Control } from "react-redux-form";
@@ -24,7 +24,7 @@ Modal.setAppElement("#root");
 const ResidentsLogin = inject("store")(
   withRouter(
     observer(
-      class ResidentsLogin extends Component {
+      class ResidentsLogin extends React.Component {
         constructor(props) {
           super(props);
 
