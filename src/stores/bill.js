@@ -12,11 +12,9 @@ const Bill = types
     get resident_id() {
       return self.resident && self.resident.id ? self.resident.id : "";
     },
-    get amountCents() {
-      return parseInt(Number(self.amount) * 100, 10);
-    },
     get amountIsValid() {
-      return Number.isInteger(self.amountCents) && self.amountCents >= 0;
+      const num = Number(self.amount);
+      return !isNaN(num) && num >= 0;
     },
     get form() {
       return getParent(this, 2);
