@@ -290,10 +290,6 @@ export const DataStore = types
           obj["resident_id"] = obj["resident"];
           delete obj["resident"];
 
-          // amount --> amount_cents
-          obj["amount_cents"] = parseInt(Number(obj["amount"]) * 100, 10);
-          delete obj["amount"];
-
           return obj;
         })
         .filter(bill => bill.resident_id !== null);
@@ -553,13 +549,10 @@ export const DataStore = types
         return bill;
       });
 
-      // Convert amount_cents --> amount
+      // Format amount for display
       bills = bills.map(bill => {
-        bill["amount"] =
-          bill["amount_cents"] === 0
-            ? ""
-            : (bill["amount_cents"] / 100).toFixed(2);
-        delete bill["amount_cents"];
+        const amt = Number(bill["amount"]);
+        bill["amount"] = amt === 0 ? "" : amt.toFixed(2);
         return bill;
       });
 
