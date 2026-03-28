@@ -97,7 +97,7 @@ export const DataStore = types
     get canAdd() {
       return (
         !self.meal.closed ||
-        (self.meal.closed && self.extas === "") ||
+        (self.meal.closed && self.extras === "") ||
         (self.meal.closed &&
           typeof self.extras === "number" &&
           self.extras >= 1)

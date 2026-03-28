@@ -24,7 +24,7 @@ const BillEdit = inject("store")(
         value={bill.resident_id}
         onChange={e => bill.setResident(e.target.value)}
         style={styles.select}
-        disabled={store.meal.closed}
+        disabled={store.meal.closed || store.meal.reconciled}
         aria-label="Select meal cook"
       >
         <option value={""} key={-1}>
@@ -49,7 +49,7 @@ const BillEdit = inject("store")(
           onChange={e => bill.setAmount(e.target.value)}
           style={styles.select}
           className={bill.amountIsValid ? "" : "input-invalid"}
-          disabled={store.meal.closed}
+          disabled={store.meal.closed || store.meal.reconciled}
           aria-label="Set meal cost"
         />
       </div>
@@ -61,7 +61,7 @@ const BillEdit = inject("store")(
           key={`no_cost_switch_${bill.id}`}
           checked={bill ? bill.no_cost : false}
           onChange={e => bill.toggleNoCost()}
-          disabled={store.meal.closed || !bill.resident_id || bill.amount > 0}
+          disabled={store.meal.closed || store.meal.reconciled || !bill.resident_id || bill.amount > 0}
           aria-label={`No cost button for ${bill.id}`}
         />
         <label htmlFor={`no_cost_switch-${bill.id}`} />
