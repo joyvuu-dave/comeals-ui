@@ -18,12 +18,31 @@ app.use(
   })
 );
 
-// Serve static files from the build directory
-app.use(express.static(path.join(__dirname, "build")));
+const buildPath = path.join(__dirname, "build");
 
-// SPA fallback — serve index.html for all non-file routes
+// Hashed assets under /static — cache forever (filenames change on each build).
+app.use(
+  "/static",
+  express.static(path.join(buildPath, "static"), {
+    maxAge: "1y",
+    immutable: true,
+  })
+);
+
+// Everything else (index.html, manifest.json, asset-manifest.json,
+// service-worker.js, icons) — always revalidate with the server.
+app.use(
+  express.static(buildPath, {
+    setHeaders: function (res) {
+      res.setHeader("Cache-Control", "no-cache");
+    },
+  })
+);
+
+// SPA fallback — serve index.html for all non-file routes.
 app.get("/{*path}", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
+  res.set("Cache-Control", "no-cache");
+  res.sendFile(path.join(buildPath, "index.html"));
 });
 
 app.listen(PORT, () => {

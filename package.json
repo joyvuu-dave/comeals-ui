@@ -41,9 +41,7 @@
   },
   "devDependencies": {
     "prettier": "2.0.5",
-    "react-app-rewire-workbox": "2.0.1",
-    "react-app-rewired": "1.5.2",
-    "workbox-webpack-plugin": "3.6.3"
+    "react-app-rewired": "1.5.2"
   },
   "scripts": {
     "start": "react-app-rewired start",

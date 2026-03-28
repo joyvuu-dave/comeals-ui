@@ -2,7 +2,7 @@
   "background_color": "#CCDEEA",
   "description":
     "Post your common meal. Sign up for others. Reconcile the costs.",
-  "dir": "ltl",
+  "dir": "ltr",
   "display": "fullscreen",
   "icons": [
     {
