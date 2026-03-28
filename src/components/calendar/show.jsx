@@ -263,7 +263,7 @@ const MainCalendar = inject("store")(
                     views={["month"]}
                     components={components}
                   />
-                  {Cookie.get("resident_id") !== "60" && <WebcalLinks />}
+                  <WebcalLinks />
                 </div>
               </div>
               <Modal
