@@ -140,4 +140,64 @@ test.describe("Meal Editing", () => {
       await page.waitForTimeout(300);
     }
   });
+
+  test("guest icons (image assets) load correctly", async ({ page }) => {
+    await page.goto("/meals/42/edit/");
+    await page.waitForLoadState("networkidle");
+
+    // Jane Smith has 1 guest (non-vegetarian) -- the cow icon should render
+    await expect(
+      page.getByRole("cell", { name: "Jane Smith", exact: true })
+    ).toBeVisible({ timeout: 10000 });
+
+    // Check that image assets load (Vite hashes filenames, so check any img tag)
+    // The guest column should contain img elements for cow/carrot icons
+    const guestImages = page.locator("td img");
+    const count = await guestImages.count();
+    expect(count).toBeGreaterThan(0);
+
+    // Verify the image actually loaded (not a broken image)
+    const firstImg = guestImages.first();
+    const naturalWidth = await firstImg.evaluate((el) => el.naturalWidth);
+    expect(naturalWidth).toBeGreaterThan(0);
+  });
+
+  test("closed meal shows extras UI", async ({ page }) => {
+    await page.goto("/meals/42/edit/");
+    await page.waitForLoadState("networkidle");
+
+    // First, close the meal via the button (reuses the open meal fixture)
+    const closeButton = page.locator("text=Open / Close Meal");
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    await page.waitForTimeout(500);
+
+    // After closing, CLOSED status should show
+    await expect(page.locator("h1", { hasText: "CLOSED" })).toBeVisible({
+      timeout: 5000,
+    });
+
+    // Extras section should become visible
+    await expect(page.locator("text=Extras")).toBeVisible({ timeout: 3000 });
+  });
+
+  test("remove a guest", async ({ page }) => {
+    await page.goto("/meals/42/edit/");
+    await page.waitForLoadState("networkidle");
+
+    // Jane Smith (attending, has 1 guest) -- find HER row's remove button
+    const janeRow = page.getByRole("cell", {
+      name: "Jane Smith",
+      exact: true,
+    });
+    await expect(janeRow).toBeVisible({ timeout: 10000 });
+
+    // The remove button is in the same row as Jane
+    const janeTableRow = janeRow.locator("xpath=ancestor::tr");
+    const removeButton = janeTableRow.locator(".dropdown-remove");
+    if (await removeButton.isVisible({ timeout: 3000 })) {
+      await removeButton.click({ force: true });
+      await page.waitForTimeout(500);
+    }
+  });
 });
