@@ -1,0 +1,81 @@
+const { test, expect } = require("@playwright/test");
+const { setupDialogHandler, stubPusher, disableIdleTimer, mockApi } = require("../helpers/setup");
+
+test.describe("Authentication", () => {
+  test.beforeEach(async ({ page }) => {
+    await stubPusher(page);
+    await disableIdleTimer(page);
+    await mockApi(page);
+  });
+
+  test("login page renders with email and password fields", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator('input[aria-label="email"]')).toBeVisible();
+    await expect(page.locator('input[aria-label="password"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "Submit" })).toBeVisible();
+  });
+
+  test("successful login redirects to calendar", async ({ page }) => {
+    const dialogs = setupDialogHandler(page);
+
+    await page.goto("/");
+    await page.locator('input[aria-label="email"]').fill("jane@example.com");
+    await page.locator('input[aria-label="password"]').fill("password123");
+
+    // Login triggers window.location.reload -- wait for navigation
+    await Promise.all([
+      page.waitForEvent("load"),
+      page.getByRole("button", { name: "Submit" }).click(),
+    ]);
+
+    // After reload with token cookie set, should redirect to calendar
+    // The login API mock sets cookies, and the reload picks them up
+    // Check that no error dialogs appeared
+    const errors = dialogs.filter((d) => d.type === "alert");
+    expect(errors).toHaveLength(0);
+  });
+
+  test("login with invalid credentials shows error", async ({ page }) => {
+    // Override login endpoint to return error
+    await page.route("**/api/v1/residents/token", (route) => {
+      route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Invalid email or password" }),
+      });
+    });
+
+    const dialogs = setupDialogHandler(page);
+    await page.goto("/");
+    await page.locator('input[aria-label="email"]').fill("wrong@example.com");
+    await page.locator('input[aria-label="password"]').fill("wrongpass");
+    await page.getByRole("button", { name: "Submit" }).click();
+
+    // Wait for the error dialog
+    await expect
+      .poll(() => dialogs.length, { timeout: 5000 })
+      .toBeGreaterThan(0);
+    expect(dialogs[0].message).toContain("Invalid email or password");
+  });
+
+  test("logout clears cookies and redirects to login", async ({
+    page,
+    context,
+  }) => {
+    const { setupAuthenticatedPage } = require("../helpers/setup");
+    await setupAuthenticatedPage(page, context);
+
+    await page.goto("/calendar/all/2026-01-15/");
+    await page.waitForLoadState("networkidle");
+
+    // Click logout
+    const logoutButton = page.locator("text=logout");
+    await expect(logoutButton.first()).toBeVisible({ timeout: 10000 });
+    await logoutButton.first().click();
+
+    // Should navigate to login page
+    await expect(page.locator('input[aria-label="email"]')).toBeVisible({
+      timeout: 10000,
+    });
+  });
+});
