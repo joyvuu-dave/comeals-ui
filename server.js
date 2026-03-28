@@ -19,7 +19,7 @@ app.use(
 app.use(express.static(path.join(__dirname, "build")));
 
 // SPA fallback — serve index.html for all non-file routes
-app.get("*", (req, res) => {
+app.get("/{*path}", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
