@@ -3,8 +3,8 @@ import React from "react";
 import { render } from "react-dom";
 import { Provider } from "mobx-react";
 import Cookie from "js-cookie";
-import registerServiceWorker from "./registerServiceWorker";
 import Loadable from "react-loadable";
+import VersionBanner from "./components/app/version_banner";
 
 import {
   BrowserRouter as Router,
@@ -37,13 +37,31 @@ function Loading({ error }) {
   }
 }
 
+function lazyRetry(importFn) {
+  return function () {
+    return importFn().catch(function (err) {
+      if (!sessionStorage.getItem("chunk_retry")) {
+        sessionStorage.setItem("chunk_retry", "1");
+        window.location.reload();
+        return new Promise(function () {});
+      }
+      sessionStorage.removeItem("chunk_retry");
+      throw err;
+    });
+  };
+}
+
 const Calendar = Loadable({
-  loader: () => import("./components/calendar/show"),
+  loader: lazyRetry(function () {
+    return import("./components/calendar/show");
+  }),
   loading: Loading
 });
 
 const MealsEdit = Loadable({
-  loader: () => import("./components/meals/edit"),
+  loader: lazyRetry(function () {
+    return import("./components/meals/edit");
+  }),
   loading: Loading
 });
 
@@ -74,6 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
   render(
       <Provider store={store}>
         <Router>
+          <React.Fragment>
+          <VersionBanner />
           <ScrollToTop>
             <Switch>
               <Route
@@ -97,9 +117,17 @@ document.addEventListener("DOMContentLoaded", () => {
               <Route path="/:modal?/:token?" component={ResidentsLogin} />
             </Switch>
           </ScrollToTop>
+          </React.Fragment>
         </Router>
       </Provider>,
     document.getElementById("root")
   );
-  registerServiceWorker();
+  // Unregister any leftover service worker from previous deploys.
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+      registrations.forEach(function (registration) {
+        registration.unregister();
+      });
+    });
+  }
 });
