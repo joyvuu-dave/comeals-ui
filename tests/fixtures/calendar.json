@@ -1,0 +1,71 @@
+{
+  "id": 1,
+  "year": 2026,
+  "month": 1,
+  "meals": [
+    {
+      "id": 42,
+      "title": "Meal: Jane Smith",
+      "start": "2026-01-15T18:00:00",
+      "end": "2026-01-15T19:00:00",
+      "color": "#2ecc40"
+    },
+    {
+      "id": 43,
+      "title": "Meal: Bob Johnson",
+      "start": "2026-01-17T18:00:00",
+      "end": "2026-01-17T19:00:00",
+      "color": "#2ecc40"
+    }
+  ],
+  "bills": [],
+  "rotations": [
+    {
+      "id": 10,
+      "title": "Rotation: Week 3",
+      "start": "2026-01-19T00:00:00",
+      "end": "2026-01-19T00:00:00",
+      "color": "#851500",
+      "url": "/calendar/all/2026-01-19/rotations/show/10"
+    }
+  ],
+  "birthdays": [
+    {
+      "id": 99,
+      "title": "Birthday: Alice",
+      "start": "2026-01-20T00:00:00",
+      "end": "2026-01-20T00:00:00",
+      "color": "#e9c46a"
+    }
+  ],
+  "common_house_reservations": [
+    {
+      "id": 50,
+      "title": "CH: Book Club",
+      "start": "2026-01-22T19:00:00",
+      "end": "2026-01-22T21:00:00",
+      "color": "#3498db",
+      "url": "/calendar/all/2026-01-22/common_house_reservations/edit/50"
+    }
+  ],
+  "guest_room_reservations": [
+    {
+      "id": 60,
+      "title": "GR: Jane's Guest",
+      "start": "2026-01-25T00:00:00",
+      "end": "2026-01-25T00:00:00",
+      "color": "#9b59b6",
+      "url": "/calendar/all/2026-01-25/guest_room_reservations/edit/60"
+    }
+  ],
+  "events": [
+    {
+      "id": 70,
+      "title": "Community Meeting",
+      "start": "2026-01-28T19:00:00",
+      "end": "2026-01-28T21:00:00",
+      "color": "#e67e22",
+      "url": "/calendar/all/2026-01-28/events/edit/70"
+    }
+  ]
+}

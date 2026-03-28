@@ -1,0 +1,65 @@
+{
+  "id": 42,
+  "date": "2026-01-15",
+  "description": "Pasta night with garlic bread",
+  "closed": false,
+  "closed_at": null,
+  "reconciled": false,
+  "next_id": 43,
+  "prev_id": 41,
+  "max": null,
+  "residents": [
+    {
+      "id": 1,
+      "meal_id": 42,
+      "name": "Jane Smith",
+      "attending": true,
+      "attending_at": "2026-01-14T18:30:00Z",
+      "late": false,
+      "vegetarian": false,
+      "can_cook": true,
+      "active": true
+    },
+    {
+      "id": 2,
+      "meal_id": 42,
+      "name": "Bob Johnson",
+      "attending": false,
+      "attending_at": null,
+      "late": false,
+      "vegetarian": true,
+      "can_cook": true,
+      "active": true
+    },
+    {
+      "id": 3,
+      "meal_id": 42,
+      "name": "Alice Williams",
+      "attending": true,
+      "attending_at": "2026-01-14T19:00:00Z",
+      "late": true,
+      "vegetarian": false,
+      "can_cook": false,
+      "active": true
+    }
+  ],
+  "guests": [
+    {
+      "id": 101,
+      "meal_id": 42,
+      "resident_id": 1,
+      "name": null,
+      "vegetarian": false,
+      "created_at": "2026-01-14T18:35:00Z"
+    }
+  ],
+  "bills": [
+    {
+      "id": 201,
+      "meal_id": 42,
+      "resident_id": 1,
+      "amount": "25.50",
+      "no_cost": false
+    }
+  ]
+}
