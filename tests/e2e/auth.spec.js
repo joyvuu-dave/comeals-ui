@@ -15,9 +15,27 @@ test.describe("Authentication", () => {
     await expect(page.getByRole("button", { name: "Submit" })).toBeVisible();
   });
 
-  test("successful login redirects to calendar", async ({ page }) => {
-    const dialogs = setupDialogHandler(page);
+  test("successful login sends POST with credentials", async ({ page }) => {
+    let loginPayload = null;
+    let loginMethod = null;
+    await page.route("**/api/v1/residents/token", (route) => {
+      loginMethod = route.request().method();
+      if (loginMethod === "POST") {
+        loginPayload = route.request().postDataJSON();
+      }
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          token: "test-token-abc123",
+          community_id: 1,
+          resident_id: 1,
+          username: "Jane Smith",
+        }),
+      });
+    });
 
+    const dialogs = setupDialogHandler(page);
     await page.goto("/");
     await page.locator('input[aria-label="email"]').fill("jane@example.com");
     await page.locator('input[aria-label="password"]').fill("password123");
@@ -28,9 +46,12 @@ test.describe("Authentication", () => {
       page.getByRole("button", { name: "Submit" }).click(),
     ]);
 
-    // After reload with token cookie set, should redirect to calendar
-    // The login API mock sets cookies, and the reload picks them up
-    // Check that no error dialogs appeared
+    // API: POST to /residents/token with email and password
+    expect(loginMethod).toBe("POST");
+    expect(loginPayload.email).toBe("jane@example.com");
+    expect(loginPayload.password).toBe("password123");
+
+    // No error dialogs
     const errors = dialogs.filter((d) => d.type === "alert");
     expect(errors).toHaveLength(0);
   });
