@@ -72,9 +72,7 @@ const Meal = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -114,9 +112,7 @@ const Meal = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
