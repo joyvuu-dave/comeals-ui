@@ -6,7 +6,6 @@
   "license": "MIT",
   "engines": {
     "node": "20.11.1",
-    "yarn": "1.22.19",
     "npm": "10.2.4"
   },
   "proxy": "http://localhost:3000",
