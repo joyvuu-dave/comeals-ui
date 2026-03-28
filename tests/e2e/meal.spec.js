@@ -89,9 +89,13 @@ test.describe("Meal Editing", () => {
   test("toggle resident attendance updates background and counts", async ({
     page,
   }) => {
-    let apiCalled = false;
+    let apiMethod = null;
+    let apiPayload = null;
     await page.route("**/api/v1/meals/*/residents/2*", (route) => {
-      apiCalled = true;
+      apiMethod = route.request().method();
+      if (apiMethod === "POST") {
+        apiPayload = route.request().postDataJSON();
+      }
       route.fulfill({ status: 200, body: "{}" });
     });
 
@@ -109,17 +113,19 @@ test.describe("Meal Editing", () => {
     const totalCircle = page.locator(".info-circle", { hasText: "Total" });
     await expect(totalCircle).toContainText("3");
 
-    // Click to toggle attending
+    // Click to toggle attending (Bob is not attending -> adds him)
     await bobCell.click();
 
-    // After: Bob attending (green), Total=4 (Bob is now counted), Veg=1 (Bob is vegetarian)
+    // After: Bob attending (green), Total=4, Veg=1 (Bob is vegetarian)
     await expect(bobCell).toHaveClass(/background-green/, { timeout: 3000 });
     await expect(totalCircle).toContainText("4", { timeout: 3000 });
     const vegCircle = page.locator(".info-circle", { hasText: "Veg" });
     await expect(vegCircle).toContainText("1", { timeout: 3000 });
 
-    // API should have been called
-    expect(apiCalled).toBe(true);
+    // API: POST to add attendance (not DELETE), with late/vegetarian in payload
+    await expect.poll(() => apiMethod, { timeout: 3000 }).toBe("POST");
+    expect(apiPayload.vegetarian).toBe(true);
+    expect(apiPayload.late).toBe(false);
   });
 
   test("toggle late switch updates checked state and late count", async ({

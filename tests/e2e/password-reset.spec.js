@@ -13,37 +13,70 @@ test.describe("Password Reset", () => {
     await mockApi(page);
   });
 
-  test("request password reset shows confirmation", async ({ page }) => {
+  test("request password reset sends POST with email", async ({ page }) => {
+    let resetPayload = null;
+    let resetMethod = null;
+    await page.route("**/api/v1/residents/password-reset", (route) => {
+      resetMethod = route.request().method();
+      if (resetMethod === "POST") {
+        resetPayload = route.request().postDataJSON();
+      }
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Password reset email sent." }),
+      });
+    });
+
     const dialogs = setupDialogHandler(page);
 
     await page.goto("/reset-password/");
     await page.waitForLoadState("networkidle");
 
     // Should show the password reset form in a modal
-    await expect(page.locator("text=Password Reset")).toBeVisible({
-      timeout: 10000,
-    });
-
-    // Target the modal's email input (not the login form's)
     const modal = page.locator(".ReactModal__Content--after-open");
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 10000 });
+    await expect(modal.locator("text=Password Reset")).toBeVisible();
+
+    // Fill in email
     const emailInput = modal.locator('input[placeholder="Email"]');
     await expect(emailInput).toBeVisible();
     await emailInput.fill("jane@example.com");
 
-    // Submit via the Reset button in the modal
+    // Submit via the Reset button
     await modal.getByRole("button", { name: "Reset" }).click();
 
-    // Should show confirmation dialog
+    // API: POST with email
+    await expect
+      .poll(() => resetPayload, { timeout: 5000 })
+      .toBeTruthy();
+    expect(resetMethod).toBe("POST");
+    expect(resetPayload.email).toBe("jane@example.com");
+
+    // Confirmation dialog
     await expect
       .poll(() => dialogs.length, { timeout: 5000 })
       .toBeGreaterThan(0);
     expect(dialogs[0].message).toContain("Password reset email sent");
   });
 
-  test("set new password with token shows form and submits", async ({
-    page,
-  }) => {
+  test("set new password sends POST with password", async ({ page }) => {
+    let passwordPayload = null;
+    let passwordMethod = null;
+    let passwordUrl = null;
+    await page.route("**/api/v1/residents/password-reset/*", (route) => {
+      passwordMethod = route.request().method();
+      passwordUrl = route.request().url();
+      if (passwordMethod === "POST") {
+        passwordPayload = route.request().postDataJSON();
+      }
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Password updated successfully." }),
+      });
+    });
+
     const dialogs = setupDialogHandler(page);
 
     await page.goto("/reset-password/test-reset-token/");
@@ -61,7 +94,15 @@ test.describe("Password Reset", () => {
     // Submit
     await modal.getByRole("button", { name: "Submit" }).click();
 
-    // Should show confirmation
+    // API: POST to /residents/password-reset/{token} with password
+    await expect
+      .poll(() => passwordPayload, { timeout: 5000 })
+      .toBeTruthy();
+    expect(passwordMethod).toBe("POST");
+    expect(passwordPayload.password).toBe("newpassword123");
+    expect(passwordUrl).toContain("test-reset-token");
+
+    // Confirmation dialog
     await expect
       .poll(() => dialogs.length, { timeout: 5000 })
       .toBeGreaterThan(0);

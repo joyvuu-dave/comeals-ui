@@ -1,11 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const {
-  setupAuthenticatedPage,
-  setupDialogHandler,
-  stubPusher,
-  disableIdleTimer,
-  mockApi,
-} = require("../helpers/setup");
+const { setupAuthenticatedPage } = require("../helpers/setup");
 
 test.describe("Form CRUD", () => {
   test.describe("Events", () => {
@@ -17,62 +11,65 @@ test.describe("Form CRUD", () => {
       dialogs = result.dialogs;
     });
 
-    test("create a new event via modal", async ({ page }) => {
+    test("create a new event sends POST with form data", async ({ page }) => {
+      let eventPayload = null;
+      let eventMethod = null;
+      await page.route("**/api/v1/events?*", (route) => {
+        eventMethod = route.request().method();
+        if (eventMethod === "POST") {
+          eventPayload = route.request().postDataJSON();
+        }
+        route.fulfill({ status: 200, body: "{}" });
+      });
+
       await page.goto("/calendar/all/2026-01-15/");
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".rbc-calendar")).toBeVisible({
         timeout: 10000,
       });
 
-      // Click "Event" button in sidebar
-      const eventButton = page.locator("text=Event").first();
-      await expect(eventButton).toBeVisible({ timeout: 5000 });
-      await eventButton.click();
+      // Click "Event" button in sidebar to open create modal
+      await page.locator("text=Event").first().click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-      // Modal should open
-      await expect(
-        page.locator(".ReactModal__Content--after-open")
-      ).toBeVisible({ timeout: 5000 });
-
-      // Fill in the form
-      const titleInput = page.locator(".ReactModal__Content input").first();
+      // Fill in the title
+      const titleInput = modal.locator('input[type="text"]').first();
       await titleInput.fill("Test Event");
 
       // Submit
-      const submitButton = page.locator(
-        ".ReactModal__Content button:has-text('Create')"
-      );
-      if (await submitButton.isVisible()) {
-        await submitButton.click();
-        await page.waitForTimeout(500);
-      }
+      const submitButton = modal.locator("button:has-text('Create')");
+      await expect(submitButton).toBeVisible();
+      await submitButton.click();
+
+      // API: POST with title in the payload
+      await expect
+        .poll(() => eventPayload, { timeout: 5000 })
+        .toBeTruthy();
+      expect(eventMethod).toBe("POST");
+      expect(eventPayload.title).toBe("Test Event");
     });
 
-    test("edit an existing event populates initial values", async ({
-      page,
-    }) => {
-      // Go to calendar, wait for it to load, then click the event
-      await page.goto("/calendar/all/2026-01-15/");
-      await page.waitForLoadState("networkidle");
-      await expect(page.locator(".rbc-calendar")).toBeVisible({
-        timeout: 10000,
+    test("edit an existing event loads data via GET", async ({ page }) => {
+      let eventGetUrl = null;
+      await page.route("**/api/v1/events/**", (route) => {
+        if (route.request().method() === "GET") {
+          eventGetUrl = route.request().url();
+        }
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            id: 70,
+            title: "Community Meeting",
+            description: "Monthly community meeting",
+            start_date: "2026-01-28T19:00:00",
+            end_date: "2026-01-28T21:00:00",
+            allday: false,
+          }),
+        });
       });
 
-      // Click event using text selector (proven to work with rbc)
-      await page.locator("text=Community Meeting").click();
-
-      // Modal should open with event data
-      await expect(
-        page.locator(".ReactModal__Content--after-open")
-      ).toBeVisible({ timeout: 10000 });
-
-      // Should show the edit fieldset with legend
-      await expect(page.locator("fieldset legend")).toBeVisible({
-        timeout: 10000,
-      });
-    });
-
-    test("delete an event shows confirmation dialog", async ({ page }) => {
       await page.goto("/calendar/all/2026-01-15/");
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".rbc-calendar")).toBeVisible({
@@ -81,29 +78,77 @@ test.describe("Form CRUD", () => {
 
       // Click event to open edit modal
       await page.locator("text=Community Meeting").click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 10000 });
 
-      await expect(
-        page.locator(".ReactModal__Content--after-open")
-      ).toBeVisible({ timeout: 10000 });
-
-      // Wait for form to load
-      await expect(page.locator("fieldset legend")).toBeVisible({
+      // Should show the edit fieldset
+      await expect(modal.locator("fieldset legend")).toBeVisible({
         timeout: 10000,
       });
 
-      // Click delete button
-      const deleteButton = page.locator(
-        ".ReactModal__Content button:has-text('Delete')"
-      );
-      await expect(deleteButton).toBeVisible({ timeout: 5000 });
-      await deleteButton.click();
+      // API: GET to fetch event data (URL contains event ID 70)
+      expect(eventGetUrl).toBeTruthy();
+      expect(eventGetUrl).toContain("/events/70");
+    });
 
-      // Should show confirmation dialog (captured by setup handler)
+    test("delete an event sends DELETE after confirmation", async ({
+      page,
+    }) => {
+      let deleteUrl = null;
+      let deleteMethod = null;
+      await page.route("**/api/v1/events/**", (route) => {
+        const method = route.request().method();
+        if (method === "DELETE") {
+          deleteMethod = method;
+          deleteUrl = route.request().url();
+        }
+        if (method === "GET") {
+          route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              id: 70,
+              title: "Community Meeting",
+              description: "Monthly community meeting",
+              start_date: "2026-01-28T19:00:00",
+              end_date: "2026-01-28T21:00:00",
+              allday: false,
+            }),
+          });
+        } else {
+          route.fulfill({ status: 200, body: "{}" });
+        }
+      });
+
+      await page.goto("/calendar/all/2026-01-15/");
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator(".rbc-calendar")).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Open event edit modal
+      await page.locator("text=Community Meeting").click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 10000 });
+      await expect(modal.locator("fieldset legend")).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Click delete
+      await modal.locator("button:has-text('Delete')").click();
+
+      // Confirmation dialog should appear (auto-accepted by setup handler)
       await expect
         .poll(() => dialogs.filter((d) => d.type === "confirm").length, {
           timeout: 5000,
         })
         .toBeGreaterThan(0);
+
+      // API: DELETE to /events/70/delete
+      await expect
+        .poll(() => deleteMethod, { timeout: 5000 })
+        .toBe("DELETE");
+      expect(deleteUrl).toContain("/events/70");
     });
   });
 
@@ -112,7 +157,19 @@ test.describe("Form CRUD", () => {
       await setupAuthenticatedPage(page, context);
     });
 
-    test("create a new common house reservation", async ({ page }) => {
+    test("create a new common house reservation sends POST", async ({
+      page,
+    }) => {
+      let postPayload = null;
+      let postMethod = null;
+      await page.route("**/api/v1/common-house-reservations?*", (route) => {
+        postMethod = route.request().method();
+        if (postMethod === "POST") {
+          postPayload = route.request().postDataJSON();
+        }
+        route.fulfill({ status: 200, body: "{}" });
+      });
+
       await page.goto("/calendar/all/2026-01-15/");
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".rbc-calendar")).toBeVisible({
@@ -120,20 +177,26 @@ test.describe("Form CRUD", () => {
       });
 
       // Click "Common House" button in sidebar
-      const chButton = page.locator("text=Common House").first();
-      await expect(chButton).toBeVisible({ timeout: 5000 });
-      await chButton.click();
+      await page.locator("text=Common House").first().click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-      // Modal should open
-      await expect(
-        page.locator(".ReactModal__Content--after-open")
-      ).toBeVisible({ timeout: 5000 });
+      // Select a resident from dropdown
+      const residentSelect = modal.locator("#local\\.resident_id");
+      await expect(residentSelect).toBeVisible({ timeout: 3000 });
+      await residentSelect.selectOption({ index: 1 });
 
-      // Should have a resident select dropdown
-      const residentSelect = page.locator("#local\\.resident_id");
-      if (await residentSelect.isVisible({ timeout: 3000 })) {
-        await residentSelect.selectOption({ index: 1 });
-      }
+      // Submit
+      const submitButton = modal.locator("button:has-text('Create')");
+      await expect(submitButton).toBeVisible();
+      await submitButton.click();
+
+      // API: POST with resident_id
+      await expect
+        .poll(() => postPayload, { timeout: 5000 })
+        .toBeTruthy();
+      expect(postMethod).toBe("POST");
+      expect(postPayload.resident_id).toBeDefined();
     });
   });
 
@@ -142,7 +205,19 @@ test.describe("Form CRUD", () => {
       await setupAuthenticatedPage(page, context);
     });
 
-    test("create a new guest room reservation", async ({ page }) => {
+    test("create a new guest room reservation sends POST", async ({
+      page,
+    }) => {
+      let postPayload = null;
+      let postMethod = null;
+      await page.route("**/api/v1/guest-room-reservations?*", (route) => {
+        postMethod = route.request().method();
+        if (postMethod === "POST") {
+          postPayload = route.request().postDataJSON();
+        }
+        route.fulfill({ status: 200, body: "{}" });
+      });
+
       await page.goto("/calendar/all/2026-01-15/");
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".rbc-calendar")).toBeVisible({
@@ -150,20 +225,26 @@ test.describe("Form CRUD", () => {
       });
 
       // Click "Guest Room" button in sidebar
-      const grButton = page.locator("text=Guest Room").first();
-      await expect(grButton).toBeVisible({ timeout: 5000 });
-      await grButton.click();
+      await page.locator("text=Guest Room").first().click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-      // Modal should open
-      await expect(
-        page.locator(".ReactModal__Content--after-open")
-      ).toBeVisible({ timeout: 5000 });
+      // Select a host from dropdown
+      const hostSelect = modal.locator("#local\\.resident_id");
+      await expect(hostSelect).toBeVisible({ timeout: 3000 });
+      await hostSelect.selectOption({ index: 1 });
 
-      // Should have a host select dropdown
-      const hostSelect = page.locator("#local\\.resident_id");
-      if (await hostSelect.isVisible({ timeout: 3000 })) {
-        await hostSelect.selectOption({ index: 1 });
-      }
+      // Submit
+      const submitButton = modal.locator("button:has-text('Create')");
+      await expect(submitButton).toBeVisible();
+      await submitButton.click();
+
+      // API: POST with resident_id
+      await expect
+        .poll(() => postPayload, { timeout: 5000 })
+        .toBeTruthy();
+      expect(postMethod).toBe("POST");
+      expect(postPayload.resident_id).toBeDefined();
     });
   });
 });
