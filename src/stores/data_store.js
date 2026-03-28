@@ -206,9 +206,7 @@ export const DataStore = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -253,7 +251,7 @@ export const DataStore = types
           if (data.message) {
             window.alert(data.message);
           } else {
-            window.bugsnagClient.notify(new Error("Bad response from server"));
+            console.error("Bad response from server", error);
           }
         } else if (error.request) {
           // The request was made but no response was received
@@ -314,7 +312,7 @@ export const DataStore = types
           if (data.message) {
             window.alert(data.message);
           } else {
-            window.bugsnagClient.notify(new Error("Bad response from server"));
+            console.error("Bad response from server", error);
           }
         } else if (error.request) {
           // The request was made but no response was received
@@ -351,9 +349,7 @@ export const DataStore = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -394,9 +390,7 @@ export const DataStore = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -428,9 +422,7 @@ export const DataStore = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -463,9 +455,7 @@ export const DataStore = types
             if (data.message) {
               window.alert(data.message);
             } else {
-              window.bugsnagClient.notify(
-                new Error("Bad response from server")
-              );
+              console.error("Bad response from server", error);
             }
           } else if (error.request) {
             // The request was made but no response was received
@@ -592,7 +582,7 @@ export const DataStore = types
     loadMonth(data) {
       if (typeof data === "string") {
         self.isLoading = false;
-        window.bugsnagClient.notify(new Error("Error loading month data."));
+        console.error("Error loading month data.", data);
         return true;
       }
 
