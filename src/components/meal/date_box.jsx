@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Suspense } from "react";
 import { inject, observer } from "mobx-react";
 import { Route, withRouter } from "react-router-dom";
 import moment from "moment";
@@ -7,8 +7,6 @@ import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
-
-import Loadable from "react-loadable";
 
 const styles = {
   main: {
@@ -32,18 +30,7 @@ const styles = {
   }
 };
 
-function Loading({ error }) {
-  if (error) {
-    return "Error";
-  } else {
-    return <h3>Loading...</h3>;
-  }
-}
-
-const MealHistoryShow = Loadable({
-  loader: () => import("../history/show"),
-  loading: Loading
-});
+const MealHistoryShow = React.lazy(() => import("../history/show"));
 
 Modal.setAppElement("#root");
 const DateBox = inject("store")(
@@ -188,7 +175,9 @@ const DateBox = inject("store")(
                         }
                       }}
                     >
-                      <MealHistoryShow id={this.props.match.params.id} />
+                      <Suspense fallback={<h3>Loading...</h3>}>
+                        <MealHistoryShow id={this.props.match.params.id} />
+                      </Suspense>
                     </Modal>
                   )}
                 />

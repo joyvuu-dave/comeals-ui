@@ -1,9 +1,8 @@
 import "./src/styles.css";
-import React from "react";
+import React, { Suspense } from "react";
 import { render } from "react-dom";
 import { Provider } from "mobx-react";
 import Cookie from "js-cookie";
-import Loadable from "react-loadable";
 import VersionBanner from "./components/app/version_banner";
 
 import {
@@ -51,19 +50,17 @@ function lazyRetry(importFn) {
   };
 }
 
-const Calendar = Loadable({
-  loader: lazyRetry(function () {
+const Calendar = React.lazy(
+  lazyRetry(function () {
     return import("./components/calendar/show");
-  }),
-  loading: Loading
-});
+  })
+);
 
-const MealsEdit = Loadable({
-  loader: lazyRetry(function () {
+const MealsEdit = React.lazy(
+  lazyRetry(function () {
     return import("./components/meals/edit");
-  }),
-  loading: Loading
-});
+  })
+);
 
 document.addEventListener("DOMContentLoaded", () => {
   const store = DataStore.create();
@@ -95,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <React.Fragment>
           <VersionBanner />
           <ScrollToTop>
+            <Suspense fallback={<h3>Loading...</h3>}>
             <Switch>
               <Route
                 exact
@@ -116,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
               />
               <Route path="/:modal?/:token?" component={ResidentsLogin} />
             </Switch>
+            </Suspense>
           </ScrollToTop>
           </React.Fragment>
         </Router>
