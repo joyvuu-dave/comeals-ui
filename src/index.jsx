@@ -27,15 +27,6 @@ function isAuthenticated() {
   );
 }
 
-function Loading({ error }) {
-  if (error) {
-    console.error(error);
-    return "Error";
-  } else {
-    return <h3>Loading...</h3>;
-  }
-}
-
 function lazyRetry(importFn) {
   return function () {
     return importFn().catch(function (err) {
@@ -66,9 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const store = DataStore.create();
 
   window.addEventListener("load", function() {
-    function updateOnlineStatus(event) {
+    function updateOnlineStatus() {
       if (navigator.onLine) {
-        console.log(`back online at ${new Date().toLocaleTimeString()}`);
+        console.warn(`back online at ${new Date().toLocaleTimeString()}`);
         store.setIsOnline(true);
         if (store.meal && store.meal.id) {
           store.loadDataAsync();
@@ -77,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
           store.loadMonthAsync();
         }
       } else {
-        console.log(`offline at ${new Date().toLocaleTimeString()}`);
+        console.warn(`offline at ${new Date().toLocaleTimeString()}`);
         store.setIsOnline(false);
       }
     }

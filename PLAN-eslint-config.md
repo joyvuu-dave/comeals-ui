@@ -37,7 +37,7 @@ hooks-centric rules aggressively.
 ### 1. Install packages
 
 ```
-npm install --save-dev eslint@^9.0.0 @eslint/js eslint-plugin-react eslint-plugin-react-hooks globals
+npm install --save-dev eslint@^9.0.0 @eslint/js@^9.0.0 eslint-plugin-react eslint-plugin-react-hooks globals
 ```
 
 Pin to ESLint 9.x rather than 10.x. ESLint 9 introduced flat config as the
@@ -76,7 +76,7 @@ module.exports = [
       "react-hooks": reactHooks,
     },
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: "module",
       parserOptions: {
         ecmaFeatures: { jsx: true },
@@ -122,9 +122,9 @@ module.exports = [
   // Server & config files -- Node CommonJS
   // -----------------------------------------------------------
   {
-    files: ["server.js", "playwright.config.js", "vite.config.js"],
+    files: ["server.js", "playwright.config.js"],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: "commonjs",
       globals: {
         ...globals.node,
@@ -137,13 +137,13 @@ module.exports = [
   },
 
   // -----------------------------------------------------------
-  // Test files -- Node CommonJS (Playwright)
+  // vite.config.js -- Node ESM (uses import/export)
   // -----------------------------------------------------------
   {
-    files: ["tests/**/*.js"],
+    files: ["vite.config.js"],
     languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: "commonjs",
+      ecmaVersion: 2022,
+      sourceType: "module",
       globals: {
         ...globals.node,
       },
@@ -155,21 +155,60 @@ module.exports = [
   },
 
   // -----------------------------------------------------------
-  // Ignore build output and dependencies
+  // E2E test files -- Node CommonJS (Playwright)
   // -----------------------------------------------------------
   {
-    ignores: ["build/**", "node_modules/**"],
+    files: ["tests/e2e/**/*.js", "tests/helpers/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node,
+        window: "readonly", // used inside page.addInitScript() browser callbacks
+      },
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-console": "off",
+    },
+  },
+
+  // -----------------------------------------------------------
+  // Unit test files -- Node ESM (Vitest)
+  // -----------------------------------------------------------
+  {
+    files: ["tests/unit/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        window: "writable", // Vitest runs with jsdom environment
+      },
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-console": "off",
+    },
+  },
+
+  // -----------------------------------------------------------
+  // Ignore build output, dependencies, and this config file
+  // -----------------------------------------------------------
+  {
+    ignores: ["build/**", "node_modules/**", "eslint.config.js"],
   },
 ];
 ```
 
 Notes on the config:
 
-- **`sourceType: "commonjs"`** for `server.js`, `playwright.config.js`, and test
-  files. These use `require()`/`module.exports`. `vite.config.js` uses ESM
-  (`import`/`export default`) but since it has no `"type": "module"` in
-  `package.json`, listing it under CJS is the safer default -- Vite handles its
-  own config loading regardless of what ESLint thinks.
+- **`sourceType: "commonjs"`** for `server.js`, `playwright.config.js`, and
+  Playwright e2e tests. These use `require()`/`module.exports`.
+- **`sourceType: "module"`** for `vite.config.js` and Vitest unit tests. These
+  use `import`/`export`. Although there is no `"type": "module"` in
+  `package.json`, ESLint's `sourceType` is independent of Node's module
+  resolution -- it controls how ESLint parses the file.
 - **`react/prop-types: "off"`** -- zero files in the project use PropTypes.
   Enabling this would flag every single component (28+ files). Not worth it.
 - **`react/display-name: "off"`** -- the MobX `inject("store")(observer(...))`
@@ -220,7 +259,9 @@ The flat config handles this via separate file-matched config blocks:
 |---------------------------------------|------------|----------------|
 | `src/**/*.{js,jsx}`                   | module     | browser        |
 | `server.js`, `playwright.config.js`   | commonjs   | node           |
-| `tests/**/*.js`                       | commonjs   | node           |
+| `vite.config.js`                      | module     | node           |
+| `tests/e2e/**/*.js`, `tests/helpers/**/*.js` | commonjs | node    |
+| `tests/unit/**/*.js`                  | module     | node           |
 
 ### 6. Estimated warnings/errors from the new config
 
@@ -259,14 +300,11 @@ and `console.warn` while still flagging `console.log`.
    For now, the recommended rule set does not include formatting rules, so
    conflict risk is low.
 
-4. **vite.config.js sourceType**: `vite.config.js` uses `import`/`export` (ESM
-   syntax) but the file extension is `.js` and there is no `"type": "module"` in
-   package.json. Vite handles its own config loading, but ESLint may flag syntax
-   errors if we lint this file with `sourceType: "commonjs"`. Two options: (a)
-   exclude it from linting entirely, or (b) give it its own config block with
-   `sourceType: "module"`. Option (b) is shown in the config above as a
-   conservative default -- if it causes issues, just move it to the ignores
-   list.
+4. **`eslint.config.js` self-linting**: The config file itself uses CJS
+   (`require`/`module.exports`) but `js.configs.recommended` applies globally,
+   including `no-undef`. Without Node globals defined for it, `require` and
+   `module` would be flagged. The config is added to the global ignores list to
+   avoid this.
 
 5. **No CI integration yet**: This plan adds a local `npm run lint` command but
    does not wire it into CI/CD. That is a separate step.
@@ -280,7 +318,7 @@ and `console.warn` while still flagging `console.log`.
 
 ## Execution checklist
 
-- [ ] `npm install --save-dev eslint@^9.0.0 @eslint/js eslint-plugin-react eslint-plugin-react-hooks globals`
+- [ ] `npm install --save-dev eslint@^9.0.0 @eslint/js@^9.0.0 eslint-plugin-react eslint-plugin-react-hooks globals`
 - [ ] Create `eslint.config.js` with the content above
 - [ ] `rm .eslintrc.json`
 - [ ] Add `"lint": "eslint src/"` to `package.json` scripts
