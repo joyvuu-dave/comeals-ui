@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 import moment from "moment";
@@ -18,7 +17,9 @@ const GuestRoomReservationsNew = inject("store")(
       this.state = {
         communityId: Cookie.get("community_id"),
         hosts: [],
-        ready: false
+        ready: false,
+        resident_id: "",
+        day: null
       };
     }
 
@@ -33,37 +34,29 @@ const GuestRoomReservationsNew = inject("store")(
         .then(function(response) {
           if (response.status === 200) {
             self.setState({
-              hosts: response.data
+              hosts: response.data,
+              ready: true
             });
-            self.setState({ ready: true });
           }
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            const request = error.request;
-            console.error("Error: No response from server.", request);
+            console.error("Error: No response from server.", error.request);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            const message = error.message;
-            console.error("Error: Could not retrieve hosts.", message);
+            console.error("Error: Could not retrieve hosts.", error.message);
           }
         });
     }
 
-    handleSubmit(values) {
+    handleSubmit(e) {
+      e.preventDefault();
       var self = this;
       axios
         .post(
@@ -71,8 +64,8 @@ const GuestRoomReservationsNew = inject("store")(
             self.state.communityId
           }&token=${Cookie.get("token")}`,
           {
-            resident_id: values.resident_id,
-            date: values.day
+            resident_id: self.state.resident_id,
+            date: self.state.day
           }
         )
         .then(function(response) {
@@ -82,54 +75,22 @@ const GuestRoomReservationsNew = inject("store")(
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             window.alert("Error: no response received from server.");
           } else {
-            // Something happened in setting up the request that triggered an Error
             window.alert("Error: could not submit form.");
           }
         });
     }
 
     handleDayChange(val) {
-      this.formDispatch(actions.change("local.day", val));
-    }
-
-    getDayPickerInput() {
-      return (
-        <DayPickerInput
-          formatDate={formatDate}
-          parseDate={parseDate}
-          placeholder={""}
-          onDayChange={this.handleDayChange}
-          dayPickerProps={{
-            initialMonth: moment(this.props.match.params.date).toDate(),
-            disabledDays: [
-              {
-                after: moment(this.props.match.params.date)
-                  .add(6, "M")
-                  .toDate()
-              }
-            ]
-          }}
-        />
-      );
-    }
-
-    attachDispatch(dispatch) {
-      this.formDispatch = dispatch;
+      this.setState({ day: val });
     }
 
     render() {
@@ -148,14 +109,14 @@ const GuestRoomReservationsNew = inject("store")(
               </div>
               <fieldset>
                 <legend>New</legend>
-                <LocalForm
-                  onSubmit={values => this.handleSubmit(values)}
-                  getDispatch={dispatch => this.attachDispatch(dispatch)}
-                >
+                <form onSubmit={e => this.handleSubmit(e)}>
                   <label>Host</label>
-                  <Control.select
-                    model="local.resident_id"
+                  <select
                     id="local.resident_id"
+                    value={this.state.resident_id}
+                    onChange={e =>
+                      this.setState({ resident_id: e.target.value })
+                    }
                   >
                     <option />
                     {this.state.hosts.map(host => (
@@ -163,15 +124,28 @@ const GuestRoomReservationsNew = inject("store")(
                         {host[2]} - {host[1]}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
 
                   <label>Day</label>
                   <br />
-                  <Control.text
-                    model="local.day"
-                    id="local.day"
-                    component={this.getDayPickerInput.bind(this)}
+                  <DayPickerInput
+                    formatDate={formatDate}
+                    parseDate={parseDate}
+                    placeholder={""}
+                    onDayChange={this.handleDayChange}
+                    dayPickerProps={{
+                      initialMonth: moment(
+                        this.props.match.params.date
+                      ).toDate(),
+                      disabledDays: [
+                        {
+                          after: moment(this.props.match.params.date)
+                            .add(6, "M")
+                            .toDate()
+                        }
+                      ]
+                    }}
                   />
                   <br />
                   <br />
@@ -179,7 +153,7 @@ const GuestRoomReservationsNew = inject("store")(
                   <button type="submit" className="button-dark">
                     Create
                   </button>
-                </LocalForm>
+                </form>
               </fieldset>
             </div>
           )}

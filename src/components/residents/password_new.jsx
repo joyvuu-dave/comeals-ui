@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 
 class ResidentsPasswordNew extends Component {
@@ -8,7 +7,8 @@ class ResidentsPasswordNew extends Component {
 
     this.state = {
       ready: false,
-      name: ""
+      name: "",
+      password: ""
     };
   }
 
@@ -26,10 +26,7 @@ class ResidentsPasswordNew extends Component {
       })
       .catch(function(error) {
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           const data = error.response.data;
-
           if (data.message) {
             window.alert(data.message);
           } else {
@@ -37,25 +34,22 @@ class ResidentsPasswordNew extends Component {
           }
           self.props.history.push("/");
         } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
           console.error("Error: no response received from server.");
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.error("Error: could not submit form.");
         }
       });
   }
 
-  handleSubmit(values) {
+  handleSubmit(e) {
+    e.preventDefault();
     var self = this;
 
     axios
       .post(
         `/api/v1/residents/password-reset/${self.props.match.params.token}`,
         {
-          password: values.password
+          password: self.state.password
         }
       )
       .then(function(response) {
@@ -68,23 +62,16 @@ class ResidentsPasswordNew extends Component {
       })
       .catch(function(error) {
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           const data = error.response.data;
-
           if (data.message) {
             window.alert(data.message);
           } else {
             console.error("Bad response from server", error);
           }
         } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
           window.alert("Error: no response received from server.");
           self.props.history.push("/");
         } else {
-          // Something happened in setting up the request that triggered an Error
           window.alert("Error: could not submit form.");
         }
       });
@@ -94,20 +81,21 @@ class ResidentsPasswordNew extends Component {
     return (
       <div>
         {this.state.ready && (
-          <LocalForm onSubmit={values => this.handleSubmit(values)}>
+          <form onSubmit={e => this.handleSubmit(e)}>
             <fieldset className="w-100">
               <legend>Reset Password for {this.state.name}</legend>
               <label className="w-75">
-                <Control
+                <input
                   type="password"
-                  model=".password"
                   placeholder="New Password"
+                  value={this.state.password}
+                  onChange={e => this.setState({ password: e.target.value })}
                 />
               </label>
             </fieldset>
 
             <button type="submit">Submit</button>
-          </LocalForm>
+          </form>
         )}
         {!this.state.ready && <h3>Loading...</h3>}
       </div>

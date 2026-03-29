@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 import axios from "axios";
@@ -18,7 +17,13 @@ const EventsEdit = inject("store")(
 
       this.state = {
         ready: false,
-        event: {}
+        event: {},
+        title: "",
+        description: "",
+        day: "",
+        start_time: "",
+        end_time: "",
+        all_day: false
       };
     }
 
@@ -30,55 +35,69 @@ const EventsEdit = inject("store")(
         )
         .then(function(response) {
           if (response.status === 200) {
+            var evt = response.data;
             self.setState({
-              event: response.data,
-              ready: true
+              event: evt,
+              ready: true,
+              title: evt.title,
+              description: evt.description,
+              day: evt.start_date,
+              start_time: `${new Date(evt.start_date)
+                .getHours()
+                .toString()
+                .padStart(2, "0")}:${new Date(evt.start_date)
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}`,
+              end_time: evt.end_date
+                ? `${new Date(evt.end_date)
+                    .getHours()
+                    .toString()
+                    .padStart(2, "0")}:${new Date(evt.end_date)
+                    .getMinutes()
+                    .toString()
+                    .padStart(2, "0")}`
+                : "",
+              all_day: evt.allday
             });
           }
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            const request = error.request;
-            console.error("Error: No response from server.", request);
+            console.error("Error: No response from server.", error.request);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            const message = error.message;
-            console.error("Error: Could not retrieve events.", message);
+            console.error("Error: Could not retrieve events.", error.message);
           }
         });
     }
 
-    handleSubmit(values) {
+    handleSubmit(e) {
+      e.preventDefault();
       var self = this;
+      var s = self.state;
       axios
         .patch(
           `/api/v1/events/${self.props.eventId}/update?token=${Cookie.get(
             "token"
           )}`,
           {
-            title: values.title,
-            description: values.description,
-            start_year: values.day && new Date(values.day).getFullYear(),
-            start_month: values.day && new Date(values.day).getMonth() + 1,
-            start_day: values.day && new Date(values.day).getDate(),
-            start_hours: values.start_time && values.start_time.split(":")[0],
-            start_minutes: values.start_time && values.start_time.split(":")[1],
-            end_hours: values.end_time && values.end_time.split(":")[0],
-            end_minutes: values.end_time && values.end_time.split(":")[1],
-            all_day: values.all_day
+            title: s.title,
+            description: s.description,
+            start_year: s.day && new Date(s.day).getFullYear(),
+            start_month: s.day && new Date(s.day).getMonth() + 1,
+            start_day: s.day && new Date(s.day).getDate(),
+            start_hours: s.start_time && s.start_time.split(":")[0],
+            start_minutes: s.start_time && s.start_time.split(":")[1],
+            end_hours: s.end_time && s.end_time.split(":")[0],
+            end_minutes: s.end_time && s.end_time.split(":")[1],
+            all_day: s.all_day
           }
         )
         .then(function(response) {
@@ -88,22 +107,15 @@ const EventsEdit = inject("store")(
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             window.alert("Error: no response received from server.");
           } else {
-            // Something happened in setting up the request that triggered an Error
             window.alert("Error: could not submit form.");
           }
         });
@@ -125,22 +137,15 @@ const EventsEdit = inject("store")(
           })
           .catch(function(error) {
             if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
               const data = error.response.data;
-
               if (data.message) {
                 window.alert(data.message);
               } else {
                 console.error("Bad response from server", error);
               }
             } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
               window.alert("Error: no response received from server.");
             } else {
-              // Something happened in setting up the request that triggered an Error
               window.alert("Error: could not submit form.");
             }
           });
@@ -148,45 +153,7 @@ const EventsEdit = inject("store")(
     }
 
     handleDayChange(val) {
-      this.formDispatch(actions.change("local.day", val));
-    }
-
-    getDayPickerInput() {
-      return (
-        <DayPickerInput
-          formatDate={formatDate}
-          parseDate={parseDate}
-          onDayChange={this.handleDayChange}
-          value={formatDate(this.state.event.start_date)}
-          dayPickerProps={{
-            disabledDays: [
-              {
-                after: moment(this.state.event.start_date)
-                  .add(6, "M")
-                  .toDate()
-              }
-            ]
-          }}
-        />
-      );
-    }
-
-    attachDispatch(dispatch) {
-      this.formDispatch = dispatch;
-    }
-
-    getInitialEndTime() {
-      if (this.state.event.end_date === null) {
-        return "";
-      }
-
-      return `${new Date(this.state.event.end_date)
-        .getHours()
-        .toString()
-        .padStart(2, "0")}:${new Date(this.state.event.end_date)
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`;
+      this.setState({ day: val });
     }
 
     render() {
@@ -212,46 +179,49 @@ const EventsEdit = inject("store")(
               </div>
               <fieldset>
                 <legend>Edit</legend>
-                <LocalForm
-                  onSubmit={values => this.handleSubmit(values)}
-                  getDispatch={dispatch => this.attachDispatch(dispatch)}
-                  initialState={{
-                    title: this.state.event.title,
-                    description: this.state.event.description,
-                    day: this.state.event.start_date,
-                    start_time: `${new Date(this.state.event.start_date)
-                      .getHours()
-                      .toString()
-                      .padStart(2, "0")}:${new Date(this.state.event.start_date)
-                      .getMinutes()
-                      .toString()
-                      .padStart(2, "0")}`,
-                    end_time: this.getInitialEndTime(),
-                    all_day: this.state.event.allday
-                  }}
-                >
+                <form onSubmit={e => this.handleSubmit(e)}>
                   <label>Title</label>
-                  <Control.text model=".title" />
+                  <input
+                    type="text"
+                    value={this.state.title}
+                    onChange={e => this.setState({ title: e.target.value })}
+                  />
                   <br />
                   <label>Description</label>
-                  <Control.textarea
-                    model=".description"
+                  <textarea
                     placeholder="optional"
+                    value={this.state.description}
+                    onChange={e =>
+                      this.setState({ description: e.target.value })
+                    }
                   />
                   <br />
                   <label>Day</label>
                   <br />
-                  <Control.text
-                    model="local.day"
-                    id="local.day"
-                    component={this.getDayPickerInput.bind(this)}
+                  <DayPickerInput
+                    formatDate={formatDate}
+                    parseDate={parseDate}
+                    onDayChange={this.handleDayChange}
+                    value={formatDate(this.state.event.start_date)}
+                    dayPickerProps={{
+                      disabledDays: [
+                        {
+                          after: moment(this.state.event.start_date)
+                            .add(6, "M")
+                            .toDate()
+                        }
+                      ]
+                    }}
                   />
                   <br />
                   <br />
                   <label>Start Time</label>
-                  <Control.select
-                    model="local.start_time"
+                  <select
                     id="local.start_time"
+                    value={this.state.start_time}
+                    onChange={e =>
+                      this.setState({ start_time: e.target.value })
+                    }
                   >
                     <option />
                     {generateTimes().map(time => (
@@ -259,27 +229,38 @@ const EventsEdit = inject("store")(
                         {time.display}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
                   <label>End Time</label>
-                  <Control.select model="local.end_time" id="local.end_time">
+                  <select
+                    id="local.end_time"
+                    value={this.state.end_time}
+                    onChange={e => this.setState({ end_time: e.target.value })}
+                  >
                     <option />
                     {generateTimes().map(time => (
                       <option key={time.value} value={time.value}>
                         {time.display}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
                   <label>All Day</label>
                   {"  "}
-                  <Control.checkbox model="local.all_day" id="local.all_day" />
+                  <input
+                    type="checkbox"
+                    id="local.all_day"
+                    checked={this.state.all_day}
+                    onChange={e =>
+                      this.setState({ all_day: e.target.checked })
+                    }
+                  />
                   <br />
                   <br />
                   <button type="submit" className="button-dark">
                     Update
                   </button>
-                </LocalForm>
+                </form>
               </fieldset>
             </div>
           )}

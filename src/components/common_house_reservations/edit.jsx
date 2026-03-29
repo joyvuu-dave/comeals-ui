@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 import axios from "axios";
@@ -19,7 +18,12 @@ const CommonHouseReservationsEdit = inject("store")(
       this.state = {
         ready: false,
         event: {},
-        residents: []
+        residents: [],
+        resident_id: "",
+        title: "",
+        day: "",
+        start_time: "",
+        end_time: ""
       };
     }
 
@@ -33,58 +37,69 @@ const CommonHouseReservationsEdit = inject("store")(
         )
         .then(function(response) {
           if (response.status === 200) {
+            var evt = response.data.event;
             self.setState({
-              event: response.data.event,
+              event: evt,
               residents: response.data.residents,
-              ready: true
+              ready: true,
+              resident_id: evt.resident_id,
+              title: evt.title,
+              day: evt.start_date,
+              start_time: `${new Date(evt.start_date)
+                .getHours()
+                .toString()
+                .padStart(2, "0")}:${new Date(evt.start_date)
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}`,
+              end_time: `${new Date(evt.end_date)
+                .getHours()
+                .toString()
+                .padStart(2, "0")}:${new Date(evt.end_date)
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}`
             });
           }
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            const request = error.request;
-            console.error("Error: No response from server.", request);
+            console.error("Error: No response from server.", error.request);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            const message = error.message;
             console.error(
               "Error: Could not retrieve common house reservations.",
-              message
+              error.message
             );
           }
         });
     }
 
-    handleSubmit(values) {
+    handleSubmit(e) {
+      e.preventDefault();
       var self = this;
+      var s = self.state;
       axios
         .patch(
           `/api/v1/common-house-reservations/${
             this.props.eventId
           }/update?token=${Cookie.get("token")}`,
           {
-            resident_id: values.resident_id,
-            start_year: values.day && new Date(values.day).getFullYear(),
-            start_month: values.day && new Date(values.day).getMonth() + 1,
-            start_day: values.day && new Date(values.day).getDate(),
-            start_hours: values.start_time && values.start_time.split(":")[0],
-            start_minutes: values.start_time && values.start_time.split(":")[1],
-            end_hours: values.end_time && values.end_time.split(":")[0],
-            end_minutes: values.end_time && values.end_time.split(":")[1],
-            title: values && values.title
+            resident_id: s.resident_id,
+            start_year: s.day && new Date(s.day).getFullYear(),
+            start_month: s.day && new Date(s.day).getMonth() + 1,
+            start_day: s.day && new Date(s.day).getDate(),
+            start_hours: s.start_time && s.start_time.split(":")[0],
+            start_minutes: s.start_time && s.start_time.split(":")[1],
+            end_hours: s.end_time && s.end_time.split(":")[0],
+            end_minutes: s.end_time && s.end_time.split(":")[1],
+            title: s.title
           }
         )
         .then(function(response) {
@@ -94,22 +109,15 @@ const CommonHouseReservationsEdit = inject("store")(
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             window.alert("Error: no response received from server.");
           } else {
-            // Something happened in setting up the request that triggered an Error
             window.alert("Error: could not submit form.");
           }
         });
@@ -131,22 +139,15 @@ const CommonHouseReservationsEdit = inject("store")(
           })
           .catch(function(error) {
             if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
               const data = error.response.data;
-
               if (data.message) {
                 window.alert(data.message);
               } else {
                 console.error("Bad response from server", error);
               }
             } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
               window.alert("Error: no response received from server.");
             } else {
-              // Something happened in setting up the request that triggered an Error
               window.alert("Error: could not submit form.");
             }
           });
@@ -154,31 +155,7 @@ const CommonHouseReservationsEdit = inject("store")(
     }
 
     handleDayChange(val) {
-      this.formDispatch(actions.change("local.day", val));
-    }
-
-    getDayPickerInput() {
-      return (
-        <DayPickerInput
-          formatDate={formatDate}
-          parseDate={parseDate}
-          onDayChange={this.handleDayChange}
-          value={formatDate(this.state.event.start_date)}
-          dayPickerProps={{
-            disabledDays: [
-              {
-                after: moment(this.state.event.start_date)
-                  .add(6, "M")
-                  .toDate()
-              }
-            ]
-          }}
-        />
-      );
-    }
-
-    attachDispatch(dispatch) {
-      this.formDispatch = dispatch;
+      this.setState({ day: val });
     }
 
     render() {
@@ -204,63 +181,62 @@ const CommonHouseReservationsEdit = inject("store")(
               </div>
               <fieldset>
                 <legend>Edit</legend>
-                <LocalForm
-                  onSubmit={values => this.handleSubmit(values)}
-                  getDispatch={dispatch => this.attachDispatch(dispatch)}
-                  initialState={{
-                    resident_id: this.state.event.resident_id,
-                    day: this.state.event.start_date,
-                    start_time: `${new Date(this.state.event.start_date)
-                      .getHours()
-                      .toString()
-                      .padStart(2, "0")}:${new Date(this.state.event.start_date)
-                      .getMinutes()
-                      .toString()
-                      .padStart(2, "0")}`,
-                    end_time: `${new Date(this.state.event.end_date)
-                      .getHours()
-                      .toString()
-                      .padStart(2, "0")}:${new Date(this.state.event.end_date)
-                      .getMinutes()
-                      .toString()
-                      .padStart(2, "0")}`,
-                    title: this.state.event.title
-                  }}
-                >
+                <form onSubmit={e => this.handleSubmit(e)}>
                   <label>Resident</label>
-                  <Control.select model=".resident_id" id="local.resident_id">
+                  <select
+                    id="local.resident_id"
+                    value={this.state.resident_id}
+                    onChange={e =>
+                      this.setState({ resident_id: e.target.value })
+                    }
+                  >
                     {this.state.residents.map(resident => (
                       <option key={resident[0]} value={resident[0]}>
                         {resident[2]} - {resident[1]}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
 
                   <label>Title</label>
                   <br />
-                  <Control.text
-                    model="local.title"
+                  <input
+                    type="text"
                     id="local.title"
                     placeholder="optional"
+                    value={this.state.title}
+                    onChange={e => this.setState({ title: e.target.value })}
                   />
                   <br />
                   <br />
 
                   <label>Day</label>
                   <br />
-                  <Control.text
-                    model="local.day"
-                    id="local.day"
-                    component={this.getDayPickerInput.bind(this)}
+                  <DayPickerInput
+                    formatDate={formatDate}
+                    parseDate={parseDate}
+                    onDayChange={this.handleDayChange}
+                    value={formatDate(this.state.event.start_date)}
+                    dayPickerProps={{
+                      disabledDays: [
+                        {
+                          after: moment(this.state.event.start_date)
+                            .add(6, "M")
+                            .toDate()
+                        }
+                      ]
+                    }}
                   />
                   <br />
                   <br />
 
                   <label>Start Time</label>
-                  <Control.select
-                    model="local.start_time"
+                  <select
                     id="local.start_time"
+                    value={this.state.start_time}
+                    onChange={e =>
+                      this.setState({ start_time: e.target.value })
+                    }
                   >
                     <option />
                     {generateTimes().map(time => (
@@ -268,24 +244,28 @@ const CommonHouseReservationsEdit = inject("store")(
                         {time.display}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
 
                   <label>End Time</label>
-                  <Control.select model="local.end_time" id="local.end_time">
+                  <select
+                    id="local.end_time"
+                    value={this.state.end_time}
+                    onChange={e => this.setState({ end_time: e.target.value })}
+                  >
                     <option />
                     {generateTimes().map(time => (
                       <option key={time.value} value={time.value}>
                         {time.display}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
 
                   <button type="submit" className="button-dark">
                     Update
                   </button>
-                </LocalForm>
+                </form>
               </fieldset>
             </div>
           )}
