@@ -20,6 +20,7 @@ export default defineConfig({
   },
   build: {
     outDir: "build",
+    manifest: true,
     chunkSizeWarningLimit: 700,
   },
 });
