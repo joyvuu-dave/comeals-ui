@@ -1,4 +1,4 @@
-import { types, getParent } from "mobx-state-tree";
+import { types, getParent, isAlive } from "mobx-state-tree";
 import axios from "axios";
 import Cookie from "js-cookie";
 
@@ -153,11 +153,13 @@ const Resident = types
           withCredentials: true
         })
           .then(function(response) {
+            if (!isAlive(self)) return;
             if (response.status === 200) {
               self.setAttendingAt(new Date());
             }
           })
           .catch(function(error) {
+            if (!isAlive(self)) return;
             self.setAttending(false);
             self.setAttendingAt(null);
             self.form.form.meal.incrementExtras();
@@ -205,12 +207,14 @@ const Resident = types
           withCredentials: true
         })
           .then(function(response) {
+            if (!isAlive(self)) return;
             if (response.status === 200) {
               self.setLate(false);
               self.setAttendingAt(null);
             }
           })
           .catch(function(error) {
+            if (!isAlive(self)) return;
             self.setAttending(true);
             self.form.form.meal.decrementExtras();
 
@@ -256,6 +260,7 @@ const Resident = types
         },
         withCredentials: true
       }).catch(function(error) {
+        if (!isAlive(self)) return;
         self.setLate(!val);
 
         if (error.response) {
@@ -299,6 +304,7 @@ const Resident = types
         },
         withCredentials: true
       }).catch(function(error) {
+        if (!isAlive(self)) return;
         self.setVeg(!val);
 
         if (error.response) {
@@ -337,6 +343,7 @@ const Resident = types
         withCredentials: true
       })
         .then(function(response) {
+          if (!isAlive(self)) return;
           if (response.status === 200) {
             const guest = response.data;
             guest.name = null;
@@ -345,6 +352,7 @@ const Resident = types
           }
         })
         .catch(function(error) {
+          if (!isAlive(self)) return;
           self.form.form.meal.incrementExtras();
 
           if (error.response) {
@@ -396,6 +404,7 @@ const Resident = types
         withCredentials: true
       })
         .then(function(response) {
+          if (!isAlive(self)) return;
           if (response.status === 200) {
             self.form.form.guestStore.removeGuest(guestId);
             self.form.form.meal.incrementExtras();

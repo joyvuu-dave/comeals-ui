@@ -335,7 +335,6 @@ export const DataStore = types
             localforage
               .setItem(response.data.id.toString(), response.data)
               .then(function() {
-                self.preLoadData();
                 self.loadData(response.data);
               });
           }
@@ -482,6 +481,8 @@ export const DataStore = types
       }
     },
     loadData(data) {
+      self.preLoadData();
+
       // Assign Meal Data
       const dateArray = data.date.split("-");
       const date = new Date(
@@ -677,7 +678,6 @@ export const DataStore = types
         if (value === null) {
           self.loadDataAsync();
         } else {
-          self.preLoadData();
           self.loadData(value);
           self.loadDataAsync();
         }
