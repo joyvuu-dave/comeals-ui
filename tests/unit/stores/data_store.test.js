@@ -43,6 +43,7 @@ vi.mock("uuid", () => {
 });
 
 import { unprotect } from "mobx-state-tree";
+import { runInAction } from "mobx";
 import { DataStore } from "../../../src/stores/data_store.js";
 
 function createDataStore(opts = {}) {
@@ -66,9 +67,11 @@ function createDataStore(opts = {}) {
 
   // Temporarily unprotect the tree so we can populate sub-stores for testing
   unprotect(store);
-  residents.forEach((r) => store.residentStore.residents.put(r));
-  guests.forEach((g) => store.guestStore.guests.put(g));
-  bills.forEach((b) => store.billStore.bills.put(b));
+  runInAction(() => {
+    residents.forEach((r) => store.residentStore.residents.put(r));
+    guests.forEach((g) => store.guestStore.guests.put(g));
+    bills.forEach((b) => store.billStore.bills.put(b));
+  });
 
   return store;
 }
