@@ -1,6 +1,6 @@
 import "./src/styles.css";
 import React, { Suspense } from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Provider } from "mobx-react";
 import Cookie from "js-cookie";
 import VersionBanner from "./components/app/version_banner";
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("offline", updateOnlineStatus);
   });
 
-  render(
+  createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <Router>
           <React.Fragment>
@@ -118,8 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </ScrollToTop>
           </React.Fragment>
         </Router>
-      </Provider>,
-    document.getElementById("root")
+      </Provider>
   );
   // Unregister any leftover service worker from previous deploys.
   if ("serviceWorker" in navigator) {
