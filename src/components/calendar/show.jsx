@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
+import { toJS } from "mobx";
 import { withRouter } from "react-router-dom";
 import SideBar from "./side_bar";
 
@@ -298,7 +299,7 @@ const MainCalendar = inject("store")(
         }
 
         filterEvents() {
-          var events = this.props.store.calendarEvents.toJS();
+          var events = toJS(this.props.store.calendarEvents);
 
           switch (this.props.match.params.type) {
             case "all":
