@@ -55,6 +55,8 @@ const Resident = types
       ) {
         return false;
       }
+
+      return false;
     },
     get canRemove() {
       // Scenario #1: not attending
@@ -84,6 +86,8 @@ const Resident = types
       ) {
         return false;
       }
+
+      return false;
     },
     get form() {
       return getParent(self, 2);
