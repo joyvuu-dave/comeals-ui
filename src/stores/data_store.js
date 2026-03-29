@@ -39,7 +39,7 @@ export const DataStore = types
     modalChangedData: false,
     showHistory: false,
     calendarEvents: types.optional(types.array(types.frozen()), []),
-    currentDate: types.optional(types.string, moment().format("YYYY-MM-DD")),
+    currentDate: types.optional(types.string, function() { return moment().format("YYYY-MM-DD"); }),
     isOnline: false
   })
   .views(self => ({

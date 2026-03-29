@@ -17,7 +17,7 @@ const Bill = types
       return !isNaN(num) && num >= 0;
     },
     get form() {
-      return getParent(this, 2);
+      return getParent(self, 2);
     }
   }))
   .actions(self => ({

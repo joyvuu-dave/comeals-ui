@@ -86,6 +86,8 @@ const Meal = types
 
           return previousExtras; // return old value of extras as feedback when running function from console
         });
+
+        return;
       }
 
       // Scenario #2: positive integer
