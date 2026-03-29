@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control } from "react-redux-form";
 import axios from "axios";
 
 class ResidentsPasswordReset extends Component {
@@ -7,17 +6,19 @@ class ResidentsPasswordReset extends Component {
     super(props);
 
     this.state = {
+      email: "",
       loading: false
     };
   }
 
-  handleSubmit(values) {
+  handleSubmit(e) {
+    e.preventDefault();
     this.setState({ loading: true });
 
     var self = this;
     axios
       .post(`/api/v1/residents/password-reset`, {
-        email: values.email
+        email: self.state.email
       })
       .then(function(response) {
         self.setState({ loading: false });
@@ -31,22 +32,15 @@ class ResidentsPasswordReset extends Component {
       .catch(function(error) {
         self.setState({ loading: false });
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           const data = error.response.data;
-
           if (data.message) {
             window.alert(data.message);
           } else {
             console.error("Bad response from server", error);
           }
         } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
           window.alert("Error: no response received from server.");
         } else {
-          // Something happened in setting up the request that triggered an Error
           window.alert("Error: could not submit form.");
         }
       });
@@ -54,15 +48,17 @@ class ResidentsPasswordReset extends Component {
 
   render() {
     return (
-      <LocalForm onSubmit={values => this.handleSubmit(values)}>
+      <form onSubmit={e => this.handleSubmit(e)}>
         <fieldset>
           <legend>Password Reset</legend>
           <label className="w-100">
-            <Control.text
-              model=".email"
+            <input
+              type="text"
               placeholder="Email"
               autoCapitalize="none"
               disabled={this.state.loading}
+              value={this.state.email}
+              onChange={e => this.setState({ email: e.target.value })}
             />
           </label>
         </fieldset>
@@ -74,7 +70,7 @@ class ResidentsPasswordReset extends Component {
         >
           Reset
         </button>
-      </LocalForm>
+      </form>
     );
   }
 }

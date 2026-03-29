@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 import axios from "axios";
@@ -18,7 +17,9 @@ const GuestRoomReservationsEdit = inject("store")(
       this.state = {
         ready: false,
         event: {},
-        hosts: []
+        hosts: [],
+        resident_id: "",
+        day: ""
       };
     }
 
@@ -34,40 +35,34 @@ const GuestRoomReservationsEdit = inject("store")(
           if (response.status === 200) {
             self.setState({
               event: response.data.event,
-              hosts: response.data.hosts
+              hosts: response.data.hosts,
+              ready: true,
+              resident_id: response.data.event.resident_id,
+              day: response.data.event.date
             });
-            self.setState({ ready: true });
           }
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            const request = error.request;
-            console.error("Error: No response from server.", request);
+            console.error("Error: No response from server.", error.request);
           } else {
-            // Something happened in setting up the request that triggered an Error
-            const message = error.message;
             console.error(
               "Error: Could not retrieve common house reservation.",
-              message
+              error.message
             );
           }
         });
     }
 
-    handleSubmit(values) {
+    handleSubmit(e) {
+      e.preventDefault();
       var self = this;
       axios
         .patch(
@@ -75,8 +70,8 @@ const GuestRoomReservationsEdit = inject("store")(
             self.props.eventId
           }/update?token=${Cookie.get("token")}`,
           {
-            resident_id: values.resident_id,
-            date: values.day
+            resident_id: self.state.resident_id,
+            date: self.state.day
           }
         )
         .then(function(response) {
@@ -86,22 +81,15 @@ const GuestRoomReservationsEdit = inject("store")(
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             window.alert("Error: no response received from server.");
           } else {
-            // Something happened in setting up the request that triggered an Error
             window.alert("Error: could not submit form.");
           }
         });
@@ -123,22 +111,15 @@ const GuestRoomReservationsEdit = inject("store")(
           })
           .catch(function(error) {
             if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
               const data = error.response.data;
-
               if (data.message) {
                 window.alert(data.message);
               } else {
                 console.error("Bad response from server", error);
               }
             } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
               window.alert("Error: no response received from server.");
             } else {
-              // Something happened in setting up the request that triggered an Error
               window.alert("Error: could not submit form.");
             }
           });
@@ -146,31 +127,7 @@ const GuestRoomReservationsEdit = inject("store")(
     }
 
     handleDayChange(val) {
-      this.formDispatch(actions.change("local.day", val));
-    }
-
-    getDayPickerInput() {
-      return (
-        <DayPickerInput
-          formatDate={formatDate}
-          parseDate={parseDate}
-          onDayChange={this.handleDayChange}
-          value={formatDate(this.state.event.date)}
-          dayPickerProps={{
-            disabledDays: [
-              {
-                after: moment(this.state.event.date)
-                  .add(6, "M")
-                  .toDate()
-              }
-            ]
-          }}
-        />
-      );
-    }
-
-    attachDispatch(dispatch) {
-      this.formDispatch = dispatch;
+      this.setState({ day: val });
     }
 
     render() {
@@ -196,30 +153,39 @@ const GuestRoomReservationsEdit = inject("store")(
               </div>
               <fieldset>
                 <legend>Edit</legend>
-                <LocalForm
-                  onSubmit={values => this.handleSubmit(values)}
-                  getDispatch={dispatch => this.attachDispatch(dispatch)}
-                  initialState={{
-                    resident_id: this.state.event.resident_id,
-                    day: this.state.event.date
-                  }}
-                >
+                <form onSubmit={e => this.handleSubmit(e)}>
                   <label>Host</label>
-                  <Control.select model=".resident_id" id="local.resident_id">
+                  <select
+                    id="local.resident_id"
+                    value={this.state.resident_id}
+                    onChange={e =>
+                      this.setState({ resident_id: e.target.value })
+                    }
+                  >
                     {this.state.hosts.map(host => (
                       <option key={host[0]} value={host[0]}>
                         {host[2]} - {host[1]}
                       </option>
                     ))}
-                  </Control.select>
+                  </select>
                   <br />
 
                   <label>Day</label>
                   <br />
-                  <Control.text
-                    model="local.day"
-                    id="local.day"
-                    component={this.getDayPickerInput.bind(this)}
+                  <DayPickerInput
+                    formatDate={formatDate}
+                    parseDate={parseDate}
+                    onDayChange={this.handleDayChange}
+                    value={formatDate(this.state.event.date)}
+                    dayPickerProps={{
+                      disabledDays: [
+                        {
+                          after: moment(this.state.event.date)
+                            .add(6, "M")
+                            .toDate()
+                        }
+                      ]
+                    }}
                   />
                   <br />
                   <br />
@@ -227,7 +193,7 @@ const GuestRoomReservationsEdit = inject("store")(
                   <button type="submit" className="button-dark">
                     Update
                   </button>
-                </LocalForm>
+                </form>
               </fieldset>
             </div>
           )}

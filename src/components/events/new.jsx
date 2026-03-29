@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { LocalForm, Control, actions } from "react-redux-form";
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 import moment from "moment";
@@ -17,32 +16,36 @@ const EventsNew = inject("store")(
       this.handleDayChange = this.handleDayChange.bind(this);
 
       this.state = {
-        communityId: Cookie.get("community_id")
+        communityId: Cookie.get("community_id"),
+        title: "",
+        description: "",
+        day: null,
+        start_time: "",
+        end_time: "",
+        all_day: false
       };
     }
 
-    handleSubmit(values) {
+    handleSubmit(e) {
+      e.preventDefault();
       var self = this;
+      var s = self.state;
       axios
         .post(
           `/api/v1/events?community_id=${
-            self.state.communityId
+            s.communityId
           }&token=${Cookie.get("token")}`,
           {
-            title: values.title,
-            description: values.description,
-            start_year: values.day && values.day.getFullYear(),
-            start_month: values.day && values.day.getMonth() + 1,
-            start_day: values.day && values.day.getDate(),
-            start_hours:
-              values && values.start_time && values.start_time.split(":")[0],
-            start_minutes:
-              values && values.start_time && values.start_time.split(":")[1],
-            end_hours:
-              values && values.end_time && values.end_time.split(":")[0],
-            end_minutes:
-              values && values.end_time && values.end_time.split(":")[1],
-            all_day: values && values.all_day
+            title: s.title,
+            description: s.description,
+            start_year: s.day && s.day.getFullYear(),
+            start_month: s.day && s.day.getMonth() + 1,
+            start_day: s.day && s.day.getDate(),
+            start_hours: s.start_time && s.start_time.split(":")[0],
+            start_minutes: s.start_time && s.start_time.split(":")[1],
+            end_hours: s.end_time && s.end_time.split(":")[0],
+            end_minutes: s.end_time && s.end_time.split(":")[1],
+            all_day: s.all_day
           }
         )
         .then(function(response) {
@@ -52,54 +55,22 @@ const EventsNew = inject("store")(
         })
         .catch(function(error) {
           if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const data = error.response.data;
-
             if (data.message) {
               window.alert(data.message);
             } else {
               console.error("Bad response from server", error);
             }
           } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
             window.alert("Error: no response received from server.");
           } else {
-            // Something happened in setting up the request that triggered an Error
             window.alert("Error: could not submit form.");
           }
         });
     }
 
     handleDayChange(val) {
-      this.formDispatch(actions.change("local.day", val));
-    }
-
-    getDayPickerInput() {
-      return (
-        <DayPickerInput
-          formatDate={formatDate}
-          parseDate={parseDate}
-          placeholder={""}
-          onDayChange={this.handleDayChange}
-          dayPickerProps={{
-            initialMonth: moment(this.props.match.params.date).toDate(),
-            disabledDays: [
-              {
-                after: moment(this.props.match.params.date)
-                  .add(6, "M")
-                  .toDate()
-              }
-            ]
-          }}
-        />
-      );
-    }
-
-    attachDispatch(dispatch) {
-      this.formDispatch = dispatch;
+      this.setState({ day: val });
     }
 
     render() {
@@ -116,58 +87,84 @@ const EventsNew = inject("store")(
           </div>
           <fieldset>
             <legend>New</legend>
-            <LocalForm
-              onSubmit={values => this.handleSubmit(values)}
-              getDispatch={dispatch => this.attachDispatch(dispatch)}
-            >
+            <form onSubmit={e => this.handleSubmit(e)}>
               <label>Title</label>
-              <Control.text model="local.title" id="local.title" />
+              <input
+                type="text"
+                id="local.title"
+                value={this.state.title}
+                onChange={e => this.setState({ title: e.target.value })}
+              />
               <br />
               <label>Description</label>
-              <Control.textarea
-                model="local.description"
+              <textarea
                 id="local.description"
                 placeholder="optional"
+                value={this.state.description}
+                onChange={e => this.setState({ description: e.target.value })}
               />
               <br />
               <label>Day</label>
               <br />
-              <Control.text
-                model="local.day"
-                id="local.day"
-                component={this.getDayPickerInput.bind(this)}
+              <DayPickerInput
+                formatDate={formatDate}
+                parseDate={parseDate}
+                placeholder={""}
+                onDayChange={this.handleDayChange}
+                dayPickerProps={{
+                  initialMonth: moment(this.props.match.params.date).toDate(),
+                  disabledDays: [
+                    {
+                      after: moment(this.props.match.params.date)
+                        .add(6, "M")
+                        .toDate()
+                    }
+                  ]
+                }}
               />
               <br />
               <br />
               <label>Start Time</label>
-              <Control.select model="local.start_time" id="local.start_time">
+              <select
+                id="local.start_time"
+                value={this.state.start_time}
+                onChange={e => this.setState({ start_time: e.target.value })}
+              >
                 <option />
                 {generateTimes().map(time => (
                   <option key={time.value} value={time.value}>
                     {time.display}
                   </option>
                 ))}
-              </Control.select>
+              </select>
               <br />
               <label>End Time</label>
-              <Control.select model="local.end_time" id="local.end_time">
+              <select
+                id="local.end_time"
+                value={this.state.end_time}
+                onChange={e => this.setState({ end_time: e.target.value })}
+              >
                 <option />
                 {generateTimes().map(time => (
                   <option key={time.value} value={time.value}>
                     {time.display}
                   </option>
                 ))}
-              </Control.select>
+              </select>
               <br />
               <label>All Day</label>
               {"  "}
-              <Control.checkbox model="local.all_day" />
+              <input
+                type="checkbox"
+                checked={this.state.all_day}
+                onChange={e => this.setState({ all_day: e.target.checked })}
+              />
               <br />
               <br />
               <button type="submit" className="button-dark">
                 Create
               </button>
-            </LocalForm>
+            </form>
           </fieldset>
         </div>
       );
