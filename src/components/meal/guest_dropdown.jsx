@@ -19,12 +19,12 @@ class GuestDropdown extends Component {
     };
   }
 
-  handleClickOutside = evt => {
+  handleClickOutside = () => {
     this.setState({ open: false });
   };
 
-  handleClick(e) {
-    this.setState((prevState, props) => {
+  handleClick() {
+    this.setState((prevState) => {
       return { open: !prevState.open };
     });
   }
@@ -51,10 +51,10 @@ class GuestDropdown extends Component {
           />
         </button>
         <div className="dropdown-menu">
-          <a onClick={e => this.props.resident.addGuest({ vegetarian: false })}>
+          <a onClick={() => this.props.resident.addGuest({ vegetarian: false })}>
             <img src={Cow} className="pointer" alt="cow-icon" />
           </a>
-          <a onClick={e => this.props.resident.addGuest({ vegetarian: true })}>
+          <a onClick={() => this.props.resident.addGuest({ vegetarian: true })}>
             <img src={Carrot} className="pointer" alt="carrot-icon" />
           </a>
         </div>

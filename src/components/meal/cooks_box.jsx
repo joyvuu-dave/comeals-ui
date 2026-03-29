@@ -60,7 +60,7 @@ const BillEdit = inject("store")(
           className="switch"
           key={`no_cost_switch_${bill.id}`}
           checked={bill ? bill.no_cost : false}
-          onChange={e => bill.toggleNoCost()}
+          onChange={() => bill.toggleNoCost()}
           disabled={store.meal.closed || store.meal.reconciled || !bill.resident_id || bill.amount > 0}
           aria-label={`No cost button for ${bill.id}`}
         />
@@ -71,7 +71,7 @@ const BillEdit = inject("store")(
 );
 
 const BillShow = inject("store")(
-  observer(({ store, bill }) => (
+  observer(({ bill }) => (
     <tr key={bill.id} hidden={!bill.resident}>
       <td>{bill.resident && bill.resident.name}</td>
       <td>${bill.amount}</td>

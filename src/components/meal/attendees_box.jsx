@@ -37,7 +37,7 @@ const AttendeeComponent = inject("store")(
         return (
           <tr>
             <td
-              onClick={e => resident.toggleAttending()}
+              onClick={() => resident.toggleAttending()}
               className={
                 resident.attending
                   ? "background-green text-white pointer background-transition"
@@ -73,7 +73,7 @@ const AttendeeComponent = inject("store")(
                   className="switch"
                   key={`late_switch_${resident.id}`}
                   checked={resident ? resident.late : false}
-                  onChange={e => resident.toggleLate()}
+                  onChange={() => resident.toggleLate()}
                   disabled={
                     this.props.store.meal.reconciled ||
                     (this.props.store.meal.closed &&
@@ -93,7 +93,7 @@ const AttendeeComponent = inject("store")(
                   className="switch"
                   key={`veg_switch_${resident.id}`}
                   checked={resident ? resident.vegetarian : false}
-                  onChange={e => resident.toggleVeg()}
+                  onChange={() => resident.toggleVeg()}
                   disabled={
                     this.props.store.meal.reconciled ||
                     (this.props.store.meal.closed &&
@@ -119,7 +119,7 @@ const AttendeeComponent = inject("store")(
                 key={`dropdown_remove_${resident.id}`}
                 aria-label={`Remove Guest of ${resident.name}`}
                 style={styles.monospace}
-                onClick={e => resident.removeGuest()}
+                onClick={() => resident.removeGuest()}
                 disabled={
                   this.props.store.meal.reconciled || !resident.canRemoveGuest
                 }

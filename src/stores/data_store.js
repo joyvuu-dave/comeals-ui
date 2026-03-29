@@ -576,7 +576,7 @@ export const DataStore = types
       window.Comeals.channel = window.Comeals.pusher.subscribe(
         `meal-${self.meal.id}`
       );
-      window.Comeals.channel.bind("update", function(data) {
+      window.Comeals.channel.bind("update", function() {
         self.loadDataAsync();
       });
     },
@@ -642,7 +642,7 @@ export const DataStore = types
       ).format("M")}`;
       window.Comeals.channel = window.Comeals.pusher.subscribe(subscribeString);
 
-      window.Comeals.channel.bind("update", function(data) {
+      window.Comeals.channel.bind("update", function() {
         self.loadMonthAsync();
       });
     },
@@ -666,7 +666,7 @@ export const DataStore = types
     },
     switchMeals(id) {
       if (
-        typeof self.meals.find((item, index, array) => item.id === id) ===
+        typeof self.meals.find((item) => item.id === id) ===
         "undefined"
       ) {
         self.addMeal({ id: Number.parseInt(id, 10) });
@@ -720,7 +720,7 @@ export const DataStore = types
       self.modalId = id;
       self.modalActive = true;
     },
-    setIsOnline(val) {
+    setIsOnline() {
       self.isOnline = navigator.onLine;
     }
   }));
