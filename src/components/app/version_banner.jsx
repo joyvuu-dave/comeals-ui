@@ -37,19 +37,21 @@ class VersionBanner extends Component {
   constructor(props) {
     super(props);
     this.state = { updateAvailable: false };
-    this._currentMainJs = null;
+    this._currentEntryFile = null;
     this._intervalId = null;
   }
 
   componentDidMount() {
-    // Derive the running app's main.js filename from the DOM rather than
+    // Derive the running app's entry filename from the DOM rather than
     // a network fetch. This avoids a race condition: if a deploy finishes
     // between when the browser loaded index.html and when this component
     // mounts, a network-fetched baseline would reflect the new build while
     // the running code is old — the banner would never fire.
-    var scripts = document.querySelectorAll('script[src*="/static/js/main."]');
-    if (scripts.length > 0) {
-      this._currentMainJs = scripts[0].getAttribute("src").replace(/^\//, "");
+    var script = document.querySelector('script[type="module"][src^="/assets/"]');
+    if (script) {
+      // Strip leading "/" so the value matches the manifest's "file" field
+      // (manifest: "assets/index-abc.js", DOM: "/assets/index-abc.js")
+      this._currentEntryFile = script.getAttribute("src").replace(/^\//, "");
     }
 
     var self = this;
@@ -65,12 +67,12 @@ class VersionBanner extends Component {
   }
 
   checkForUpdate() {
-    if (!this._currentMainJs) {
+    if (!this._currentEntryFile) {
       return;
     }
 
     var self = this;
-    fetch("/asset-manifest.json")
+    fetch("/.vite/manifest.json")
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch manifest");
@@ -78,9 +80,14 @@ class VersionBanner extends Component {
         return response.json();
       })
       .then(function (manifest) {
-        if (manifest["main.js"] && manifest["main.js"] !== self._currentMainJs) {
-          self.setState({ updateAvailable: true });
-          clearInterval(self._intervalId);
+        var keys = Object.keys(manifest);
+        for (var i = 0; i < keys.length; i++) {
+          var entry = manifest[keys[i]];
+          if (entry.isEntry && entry.file !== self._currentEntryFile) {
+            self.setState({ updateAvailable: true });
+            clearInterval(self._intervalId);
+            return;
+          }
         }
       })
       .catch(function () {

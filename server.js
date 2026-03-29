@@ -20,17 +20,27 @@ app.use(
 
 const buildPath = path.join(__dirname, "build");
 
-// Hashed assets under /static — cache forever (filenames change on each build).
+// Serve Vite's build manifest for the VersionBanner deploy-detection poll.
+// express.static won't serve it because .vite/ is a dotfile directory
+// (dotfiles default to "ignore").
+app.get("/.vite/manifest.json", (req, res) => {
+  res.set("Cache-Control", "no-cache");
+  res.sendFile(path.join(buildPath, ".vite", "manifest.json"), {
+    dotfiles: "allow",
+  });
+});
+
+// Hashed assets under /assets — cache forever (filenames change on each build).
 app.use(
-  "/static",
-  express.static(path.join(buildPath, "static"), {
+  "/assets",
+  express.static(path.join(buildPath, "assets"), {
     maxAge: "1y",
     immutable: true,
   })
 );
 
-// Everything else (index.html, manifest.json, asset-manifest.json,
-// service-worker.js, icons) — always revalidate with the server.
+// Everything else (index.html, manifest.json, icons) — always revalidate
+// with the server.
 app.use(
   express.static(buildPath, {
     setHeaders: function (res) {
