@@ -13,6 +13,9 @@ import Pusher from "pusher-js";
 import localforage from "localforage";
 import moment from "moment";
 
+import handleAxiosError from "../helpers/handle_axios_error";
+import toastStore from "./toast_store";
+
 export const DataStore = types
   .model("DataStore", {
     isLoading: true,
@@ -166,7 +169,7 @@ export const DataStore = types
         );
 
         if (cookNeedsToFillInCost) {
-          window.alert("All cook costs must be set before closing.");
+          toastStore.addToast("All cook costs must be set before closing.", "warning");
           return;
         }
       }
@@ -198,25 +201,7 @@ export const DataStore = types
         })
         .catch(function(error) {
           self.meal.toggleClosed();
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
-
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            window.alert("Error: no response received from server.");
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            window.alert("Error: could not submit form.");
-          }
+          handleAxiosError(error);
         });
     },
     logout() {
@@ -243,25 +228,7 @@ export const DataStore = types
         data: obj,
         withCredentials: true
       }).catch(function(error) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          const data = error.response.data;
-
-          if (data.message) {
-            window.alert(data.message);
-          } else {
-            console.error("Bad response from server", error);
-          }
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          window.alert("Error: no response received from server.");
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          window.alert("Error: could not submit form.");
-        }
+        handleAxiosError(error);
       });
     },
     submitBills() {
@@ -304,25 +271,7 @@ export const DataStore = types
         data: obj,
         withCredentials: true
       }).catch(function(error) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          const data = error.response.data;
-
-          if (data.message) {
-            window.alert(data.message);
-          } else {
-            console.error("Bad response from server", error);
-          }
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          window.alert("Error: no response received from server.");
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          window.alert("Error: could not submit form.");
-        }
+        handleAxiosError(error);
 
         self.loadDataAsync();
       });
@@ -340,25 +289,7 @@ export const DataStore = types
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
-
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.error("Error: no response received from server.");
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error("Error: could not get meal.");
-          }
+          handleAxiosError(error, { silent: true });
         });
     },
     loadMonthAsync() {
@@ -381,25 +312,7 @@ export const DataStore = types
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
-
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.error("Error: No response from the server");
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error("Error: Could not get calendar data.");
-          }
+          handleAxiosError(error, { silent: true });
         });
     },
     loadNext() {
@@ -413,26 +326,7 @@ export const DataStore = types
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
-
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.error("Error: No response from the server.");
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            const message = error.message;
-            console.error("Error: Could not get next meal.", message);
-          }
+          handleAxiosError(error, { silent: true });
         });
     },
     loadPrev() {
@@ -446,27 +340,7 @@ export const DataStore = types
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
-
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            const request = error.request;
-            console.error("Error: No response from server", request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            const message = error.message;
-            console.error("Error: Could not retrieve cooks.", message);
-          }
+          handleAxiosError(error, { silent: true });
         });
     },
     preLoadData() {

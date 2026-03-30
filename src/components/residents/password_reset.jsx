@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
+import handleAxiosError from "../../helpers/handle_axios_error";
+import toastStore from "../../stores/toast_store";
 
 class ResidentsPasswordReset extends Component {
   constructor(props) {
@@ -24,25 +26,14 @@ class ResidentsPasswordReset extends Component {
         self.setState({ loading: false });
         if (response.status === 200) {
           if (response.data.message) {
-            window.alert(response.data.message);
+            toastStore.addToast(response.data.message, "success");
           }
           self.props.history.push("/");
         }
       })
       .catch(function(error) {
         self.setState({ loading: false });
-        if (error.response) {
-          const data = error.response.data;
-          if (data.message) {
-            window.alert(data.message);
-          } else {
-            console.error("Bad response from server", error);
-          }
-        } else if (error.request) {
-          window.alert("Error: no response received from server.");
-        } else {
-          window.alert("Error: could not submit form.");
-        }
+        handleAxiosError(error);
       });
   }
 

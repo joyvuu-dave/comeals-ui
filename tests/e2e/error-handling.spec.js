@@ -4,7 +4,6 @@ const {
   stubPusher,
   disableIdleTimer,
   mockApi,
-  setupDialogHandler,
 } = require("../helpers/setup");
 const mealFixture = require("../fixtures/meal.json");
 
@@ -14,7 +13,7 @@ test.describe("Error Handling & Edge Cases", () => {
       page,
       context,
     }) => {
-      const { dialogs } = await setupAuthenticatedPage(page, context);
+      await setupAuthenticatedPage(page, context);
 
       // Override resident endpoint to return 500 error
       await page.route("**/api/v1/meals/*/residents/2*", (route) => {
@@ -40,15 +39,10 @@ test.describe("Error Handling & Edge Cases", () => {
       // Click to toggle attending (will optimistically turn green, then revert)
       await bobCell.click();
 
-      // Should show error alert
-      await expect
-        .poll(() => dialogs.filter((d) => d.type === "alert").length, {
-          timeout: 5000,
-        })
-        .toBeGreaterThan(0);
-      expect(dialogs.find((d) => d.type === "alert").message).toContain(
-        "Server error"
-      );
+      // Should show error toast
+      const toast = page.locator(".toast--error");
+      await expect(toast).toBeVisible({ timeout: 5000 });
+      await expect(toast.locator(".toast__message")).toContainText("Server error");
 
       // Background should revert to NOT green (state rolled back)
       await expect(bobCell).not.toHaveClass(/background-green/, {
@@ -60,7 +54,7 @@ test.describe("Error Handling & Edge Cases", () => {
       page,
       context,
     }) => {
-      const { dialogs } = await setupAuthenticatedPage(page, context);
+      await setupAuthenticatedPage(page, context);
 
       // Override closed endpoint to return error
       await page.route("**/api/v1/meals/*/closed*", (route) => {
@@ -82,12 +76,8 @@ test.describe("Error Handling & Edge Cases", () => {
       // Try to close
       await page.locator("text=Open / Close Meal").click();
 
-      // Should show error alert
-      await expect
-        .poll(() => dialogs.filter((d) => d.type === "alert").length, {
-          timeout: 5000,
-        })
-        .toBeGreaterThan(0);
+      // Should show error toast
+      await expect(page.locator(".toast--error")).toBeVisible({ timeout: 5000 });
 
       // Status should revert to OPEN
       await expect(page.locator("h1", { hasText: "OPEN" })).toBeVisible({
@@ -96,7 +86,7 @@ test.describe("Error Handling & Edge Cases", () => {
     });
 
     test("event create API error shows alert", async ({ page, context }) => {
-      const { dialogs } = await setupAuthenticatedPage(page, context);
+      await setupAuthenticatedPage(page, context);
 
       // Override events endpoint to return error
       await page.route("**/api/v1/events?*", (route) => {
@@ -123,22 +113,17 @@ test.describe("Error Handling & Edge Cases", () => {
       await expect(submitButton).toBeVisible();
       await submitButton.click();
 
-      // Should show validation error alert
-      await expect
-        .poll(() => dialogs.filter((d) => d.type === "alert").length, {
-          timeout: 5000,
-        })
-        .toBeGreaterThan(0);
-      expect(dialogs.find((d) => d.type === "alert").message).toContain(
-        "Title is required"
-      );
+      // Should show validation error toast
+      const toast = page.locator(".toast--error");
+      await expect(toast).toBeVisible({ timeout: 5000 });
+      await expect(toast.locator(".toast__message")).toContainText("Title is required");
     });
 
     test("network error (no response) shows generic alert", async ({
       page,
       context,
     }) => {
-      const { dialogs } = await setupAuthenticatedPage(page, context);
+      await setupAuthenticatedPage(page, context);
 
       // Override resident endpoint to abort (simulates network failure)
       await page.route("**/api/v1/meals/*/residents/2*", (route) => {
@@ -157,12 +142,8 @@ test.describe("Error Handling & Edge Cases", () => {
       // Click to toggle (network will fail)
       await bobCell.click();
 
-      // Should show a generic error alert about no response
-      await expect
-        .poll(() => dialogs.filter((d) => d.type === "alert").length, {
-          timeout: 5000,
-        })
-        .toBeGreaterThan(0);
+      // Should show a generic error toast about no response
+      await expect(page.locator(".toast--error")).toBeVisible({ timeout: 5000 });
     });
   });
 

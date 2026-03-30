@@ -3,12 +3,8 @@ const { setupAuthenticatedPage } = require("../helpers/setup");
 
 test.describe("Form CRUD", () => {
   test.describe("Events", () => {
-    /** @type {Array<{type: string, message: string}>} */
-    let dialogs;
-
     test.beforeEach(async ({ page, context }) => {
-      const result = await setupAuthenticatedPage(page, context);
-      dialogs = result.dialogs;
+      await setupAuthenticatedPage(page, context);
     });
 
     test("create a new event sends POST with form data", async ({ page }) => {
@@ -137,12 +133,11 @@ test.describe("Form CRUD", () => {
       // Click delete
       await modal.locator("button:has-text('Delete')").click();
 
-      // Confirmation dialog should appear (auto-accepted by setup handler)
-      await expect
-        .poll(() => dialogs.filter((d) => d.type === "confirm").length, {
-          timeout: 5000,
-        })
-        .toBeGreaterThan(0);
+      // Confirmation modal should appear
+      const confirmOverlay = page.locator('.ReactModal__Overlay').last();
+      await expect(confirmOverlay.locator("text=Do you really want to delete this event?")).toBeVisible({ timeout: 5000 });
+      // Click Delete in the confirmation modal
+      await confirmOverlay.locator('.button-warning:has-text("Delete")').click();
 
       // API: DELETE to /events/70/delete
       await expect

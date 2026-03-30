@@ -4,7 +4,6 @@ const {
   stubPusher,
   disableIdleTimer,
   mockApi,
-  setupDialogHandler,
 } = require("../helpers/setup");
 const mealFixture = require("../fixtures/meal.json");
 
@@ -158,7 +157,7 @@ test.describe("Critical Paths", () => {
       ],
     };
 
-    const { dialogs } = await setupAuthenticatedPage(page, context, {
+    await setupAuthenticatedPage(page, context, {
       mealData: mealWithEmptyCost,
     });
 
@@ -173,13 +172,10 @@ test.describe("Critical Paths", () => {
     // Try to close the meal
     await page.locator("text=Open / Close Meal").click();
 
-    // Should show validation alert preventing close
-    await expect
-      .poll(
-        () => dialogs.filter((d) => d.message.includes("cost")).length,
-        { timeout: 5000 }
-      )
-      .toBeGreaterThan(0);
+    // Should show validation warning toast preventing close
+    const toast = page.locator(".toast--warning");
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast.locator(".toast__message")).toContainText("cost");
 
     // Meal should still be OPEN (close was prevented)
     await expect(page.locator("h1", { hasText: "OPEN" })).toBeVisible();
