@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import Cookie from "js-cookie";
-import moment from "moment";
+import dayjs from "dayjs";
 
 class MealHistoryShow extends Component {
   constructor(props) {
@@ -25,7 +25,7 @@ class MealHistoryShow extends Component {
         if (response.status === 200) {
           self.setState({
             items: response.data.items,
-            date: moment(response.data.date).format("ddd, MMM Do"),
+            date: dayjs(response.data.date).format("ddd, MMM Do"),
             ready: true
           });
         }
@@ -60,7 +60,7 @@ class MealHistoryShow extends Component {
                       <td>{audit.user_name}</td>
                       <td>{audit.description}</td>
                       <td>
-                        {moment(audit.display_time).format("ddd MMM D, h:mm a")}
+                        {dayjs(audit.display_time).format("ddd MMM D, h:mm a")}
                       </td>
                     </tr>
                   );

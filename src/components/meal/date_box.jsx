@@ -1,7 +1,7 @@
 import React, { Component, Suspense } from "react";
 import { inject, observer } from "mobx-react";
 import { Route, withRouter } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 import Modal from "react-modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -95,17 +95,13 @@ const DateBox = inject("store")(
             return "loading...";
           }
 
-          var today = moment([
-            moment().year(),
-            moment().month(),
-            moment().date()
-          ]);
-          var days = moment(this.props.store.meal.date).diff(today, "days");
+          var today = dayjs().startOf("day");
+          var days = dayjs(this.props.store.meal.date).diff(today, "day");
 
           if (days === 0) return "Today";
           if (days === -1) return "Yesterday";
           if (days === 1) return "Tomorrow";
-          return moment(this.props.store.meal.date).from(today);
+          return dayjs(this.props.store.meal.date).from(today);
         }
 
         displayTopDate() {
@@ -117,7 +113,7 @@ const DateBox = inject("store")(
             return "";
           }
 
-          return moment(this.props.store.meal.date).format("ddd, MMM Do");
+          return dayjs(this.props.store.meal.date).format("ddd, MMM Do");
         }
 
         render() {

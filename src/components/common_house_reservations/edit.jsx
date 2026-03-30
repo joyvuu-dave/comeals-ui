@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import DayPickerInput from "react-day-picker/DayPickerInput";
-import { formatDate, parseDate } from "react-day-picker/moment";
+import DayPickerInputWrapper from "../common/day_picker_input";
+import dayjs from "dayjs";
 import axios from "axios";
 import Cookie from "js-cookie";
-import moment from "moment";
 import { generateTimes } from "../../helpers/helpers";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import { inject } from "mobx-react";
@@ -197,21 +196,13 @@ const CommonHouseReservationsEdit = inject("store")(
                   <label>Day</label>
                   <br />
                   <div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
-                    <DayPickerInput
-                      formatDate={formatDate}
-                      parseDate={parseDate}
+                    <DayPickerInputWrapper
+                      value={this.state.day}
                       onDayChange={this.handleDayChange}
-                      value={formatDate(this.state.event.start_date)}
-                      dayPickerProps={{
-                        disabledDays: [
-                          {
-                            after: moment(this.state.event.start_date)
-                              .add(6, "M")
-                              .toDate()
-                          }
-                        ]
-                      }}
-                      inputProps={{ disabled: this.state.loadingAction !== null }}
+                      inputDisabled={this.state.loadingAction !== null}
+                      disabledDays={[{
+                        after: dayjs(this.state.event.start_date).add(6, "month").toDate()
+                      }]}
                     />
                   </div>
                   <br />

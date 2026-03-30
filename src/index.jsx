@@ -1,4 +1,10 @@
 import "./styles.css";
+import dayjs from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(advancedFormat);
+dayjs.extend(relativeTime);
+
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "mobx-react";

@@ -3,7 +3,7 @@ import { inject, observer } from "mobx-react";
 import { Redirect, Link, withRouter } from "react-router-dom";
 import axios from "axios";
 import Cookie from "js-cookie";
-import moment from "moment";
+import dayjs from "dayjs";
 import Modal from "react-modal";
 
 import handleAxiosError from "../../helpers/handle_axios_error";
@@ -110,7 +110,7 @@ const ResidentsLogin = inject("store")(
 
         render() {
           const { from } = this.props.location.state || {
-            from: { pathname: `/calendar/all/${moment().format("YYYY-MM-DD")}` }
+            from: { pathname: `/calendar/all/${dayjs().format("YYYY-MM-DD")}` }
           };
           const { redirectToReferrer } = this.state;
 

@@ -451,6 +451,7 @@ class DayPickerInputWrapper extends Component {
   }
 
   handleDaySelect(date) {
+    if (!date) return;
     this.setState({ isOpen: false });
     if (this.props.onDayChange) {
       this.props.onDayChange(date);
@@ -510,6 +511,11 @@ export default DayPickerInputWrapper;
 - **`inputDisabled` prop** — adds `disabled` to the `<input>` element for form
   loading states. When `inputDisabled` is true, `handleInputClick` also returns
   early to prevent opening the calendar.
+- **`handleDaySelect` guards against `undefined`** — in v9's `mode="single"`,
+  clicking the already-selected day deselects it (`onSelect` receives
+  `undefined`). v7's DayPickerInput kept the selection. The guard `if (!date)
+  return;` preserves v7's behavior: tapping the same day is a no-op (calendar
+  stays open), tapping a different day selects and closes.
 
 **Props summary:**
 

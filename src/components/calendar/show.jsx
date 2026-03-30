@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import SideBar from "./side_bar";
 
 import Cookie from "js-cookie";
-import moment from "moment";
+import dayjs from "dayjs";
 
 import Modal from "react-modal";
 import GuestRoomReservationsNew from "../guest_room_reservations/new";
@@ -17,13 +17,13 @@ import EventsEdit from "../events/edit";
 import RotationsShow from "../rotations/show";
 
 import WebcalLinks from "./webcal_links";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, dayjsLocalizer } from "react-big-calendar";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-const localizer = momentLocalizer(moment);
+const localizer = dayjsLocalizer(dayjs);
 
 const styles = {
   main: {
@@ -44,7 +44,7 @@ class MyToolbar extends Component {
   render() {
     return (
       <div style={styles.main}>
-        <h2>{moment(this.props.date).format("MMMM YYYY")}</h2>
+        <h2>{dayjs(this.props.date).format("MMMM YYYY")}</h2>
         <span style={styles.main}>
           <button
             className="mar-sm"
@@ -212,11 +212,11 @@ const MainCalendar = inject("store")(
         formatEvent(event) {
           var styles = { style: {} };
 
-          const startString = moment(event.start).format();
-          const todayString = moment().format("YYYY-MM-DD");
+          const startString = dayjs(event.start).format();
+          const todayString = dayjs().format("YYYY-MM-DD");
 
           if (
-            moment(startString).isBefore(todayString, "day") &&
+            dayjs(startString).isBefore(todayString, "day") &&
             typeof event.url !== "undefined"
           ) {
             styles.style["opacity"] = "0.6";
@@ -230,7 +230,7 @@ const MainCalendar = inject("store")(
           return (
             <div className="offwhite">
               <header className="header flex space-between">
-                <h5 className="pad-xs">{moment().format("ddd MMM Do")}</h5>
+                <h5 className="pad-xs">{dayjs().format("ddd MMM Do")}</h5>
                 {this.props.store.isOnline ? (
                   <span className="online">ONLINE</span>
                 ) : (
@@ -254,7 +254,7 @@ const MainCalendar = inject("store")(
                 <div style={{ height: 2000, marginRight: 15 }}>
                   <Calendar
                     localizer={localizer}
-                    defaultDate={moment(this.props.match.params.date).toDate()}
+                    defaultDate={dayjs(this.props.match.params.date).toDate()}
                     defaultView="month"
                     eventPropGetter={this.formatEvent}
                     events={this.filterEvents()}
@@ -285,7 +285,7 @@ const MainCalendar = inject("store")(
 
         handleNavigate(event) {
           this.props.history.push(
-            `/calendar/${this.props.match.params.type}/${moment(event).format(
+            `/calendar/${this.props.match.params.type}/${dayjs(event).format(
               "YYYY-MM-DD"
             )}`
           );
