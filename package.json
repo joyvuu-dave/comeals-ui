@@ -30,7 +30,7 @@
     "react-dom": "^19.2.4",
     "react-modal": "^3.16.3",
     "react-router-dom": "^6.30.3",
-    "uuid": "^11.1.0"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
