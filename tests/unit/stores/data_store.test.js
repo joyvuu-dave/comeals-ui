@@ -42,9 +42,11 @@ vi.mock("uuid", () => {
   };
 });
 
-import { unprotect } from "mobx-state-tree";
+import { unprotect, isAlive } from "mobx-state-tree";
 import { runInAction } from "mobx";
 import { DataStore } from "../../../src/stores/data_store.js";
+import localforage from "localforage";
+import axios from "axios";
 
 function createDataStore(opts = {}) {
   const {
@@ -819,6 +821,164 @@ describe("DataStore", () => {
       const guest = store.guests.get("200");
       expect(guest.vegetarian).toBe(true);
       expect(guest.resident_id).toBe(10);
+    });
+  });
+
+  // ── Dead tree / navigation race conditions ──
+
+  describe("navigation race conditions", () => {
+    function makeMealData(id, residentOverrides = {}) {
+      return {
+        id,
+        date: "2023-06-15",
+        description: `Meal ${id}`,
+        closed: false,
+        closed_at: null,
+        reconciled: false,
+        max: null,
+        next_id: id + 1,
+        prev_id: id - 1,
+        residents: [
+          {
+            id: 10,
+            meal_id: id,
+            name: "Alice",
+            attending: false,
+            attending_at: null,
+            late: false,
+            vegetarian: false,
+            can_cook: true,
+            active: true,
+            ...residentOverrides,
+          },
+        ],
+        guests: [],
+        bills: [],
+      };
+    }
+
+    it("loadData kills old resident nodes and creates live replacements", () => {
+      const store = createDataStore({
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
+      });
+
+      // Capture a reference to the old resident node
+      const oldResident = store.residents.get("10");
+      expect(isAlive(oldResident)).toBe(true);
+
+      // Load new data (simulates navigating to a different meal)
+      store.loadData(makeMealData(1, { attending: false }));
+
+      // Old reference is dead
+      expect(isAlive(oldResident)).toBe(false);
+
+      // New resident is alive with updated data
+      const newResident = store.residents.get("10");
+      expect(isAlive(newResident)).toBe(true);
+      expect(newResident.attending).toBe(false);
+    });
+
+    it("successive loadData calls replace nodes each time", () => {
+      const store = createDataStore();
+
+      store.loadData(makeMealData(1, { attending: true }));
+      const ref1 = store.residents.get("10");
+      expect(isAlive(ref1)).toBe(true);
+
+      store.loadData(makeMealData(1, { attending: false }));
+      expect(isAlive(ref1)).toBe(false);
+
+      const ref2 = store.residents.get("10");
+      expect(isAlive(ref2)).toBe(true);
+      expect(ref2.attending).toBe(false);
+
+      store.loadData(makeMealData(1, { late: true }));
+      expect(isAlive(ref2)).toBe(false);
+
+      const ref3 = store.residents.get("10");
+      expect(isAlive(ref3)).toBe(true);
+      expect(ref3.late).toBe(true);
+    });
+
+    it("loadDataAsync skips stale responses from a previous meal", async () => {
+      const store = createDataStore({
+        mealProps: { id: 1 },
+      });
+
+      // Set up a second meal so we can switch to it
+      unprotect(store);
+      runInAction(() => {
+        store.meals.push({ id: 2 });
+      });
+
+      // Load initial data for meal 1
+      store.loadData(makeMealData(1, { attending: true }));
+      expect(store.residents.get("10").attending).toBe(true);
+
+      // Simulate: loadDataAsync fires a request for meal 1
+      // but user navigates to meal 2 before response arrives
+      const meal1Response = {
+        status: 200,
+        data: makeMealData(1, { attending: false, late: true }),
+      };
+      axios.get.mockResolvedValueOnce(meal1Response);
+      localforage.setItem.mockResolvedValueOnce();
+
+      // Switch to meal 2 and load its data
+      store.meal = 2;
+      store.loadData(makeMealData(2, { attending: false }));
+      expect(store.meal.id).toBe(2);
+      expect(store.meal.description).toBe("Meal 2");
+
+      // Now trigger loadDataAsync (which will get the stale meal 1 response)
+      store.loadDataAsync();
+
+      // Wait for the axios + localforage promise chain to resolve
+      await vi.waitFor(() => {
+        expect(localforage.setItem).toHaveBeenCalled();
+      });
+
+      // Flush microtasks
+      await new Promise((r) => setTimeout(r, 0));
+
+      // State should still show meal 2 data — the stale meal 1 response was skipped
+      expect(store.meal.id).toBe(2);
+      expect(store.meal.description).toBe("Meal 2");
+    });
+
+    it("switchMeals skips localforage callback if user already navigated away", async () => {
+      const store = createDataStore({
+        mealProps: { id: 1 },
+      });
+
+      // Add meals 2 and 3 to the array
+      unprotect(store);
+      runInAction(() => {
+        store.meals.push({ id: 2 });
+        store.meals.push({ id: 3 });
+      });
+
+      // Load initial data for meal 1
+      store.loadData(makeMealData(1));
+
+      // Set up localforage to return cached data for meal 2
+      const meal2Data = makeMealData(2, { attending: true });
+      localforage.getItem.mockResolvedValueOnce(meal2Data);
+
+      // switchMeals to meal 2 starts the async localforage lookup
+      store.switchMeals(2);
+
+      // Before localforage resolves, user navigates to meal 3
+      store.meal = 3;
+      store.loadData(makeMealData(3, { late: true }));
+
+      // Now let localforage resolve (for the stale meal 2 request)
+      await new Promise((r) => setTimeout(r, 0));
+
+      // State should still show meal 3 data — the stale meal 2 callback was skipped
+      expect(store.meal.id).toBe(3);
+      expect(store.meal.description).toBe("Meal 3");
+      expect(store.residents.get("10").late).toBe(true);
     });
   });
 });
