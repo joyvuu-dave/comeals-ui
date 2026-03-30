@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <ToastContainer />
-        <Router>
+        <Router future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
           <VersionBanner />
           <TrailingSlash />
           <ScrollToTop>
