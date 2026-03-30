@@ -12,9 +12,10 @@ const API_URL = process.env.API_URL || "http://localhost:3000";
 // With app.use("/api", proxy), Express strips the mount path, causing the
 // backend to receive /v1/... instead of /api/v1/... — a 404.
 app.use(
-  createProxyMiddleware("/api", {
+  createProxyMiddleware({
     target: API_URL,
     changeOrigin: true,
+    pathFilter: "/api",
   })
 );
 
