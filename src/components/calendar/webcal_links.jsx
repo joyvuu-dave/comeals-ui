@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Cookie from "js-cookie";
 import axios from "axios";
+import handleAxiosError from "../../helpers/handle_axios_error";
 
 class WebcalLinks extends Component {
   constructor(props) {
@@ -30,25 +31,7 @@ class WebcalLinks extends Component {
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            const data = error.response.data;
-
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.error("Error: No response from the server.");
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error("Error: Could not get resident.");
-          }
+          handleAxiosError(error, { silent: true });
         });
     } else {
       this.setState({

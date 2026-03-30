@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "mobx-react";
 import Cookie from "js-cookie";
 import VersionBanner from "./components/app/version_banner";
+import ToastContainer from "./components/app/toast_container";
 
 import {
   BrowserRouter as Router,
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   createRoot(document.getElementById("root")).render(
       <Provider store={store}>
+        <ToastContainer />
         <Router>
           <React.Fragment>
           <VersionBanner />

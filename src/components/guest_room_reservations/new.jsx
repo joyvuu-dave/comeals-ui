@@ -5,6 +5,7 @@ import moment from "moment";
 import axios from "axios";
 import Cookie from "js-cookie";
 import { inject } from "mobx-react";
+import handleAxiosError from "../../helpers/handle_axios_error";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
@@ -41,18 +42,7 @@ const GuestRoomReservationsNew = inject("store")(
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            const data = error.response.data;
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            console.error("Error: No response from server.", error.request);
-          } else {
-            console.error("Error: Could not retrieve hosts.", error.message);
-          }
+          handleAxiosError(error, { silent: true });
         });
     }
 
@@ -78,18 +68,7 @@ const GuestRoomReservationsNew = inject("store")(
         })
         .catch(function(error) {
           self.setState({ loading: false });
-          if (error.response) {
-            const data = error.response.data;
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            window.alert("Error: no response received from server.");
-          } else {
-            window.alert("Error: could not submit form.");
-          }
+          handleAxiosError(error);
         });
     }
 

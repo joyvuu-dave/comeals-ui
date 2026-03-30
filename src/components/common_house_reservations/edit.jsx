@@ -5,9 +5,11 @@ import axios from "axios";
 import Cookie from "js-cookie";
 import moment from "moment";
 import { generateTimes } from "../../helpers/helpers";
+import handleAxiosError from "../../helpers/handle_axios_error";
 import { inject } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import ConfirmModal from "../app/confirm_modal";
 
 const CommonHouseReservationsEdit = inject("store")(
   class CommonHouseReservationsEdit extends Component {
@@ -24,7 +26,8 @@ const CommonHouseReservationsEdit = inject("store")(
         day: "",
         start_time: "",
         end_time: "",
-        loadingAction: null
+        loadingAction: null,
+        confirmDeleteOpen: false
       };
     }
 
@@ -64,21 +67,7 @@ const CommonHouseReservationsEdit = inject("store")(
           }
         })
         .catch(function(error) {
-          if (error.response) {
-            const data = error.response.data;
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            console.error("Error: No response from server.", error.request);
-          } else {
-            console.error(
-              "Error: Could not retrieve common house reservations.",
-              error.message
-            );
-          }
+          handleAxiosError(error, { silent: true });
         });
     }
 
@@ -112,54 +101,38 @@ const CommonHouseReservationsEdit = inject("store")(
         })
         .catch(function(error) {
           self.setState({ loadingAction: null });
-          if (error.response) {
-            const data = error.response.data;
-            if (data.message) {
-              window.alert(data.message);
-            } else {
-              console.error("Bad response from server", error);
-            }
-          } else if (error.request) {
-            window.alert("Error: no response received from server.");
-          } else {
-            window.alert("Error: could not submit form.");
-          }
+          handleAxiosError(error);
         });
     }
 
-    handleDelete() {
+    handleDeleteClick() {
       if (this.state.loadingAction) return;
-      if (window.confirm("Do you really want to delete this reservation?")) {
-        this.setState({ loadingAction: "delete" });
-        var self = this;
-        axios
-          .delete(
-            `/api/v1/common-house-reservations/${
-              self.props.eventId
-            }/delete?token=${Cookie.get("token")}`
-          )
-          .then(function(response) {
-            self.setState({ loadingAction: null });
-            if (response.status === 200) {
-              self.props.handleCloseModal();
-            }
-          })
-          .catch(function(error) {
-            self.setState({ loadingAction: null });
-            if (error.response) {
-              const data = error.response.data;
-              if (data.message) {
-                window.alert(data.message);
-              } else {
-                console.error("Bad response from server", error);
-              }
-            } else if (error.request) {
-              window.alert("Error: no response received from server.");
-            } else {
-              window.alert("Error: could not submit form.");
-            }
-          });
-      }
+      this.setState({ confirmDeleteOpen: true });
+    }
+
+    handleDeleteConfirm() {
+      this.setState({ confirmDeleteOpen: false, loadingAction: "delete" });
+      var self = this;
+      axios
+        .delete(
+          `/api/v1/common-house-reservations/${
+            self.props.eventId
+          }/delete?token=${Cookie.get("token")}`
+        )
+        .then(function(response) {
+          self.setState({ loadingAction: null });
+          if (response.status === 200) {
+            self.props.handleCloseModal();
+          }
+        })
+        .catch(function(error) {
+          self.setState({ loadingAction: null });
+          handleAxiosError(error);
+        });
+    }
+
+    handleDeleteCancel() {
+      this.setState({ confirmDeleteOpen: false });
     }
 
     handleDayChange(val) {
@@ -174,7 +147,7 @@ const CommonHouseReservationsEdit = inject("store")(
               <div className="flex">
                 <h2>Common House</h2>
                 <button
-                  onClick={this.handleDelete.bind(this)}
+                  onClick={this.handleDeleteClick.bind(this)}
                   type="button"
                   className={this.state.loadingAction === "delete" ? "mar-l-md button-warning button-loader" : "mar-l-md button-warning"}
                   disabled={this.state.loadingAction !== null}
@@ -287,6 +260,12 @@ const CommonHouseReservationsEdit = inject("store")(
                   </button>
                 </form>
               </fieldset>
+            <ConfirmModal
+              isOpen={this.state.confirmDeleteOpen}
+              message="Do you really want to delete this reservation?"
+              onConfirm={this.handleDeleteConfirm.bind(this)}
+              onCancel={this.handleDeleteCancel.bind(this)}
+            />
             </div>
           )}
           {!this.state.ready && <h3>Loading...</h3>}

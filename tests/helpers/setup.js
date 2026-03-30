@@ -71,19 +71,6 @@ async function disableIdleTimer(page) {
 }
 
 /**
- * Set up default dialog handling so alert()/confirm() don't hang tests.
- * Collects dialog messages for assertion.
- */
-function setupDialogHandler(page) {
-  const dialogs = [];
-  page.on("dialog", async (dialog) => {
-    dialogs.push({ type: dialog.type(), message: dialog.message() });
-    await dialog.accept();
-  });
-  return dialogs;
-}
-
-/**
  * Clear localforage/IndexedDB to prevent stale cached data between tests.
  */
 async function clearStorage(page) {
@@ -363,16 +350,13 @@ async function mockApi(page, options = {}) {
 }
 
 /**
- * Full page setup: auth + pusher stub + idle timer disable + API mocks + dialog handler.
- * Returns { dialogs } for assertion.
+ * Full page setup: auth + pusher stub + idle timer disable + API mocks.
  */
 async function setupAuthenticatedPage(page, context, options = {}) {
   await authenticateContext(context);
   await stubPusher(page);
   await disableIdleTimer(page);
-  const dialogs = setupDialogHandler(page);
   await mockApi(page, options);
-  return { dialogs };
 }
 
 module.exports = {
@@ -380,7 +364,6 @@ module.exports = {
   authenticateContext,
   stubPusher,
   disableIdleTimer,
-  setupDialogHandler,
   clearStorage,
   mockApi,
   setupAuthenticatedPage,

@@ -6,6 +6,7 @@ import Cookie from "js-cookie";
 import moment from "moment";
 import Modal from "react-modal";
 
+import handleAxiosError from "../../helpers/handle_axios_error";
 import ResidentsPasswordReset from "./password_reset";
 import ResidentsPasswordNew from "./password_new";
 
@@ -103,19 +104,7 @@ const ResidentsLogin = inject("store")(
             })
             .catch(function(error) {
               self.setState({ loading: false });
-
-              if (error.response) {
-                const data = error.response.data;
-                if (data.message) {
-                  window.alert(data.message);
-                } else {
-                  console.error("Bad response from server", error);
-                }
-              } else if (error.request) {
-                window.alert("Error: no response received from server.");
-              } else {
-                window.alert("Error: could not submit form.");
-              }
+              handleAxiosError(error);
             });
         }
 

@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { setupDialogHandler, stubPusher, disableIdleTimer, mockApi } = require("../helpers/setup");
+const { stubPusher, disableIdleTimer, mockApi } = require("../helpers/setup");
 
 test.describe("Authentication", () => {
   test.beforeEach(async ({ page }) => {
@@ -35,7 +35,6 @@ test.describe("Authentication", () => {
       });
     });
 
-    const dialogs = setupDialogHandler(page);
     await page.goto("/");
     await page.locator('input[aria-label="email"]').fill("jane@example.com");
     await page.locator('input[aria-label="password"]').fill("password123");
@@ -51,9 +50,8 @@ test.describe("Authentication", () => {
     expect(loginPayload.email).toBe("jane@example.com");
     expect(loginPayload.password).toBe("password123");
 
-    // No error dialogs
-    const errors = dialogs.filter((d) => d.type === "alert");
-    expect(errors).toHaveLength(0);
+    // No error toasts
+    await expect(page.locator(".toast--error")).not.toBeVisible();
   });
 
   test("login with invalid credentials shows error", async ({ page }) => {
@@ -66,17 +64,15 @@ test.describe("Authentication", () => {
       });
     });
 
-    const dialogs = setupDialogHandler(page);
     await page.goto("/");
     await page.locator('input[aria-label="email"]').fill("wrong@example.com");
     await page.locator('input[aria-label="password"]').fill("wrongpass");
     await page.getByRole("button", { name: "Submit" }).click();
 
-    // Wait for the error dialog
-    await expect
-      .poll(() => dialogs.length, { timeout: 5000 })
-      .toBeGreaterThan(0);
-    expect(dialogs[0].message).toContain("Invalid email or password");
+    // Wait for the error toast
+    const toast = page.locator(".toast--error");
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast.locator(".toast__message")).toContainText("Invalid email or password");
   });
 
   test("logout clears cookies and redirects to login", async ({

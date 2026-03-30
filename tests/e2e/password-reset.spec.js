@@ -3,7 +3,6 @@ const {
   stubPusher,
   disableIdleTimer,
   mockApi,
-  setupDialogHandler,
 } = require("../helpers/setup");
 
 test.describe("Password Reset", () => {
@@ -28,8 +27,6 @@ test.describe("Password Reset", () => {
       });
     });
 
-    const dialogs = setupDialogHandler(page);
-
     await page.goto("/reset-password/");
     await page.waitForLoadState("networkidle");
 
@@ -53,11 +50,10 @@ test.describe("Password Reset", () => {
     expect(resetMethod).toBe("POST");
     expect(resetPayload.email).toBe("jane@example.com");
 
-    // Confirmation dialog
-    await expect
-      .poll(() => dialogs.length, { timeout: 5000 })
-      .toBeGreaterThan(0);
-    expect(dialogs[0].message).toContain("Password reset email sent");
+    // Success toast
+    const toast = page.locator(".toast--success");
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast.locator(".toast__message")).toContainText("Password reset email sent");
   });
 
   test("set new password sends POST with password", async ({ page }) => {
@@ -76,8 +72,6 @@ test.describe("Password Reset", () => {
         body: JSON.stringify({ message: "Password updated successfully." }),
       });
     });
-
-    const dialogs = setupDialogHandler(page);
 
     await page.goto("/reset-password/test-reset-token/");
     await page.waitForLoadState("networkidle");
@@ -102,10 +96,9 @@ test.describe("Password Reset", () => {
     expect(passwordPayload.password).toBe("newpassword123");
     expect(passwordUrl).toContain("test-reset-token");
 
-    // Confirmation dialog
-    await expect
-      .poll(() => dialogs.length, { timeout: 5000 })
-      .toBeGreaterThan(0);
-    expect(dialogs[0].message).toContain("Password updated");
+    // Success toast
+    const toast = page.locator(".toast--success");
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast.locator(".toast__message")).toContainText("Password updated");
   });
 });

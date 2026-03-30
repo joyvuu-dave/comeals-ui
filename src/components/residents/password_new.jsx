@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
+import handleAxiosError from "../../helpers/handle_axios_error";
+import toastStore from "../../stores/toast_store";
 
 class ResidentsPasswordNew extends Component {
   constructor(props) {
@@ -26,18 +28,9 @@ class ResidentsPasswordNew extends Component {
         }
       })
       .catch(function(error) {
+        handleAxiosError(error, { silent: true });
         if (error.response) {
-          const data = error.response.data;
-          if (data.message) {
-            window.alert(data.message);
-          } else {
-            console.error("Bad response from server", error);
-          }
           self.props.history.push("/");
-        } else if (error.request) {
-          console.error("Error: no response received from server.");
-        } else {
-          console.error("Error: could not submit form.");
         }
       });
   }
@@ -58,25 +51,16 @@ class ResidentsPasswordNew extends Component {
         self.setState({ loading: false });
         if (response.status === 200) {
           if (response.data.message) {
-            window.alert(response.data.message);
+            toastStore.addToast(response.data.message, "success");
           }
           self.props.history.push("/");
         }
       })
       .catch(function(error) {
         self.setState({ loading: false });
-        if (error.response) {
-          const data = error.response.data;
-          if (data.message) {
-            window.alert(data.message);
-          } else {
-            console.error("Bad response from server", error);
-          }
-        } else if (error.request) {
-          window.alert("Error: no response received from server.");
+        handleAxiosError(error);
+        if (error.request && !error.response) {
           self.props.history.push("/");
-        } else {
-          window.alert("Error: could not submit form.");
         }
       });
   }
