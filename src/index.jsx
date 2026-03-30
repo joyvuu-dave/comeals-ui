@@ -8,6 +8,15 @@ dayjs.extend(relativeTime);
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "mobx-react";
+import { setLivelinessChecking } from "mobx-state-tree";
+
+// React 19 dev mode iterates over all component props for DevTools diffing
+// (addObjectDiffToProperties), which reads properties on detached MST nodes.
+// This is harmless and doesn't occur in production builds.
+// See: https://github.com/mobxjs/mobx-state-tree/issues/2279
+if (import.meta.env.DEV) {
+  setLivelinessChecking("ignore");
+}
 import Cookie from "js-cookie";
 import VersionBanner from "./components/app/version_banner";
 import ToastContainer from "./components/app/toast_container";
