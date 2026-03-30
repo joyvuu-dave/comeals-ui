@@ -79,26 +79,35 @@ The library is unmaintained (no fix planned). It is used in exactly one file.
 import onClickOutside from "react-onclickoutside";
 
 class GuestDropdown extends Component {
-  handleClickOutside() {
-    this.setState({ showDropdown: false });
-  }
+  // ...
+  handleClickOutside = () => {
+    this.setState({ open: false });
+  };
   // ...
 }
 export default onClickOutside(GuestDropdown);
 ```
 
+Note: The component is NOT wrapped in `inject`/`observer` — it receives
+`resident` as a prop from the parent. The `onClickOutside` HOC is the only
+wrapper.
+
 **Replacement:** Add a `ref` to the dropdown's outer container and attach a
 `mousedown` listener to `document` that checks whether the click target is
-outside the ref. This is the standard pattern recommended by the React docs.
-
-Since the codebase uses class components, the implementation uses `createRef`:
+outside the ref. This is the same pattern already used in
+`DayPickerInputWrapper` and recommended by the React docs.
 
 ```js
 class GuestDropdown extends Component {
   constructor(props) {
     super(props);
-    this.wrapperRef = React.createRef();
+    this.handleClick = this.handleClick.bind(this);
     this.handleClickOutside = this.handleClickOutside.bind(this);
+    this.wrapperRef = React.createRef();
+
+    this.state = {
+      open: false
+    };
   }
 
   componentDidMount() {
@@ -111,7 +120,7 @@ class GuestDropdown extends Component {
 
   handleClickOutside(event) {
     if (this.wrapperRef.current && !this.wrapperRef.current.contains(event.target)) {
-      this.setState({ showDropdown: false });
+      this.setState({ open: false });
     }
   }
 
@@ -210,27 +219,38 @@ class DebouncedTextarea extends Component {
         value={this.state.value}
         onChange={this.handleChange}
         className={this.props.className}
+        style={this.props.style}
         disabled={this.props.disabled}
+        aria-label={this.props.ariaLabel}
       />
     );
   }
 }
 ```
 
-**IMPORTANT: onChange callback signature change.** The `DebounceInput` library
-called `onChange` with a synthetic event object. The replacement calls
-`this.props.onChange(val)` with a raw string. The usage in `menu_box.jsx` must
-be updated simultaneously:
+**Three changes from the DebounceInput behavior to be aware of:**
 
-```jsx
-// BEFORE (event-based)
-onChange={e => store.setDescription(e.target.value)}
+1. **onChange callback signature.** The `DebounceInput` library called `onChange`
+   with a synthetic event object. The replacement calls `this.props.onChange(val)`
+   with a raw string. The usage in `menu_box.jsx` must be updated simultaneously:
+   ```jsx
+   // BEFORE (event-based)
+   onChange={e => store.setDescription(e.target.value)}
 
-// AFTER (value-based)
-onChange={val => store.setDescription(val)}
-```
+   // AFTER (value-based)
+   onChange={val => store.setDescription(val)}
+   ```
 
-The `aria-label` prop also needs to be passed through to the `<textarea>`.
+2. **`style` and `aria-label` props.** The current `DebounceInput` receives
+   `style={styles.text}` and `aria-label="Enter meal description"`. The
+   replacement passes these through. Note: `aria-label` is passed as
+   `ariaLabel` (JSX camelCase) to avoid the hyphenated prop warning.
+
+3. **`minLength={2}` is dropped.** The `DebounceInput` only fired `onChange`
+   after the input had at least 2 characters. The replacement fires on any
+   change. This means typing a single character will trigger a debounced API
+   call. This is acceptable — the server handles any description length, and
+   the 700ms debounce still prevents rapid-fire calls.
 
 This can be defined directly in `menu_box.jsx` or in a small shared file.
 Either way, the external dependency is removed.
@@ -406,27 +426,35 @@ The current v5 route:
 ```
 
 In v6, `exact` and `strict` don't exist. `<Redirect>` is replaced by
-`<Navigate>`. The trailing-slash enforcement can be done with a layout route
-or a simple component:
+`<Navigate>`. The trailing-slash enforcement must be rendered **outside**
+`<Routes>`, not inside it — v6's `<Routes>` renders only the first matching
+route, so a `path="*"` catch-all inside `<Routes>` would consume all matches
+and prevent any other route from rendering.
 
 ```jsx
-function TrailingSlashRedirect() {
+function TrailingSlash() {
   const location = useLocation();
   if (!location.pathname.endsWith("/")) {
-    return <Navigate to={location.pathname + "/"} replace />;
+    return <Navigate to={location.pathname + "/" + location.search} replace />;
   }
   return null;
 }
 
-// In Routes:
-<Routes>
-  <Route path="*" element={<TrailingSlashRedirect />} />
-  {/* ... other routes ... */}
-</Routes>
+// In the app — OUTSIDE Routes, inside Router:
+<Router>
+  <TrailingSlash />
+  <Routes>
+    {/* ... routes ... */}
+  </Routes>
+</Router>
 ```
 
-Or, if v6's default behavior already handles trailing slashes correctly for
-this app, this route may no longer be needed. Test by removing it and verifying
+This renders on every navigation. If the path lacks a trailing slash, it
+redirects. If it already has one, it returns null (renders nothing) and
+`<Routes>` handles the matching.
+
+If v6's default behavior already handles trailing slashes correctly for this
+app, this component may not be needed. Test by removing it and verifying
 navigation still works.
 
 ### 2.7 Install
@@ -534,8 +562,10 @@ risk of rewriting 15 components simultaneously.
 ### 5.2 Consider ref-as-prop pattern (informational)
 
 React 19 passes `ref` as a regular prop instead of requiring `forwardRef`. This
-is a simplification but does not affect the current codebase since no components
-use refs or `forwardRef`.
+is a simplification. The codebase uses `React.createRef()` in two components
+(`day_picker_input.jsx` and `guest_dropdown.jsx` after Phase 1.1) but does not
+use `forwardRef`. No changes needed — `createRef()` continues to work in React
+19.
 
 ---
 
@@ -574,16 +604,10 @@ Plans 1-5 are **all complete**. This is the final plan:
 
 ## Risks
 
-### 1. react-big-calendar Minor Upgrade Regression
+### 1. ~~react-big-calendar Minor Upgrade Regression~~ — RESOLVED
 
-**Risk:** The project has prior history of react-big-calendar breaking on minor
-bumps. The 1.17.1 → 1.19.x upgrade crosses two minor versions.
-
-**Mitigation:** Do this upgrade in isolation (Phase 1.2) on React 18 so any
-regressions are clearly attributable to the calendar library, not React. Run the
-full e2e test suite (`tests/e2e/calendar.spec.js`) and do manual visual testing
-of all calendar views. If issues are found, they can be addressed before
-proceeding with the React 19 bump.
+Already upgraded to 1.19.4 during the moment→dayjs plan. All 57 e2e tests pass
+including all 4 calendar tests. No regressions found.
 
 ### 2. mobx-react Major Version Jump (7 → 9)
 
@@ -630,7 +654,7 @@ still supported in v3. Run e2e visual tests to confirm icons render.
 ### 6. Class Components Are Not Deprecated in React 19
 
 **Non-risk (clarification):** React 19 fully supports class components. There is
-no need to convert the 25 class components to functions as part of this upgrade.
+no need to convert the 28 class components to functions as part of this upgrade.
 The class-to-function conversion is a separate, optional project that can be done
 incrementally over time if desired.
 
@@ -643,7 +667,7 @@ Each phase should be verified independently before proceeding to the next:
 | Phase | Automated tests | Manual verification |
 |---|---|---|
 | 1.1 (onclickoutside) | E2e meal page tests | Open/close guest dropdown |
-| 1.2 (big-calendar) | `calendar.spec.js` e2e | All calendar views, nav, events |
+| ~~1.2 (big-calendar)~~ | ~~Done~~ | ~~Verified with 57 passing e2e tests~~ |
 | 1.3 (mobx-react) | Unit tests + all e2e | Every page that uses store data |
 | 1.4 (debounce-input) | E2e meal page tests | Type in menu description, verify debounce |
 | 1.5 (fontawesome) | E2e visual tests | Icons visible on all pages |
