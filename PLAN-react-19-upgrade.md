@@ -1,8 +1,8 @@
 # Plan: Upgrade React 18 to React 19
 
-**Date:** 2026-03-29
-**Scope:** All 28 source files with React imports, package.json, vite.config.js
-**Sequencing:** Execute AFTER all other existing plans (see Ordering section)
+**Date:** 2026-03-29 (updated 2026-03-30)
+**Scope:** All 31 source files with React imports, package.json, vite.config.js
+**Sequencing:** All prerequisite plans are now complete. This is the final plan.
 
 ---
 
@@ -12,50 +12,54 @@
 - `react-dom`: ^18.3.1
 - Entry point (`src/index.jsx`) already uses `createRoot` from `react-dom/client`
 - JSX runtime: **classic** (`jsxRuntime: "classic"` in vite.config.js)
-- 25 class components, 0 hooks, heavy use of HOCs (`inject`/`observer`, `withRouter`, `onClickOutside`)
+- 28 class components, 0 hooks, heavy use of HOCs (`inject`/`observer`, `withRouter`, `onClickOutside`)
+- 3 new components added since original plan: `toast_container.jsx`, `confirm_modal.jsx`, `day_picker_input.jsx`
 - No PropTypes, no string refs, no `findDOMNode`, no legacy context, no `UNSAFE_` lifecycle methods
+- `day_picker_input.jsx` uses `React.createRef()` — relevant for Phase 3 (JSX runtime switch)
 
 ## React 19 Breaking Changes That Affect This Codebase
 
 React 19 removes several deprecated APIs. The codebase itself does not use any of
 them directly, but **five third-party dependencies do**:
 
-| Removed API | Affected dependency | Impact |
-|---|---|---|
-| `React.createFactory` | `react-big-calendar@1.17.1` (in DnD addon internals) | Runtime crash |
-| `ReactDOM.findDOMNode` | `react-onclickoutside@6.13.2` | Runtime crash |
-| Peer dep `react: ^18` only | `mobx-react@7.6.0` | npm install failure |
-| Peer dep `react: ^18` only | `react-day-picker@7.4.8` | npm install failure + likely runtime issues |
-| Peer dep `react: ^18` only | `react-debounce-input@3.3.0` | npm install warning (probably works at runtime) |
-| Peer dep `react: ^18` only | `react-router-dom@5.2.0` | npm install warning + potential subtle issues |
-| className bug in React 19 | `@fortawesome/react-fontawesome@0.2.6` | Runtime error when className not passed |
+| Removed API | Affected dependency | Impact | Status |
+|---|---|---|---|
+| `React.createFactory` | `react-big-calendar@1.17.1` | Runtime crash | **RESOLVED** — upgraded to 1.19.4 in moment→dayjs plan |
+| `ReactDOM.findDOMNode` | `react-onclickoutside@6.13.2` | Runtime crash | Phase 1.1 |
+| Peer dep `react: ^18` only | `mobx-react@7.6.0` | npm install failure | Phase 1.3 |
+| Peer dep `react: ^18` only | `react-day-picker@7.4.8` | npm install failure | **RESOLVED** — upgraded to v9 in moment→dayjs plan |
+| Peer dep `react: ^18` only | `react-debounce-input@3.3.0` | npm install warning | Phase 1.4 |
+| Peer dep `react: ^18` only | `react-router-dom@5.2.0` | npm install warning + issues | Phase 2 |
+| className bug in React 19 | `@fortawesome/react-fontawesome@0.2.6` | Runtime error | Phase 1.5 |
+
+**Already resolved by prior plans:**
+- `react-day-picker` v7→v9 (moment→dayjs plan)
+- `react-big-calendar` 1.17.1→1.19.4 (moment→dayjs plan, also switched to dayjsLocalizer)
+
+**Not a blocker (verified):**
+- `react-modal@3.16.3` — peer deps already include React 19 (`react ^0.14-19`)
 
 Other React 19 changes (removed `PropTypes` runtime, removed `defaultProps` on
 function components, `ref` as regular prop) do not affect this codebase because
-no source files use PropTypes or defaultProps, and no source files use refs at
-all.
+no source files use PropTypes or defaultProps. One new file
+(`day_picker_input.jsx`) uses `React.createRef()`, which is NOT removed in
+React 19.
 
 ---
 
-## Prerequisites (Other Plans That Must Complete First)
+## Prerequisites — ALL COMPLETE
 
-### PLAN-moment-dayjs-daypicker.md (MUST complete before starting)
+All prerequisite plans have been implemented:
 
-This plan already covers upgrading `react-day-picker` from v7 to v9 and
-replacing `moment` with `dayjs`. Since react-day-picker v7 is a React 19
-blocker, this prerequisite migration must be done on React 18 first (where v9
-also works) rather than attempting it simultaneously with the React upgrade.
+- **PLAN-version-banner.md** — Done. VersionBanner uses Vite manifest.
+- **PLAN-eslint-config.md** — Done. ESLint 9 flat config, 0 warnings.
+- **PLAN-form-loading-states.md** — Done. 7 forms have loading/loadingAction state.
+- **PLAN-replace-window-alert.md** — Done. Toast system, ConfirmModal, handleAxiosError.
+- **PLAN-moment-dayjs-daypicker.md** — Done. dayjs replaces moment, react-day-picker v9,
+  DayPickerInputWrapper, react-big-calendar uses dayjsLocalizer.
 
-### Other existing plans (SHOULD complete before starting)
-
-- **PLAN-eslint-config.md** — Having working lint catches issues during the
-  upgrade. Do this early.
-- **PLAN-version-banner.md** — Small fix, independent. Do it before the churn of
-  the React upgrade.
-- **PLAN-form-loading-states.md** — Modifies 6 form components. Easier to do on
-  stable React 18.
-- **PLAN-replace-window-alert.md** — Touches 17 files. Do the refactoring on
-  stable React 18.
+The codebase is on stable React 18 with all refactoring complete. This plan
+is now purely a dependency-upgrade exercise.
 
 ---
 
@@ -122,25 +126,12 @@ export default GuestDropdown;  // no HOC wrapper
 **Files changed:** 1 (`src/components/meal/guest_dropdown.jsx`)
 **Package removed:** `react-onclickoutside`
 
-### 1.2 Upgrade react-big-calendar from 1.17.1 to >=1.19.3
+### 1.2 ~~Upgrade react-big-calendar~~ — ALREADY DONE
 
-**Why:** Version 1.17.1 uses `React.createFactory` internally, which is removed
-in React 19. Version 1.19.3+ replaced it with `createElement` and added React
-19 to its peer deps.
-
-**Known risk:** Per project memory, this library broke on a minor bump in the
-past. The upgrade from 1.17.1 to 1.19.x crosses two minor versions. The
-changelog must be reviewed and the calendar must be thoroughly tested.
-
-**Steps:**
-1. Read the react-big-calendar changelog for 1.18.x and 1.19.x
-2. `npm install react-big-calendar@^1.19.3`
-3. Run the existing e2e tests (`tests/e2e/calendar.spec.js`)
-4. Manually verify: month view, week view, day view, event rendering, navigation,
-   event colors/styling, today highlighting
-5. If any breaking changes are found, address them before proceeding
-
-**Files changed:** 0 source files (if no breaking API changes), 1 `package.json`
+Completed during the moment→dayjs migration. react-big-calendar is now at
+1.19.4, using `dayjsLocalizer` instead of `momentLocalizer`. Calendar event
+start/end strings are converted to native `Date` objects in `loadMonth`.
+All 4 calendar e2e tests pass. **No action needed.**
 
 ### 1.3 Upgrade mobx-react from 7.6.0 to 9.2.x
 
@@ -225,6 +216,21 @@ class DebouncedTextarea extends Component {
   }
 }
 ```
+
+**IMPORTANT: onChange callback signature change.** The `DebounceInput` library
+called `onChange` with a synthetic event object. The replacement calls
+`this.props.onChange(val)` with a raw string. The usage in `menu_box.jsx` must
+be updated simultaneously:
+
+```jsx
+// BEFORE (event-based)
+onChange={e => store.setDescription(e.target.value)}
+
+// AFTER (value-based)
+onChange={val => store.setDescription(val)}
+```
+
+The `aria-label` prop also needs to be passed through to the `<textarea>`.
 
 This can be defined directly in `menu_box.jsx` or in a small shared file.
 Either way, the external dependency is removed.
@@ -368,13 +374,69 @@ children or `<Navigate>`.
 
 **New file:** `src/helpers/with_router.jsx` (the shim)
 
-### 2.5 Install
+### 2.5 Optional Route Params (`:param?` syntax)
+
+The current routes use v5 optional params:
 
 ```
-npm install react-router-dom@^6
+/calendar/:type/:date/:modal?/:view?/:id?
+/:modal?/:token?
 ```
 
-Note: Going directly to v6 rather than v7. React Router v7 is a larger change
+React Router v6 re-added optional param support (`?` suffix) in **v6.21.0**.
+Earlier v6 versions do NOT support it. The install must pin to v6.21+:
+
+```
+npm install react-router-dom@^6.21.0
+```
+
+With v6.21+, the optional param syntax works the same as v5:
+
+```jsx
+<Route path="/calendar/:type/:date/:modal?/:view?/:id?" element={...} />
+<Route path="/:modal?/:token?" element={...} />
+```
+
+### 2.6 Trailing-Slash Redirect Route
+
+The current v5 route:
+```jsx
+<Route exact strict path="/:url*"
+  render={props => (<Redirect to={`${props.location.pathname}/`} />)} />
+```
+
+In v6, `exact` and `strict` don't exist. `<Redirect>` is replaced by
+`<Navigate>`. The trailing-slash enforcement can be done with a layout route
+or a simple component:
+
+```jsx
+function TrailingSlashRedirect() {
+  const location = useLocation();
+  if (!location.pathname.endsWith("/")) {
+    return <Navigate to={location.pathname + "/"} replace />;
+  }
+  return null;
+}
+
+// In Routes:
+<Routes>
+  <Route path="*" element={<TrailingSlashRedirect />} />
+  {/* ... other routes ... */}
+</Routes>
+```
+
+Or, if v6's default behavior already handles trailing slashes correctly for
+this app, this route may no longer be needed. Test by removing it and verifying
+navigation still works.
+
+### 2.7 Install
+
+```
+npm install react-router-dom@^6.21.0
+```
+
+Note: Pinned to v6.21+ (not just ^6) to ensure optional param support.
+Going directly to v6 rather than v7. React Router v7 is a larger change
 (introduces loader/action patterns from Remix) and is unnecessary for this
 codebase. v6 is the minimal step needed for React 19 compatibility and has the
 most established migration guides.
@@ -413,9 +475,13 @@ classic runtime, so this is not strictly a blocker, but:
    import { Component } from "react";
    ```
 
-3. Files that use `React.lazy()` or `React.Fragment` keep the React import:
+3. Files that reference the `React` namespace directly keep the React import
+   (or destructure the specific API they use):
    - `src/index.jsx` — uses `React.lazy()` → keep `import React from "react"`
    - `src/components/meal/date_box.jsx` — uses `React.lazy()` → keep import
+   - `src/components/common/day_picker_input.jsx` — uses `React.createRef()` →
+     either keep `import React` or change to
+     `import { Component, createRef } from "react"` and use `createRef()`
 
 4. Run `npm run build` and `npm test` to verify nothing breaks.
 
@@ -475,40 +541,34 @@ use refs or `forwardRef`.
 
 ## Complete Dependency Change Summary
 
-| Package | Current | Target | Change type |
-|---|---|---|---|
-| `react` | ^18.3.1 | ^19.0.0 | Major upgrade |
-| `react-dom` | ^18.3.1 | ^19.0.0 | Major upgrade |
-| `mobx-react` | ^7.6.0 | ^9.2.0 | Major upgrade |
-| `react-router-dom` | 5.2.0 | ^6 | Major upgrade |
-| `react-big-calendar` | ^1.17.1 | ^1.19.3 | Minor upgrade |
-| `@fortawesome/react-fontawesome` | ^0.2.6 | ^3.0.0 | Major upgrade |
-| `react-onclickoutside` | ^6.13.2 | (removed) | Replaced with inline code |
-| `react-debounce-input` | ^3.3.0 | (removed) | Replaced with inline code |
-| `react-day-picker` | 7.4.8 | ^9 | Handled by PLAN-moment-dayjs-daypicker |
+| Package | Current | Target | Change type | Status |
+|---|---|---|---|---|
+| `react` | ^18.3.1 | ^19.0.0 | Major upgrade | Phase 4 |
+| `react-dom` | ^18.3.1 | ^19.0.0 | Major upgrade | Phase 4 |
+| `mobx-react` | ^7.6.0 | ^9.2.0 | Major upgrade | Phase 1.3 |
+| `react-router-dom` | 5.2.0 | ^6.21.0 | Major upgrade | Phase 2 |
+| `@fortawesome/react-fontawesome` | ^0.2.6 | ^3.0.0 | Major upgrade | Phase 1.5 |
+| `react-onclickoutside` | ^6.13.2 | (removed) | Replaced with inline code | Phase 1.1 |
+| `react-debounce-input` | ^3.3.0 | (removed) | Replaced with inline code | Phase 1.4 |
+| `react-big-calendar` | ^1.17.1 | 1.19.4 | Minor upgrade | **DONE** |
+| `react-day-picker` | 7.4.8 | ^9.14.0 | Major upgrade | **DONE** |
+| `moment` | 2.29.4 | (removed) | Replaced with dayjs | **DONE** |
 
 ---
 
 ## Ordering Relative to Other Plans
 
-The React 19 upgrade should be the **last major plan executed**. Recommended
-overall order:
+Plans 1-5 are **all complete**. This is the final plan:
 
-1. **PLAN-version-banner.md** — Quick fix, independent, 3 files
-2. **PLAN-eslint-config.md** — Establishes linting for all subsequent work
-3. **PLAN-form-loading-states.md** — Small scope, 6 forms
-4. **PLAN-replace-window-alert.md** — Larger refactor, 17+ files, but all on
-   stable React 18
-5. **PLAN-moment-dayjs-daypicker.md** — **Must** precede React 19 (handles
-   react-day-picker v7→v9 which is a React 19 blocker). Also replaces moment.js.
-6. **PLAN-react-19-upgrade.md** (this plan) — Depends on #5 completing.
-   All other refactoring should be done on stable React 18 first.
-
-**Rationale:** Doing the large refactoring plans (alerts, loading states, dayjs)
-on React 18 first means those changes are made against a stable, well-understood
-runtime. The React 19 upgrade then becomes primarily a dependency-bump exercise
-with the blockers already resolved, minimizing the surface area of change in the
-final step.
+1. ~~PLAN-version-banner.md~~ — Done
+2. ~~PLAN-eslint-config.md~~ — Done
+3. ~~PLAN-form-loading-states.md~~ — Done
+4. ~~PLAN-replace-window-alert.md~~ — Done
+5. ~~PLAN-moment-dayjs-daypicker.md~~ — Done (also resolved react-big-calendar
+   and react-day-picker blockers)
+6. **PLAN-react-19-upgrade.md** (this plan) — Ready to execute. Two dependency
+   blockers already resolved by plan #5. Remaining work: 4 dependency upgrades/
+   removals, react-router v5→v6 migration, JSX runtime switch, React 19 bump.
 
 ---
 
