@@ -2,7 +2,12 @@
 
 ## Catalog of All Usages
 
-### window.alert() calls (80 total)
+**Note:** Line numbers below are approximate. Several files have been modified
+since this catalog was compiled (loading state changes). During implementation,
+search for `window.alert(` and `window.confirm(` in each file rather than
+relying on line numbers.
+
+### window.alert() calls (86 total)
 
 | # | File | Line | Trigger | Message | Type |
 |---|------|------|---------|---------|------|
@@ -104,7 +109,7 @@
 
 ## Categories of Usage
 
-### Category 1: API Error Messages (78 occurrences)
+### Category 1: API Error Messages (83 occurrences)
 
 By far the largest category. Every axios call in the codebase follows the same three-branch error handler pattern:
 
@@ -194,6 +199,35 @@ src/stores/toast_store.js
 - `removeToast(id)`: remove by id
 - `type` is one of: `"error"`, `"success"`, `"warning"`, `"info"`
 
+The project uses MobX 6.13.7, which requires `makeAutoObservable(this)` in the
+constructor. Example skeleton:
+
+```js
+import { makeAutoObservable } from "mobx";
+
+class ToastStore {
+  toasts = [];
+  _nextId = 0;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  addToast(message, type) {
+    var id = ++this._nextId;
+    this.toasts.push({ id, message, type, timestamp: Date.now() });
+    return id;
+  }
+
+  removeToast(id) {
+    this.toasts = this.toasts.filter(function(t) { return t.id !== id; });
+  }
+}
+
+var toastStore = new ToastStore();
+export default toastStore;
+```
+
 The store is a singleton exported as a module-level instance. It does not live inside DataStore because:
 1. Toast state is UI-only (not app data).
 2. The axios error handler utility needs to call `addToast()` without having a reference to the DataStore.
@@ -257,26 +291,50 @@ src/components/app/confirm_modal.jsx
 
 **Usage pattern in delete handlers:**
 
-Currently:
+The three edit forms already use a `loadingAction` state (added in the form
+loading states plan). The confirmation modal must integrate with it.
+
+Currently (after loading state changes):
 ```js
 handleDelete() {
+  if (this.state.loadingAction) return;
   if (window.confirm("Do you really want to delete this event?")) {
-    // axios.delete(...)
+    this.setState({ loadingAction: "delete" });
+    var self = this;
+    axios.delete(...)
+      .then(function(response) {
+        self.setState({ loadingAction: null });
+        // ...
+      })
+      .catch(function(error) {
+        self.setState({ loadingAction: null });
+        // ...
+      });
   }
 }
 ```
 
 After:
 ```js
-// Component state: confirmDeleteOpen: false
+// Component state: add confirmDeleteOpen: false
 
 handleDeleteClick() {
+  if (this.state.loadingAction) return;
   this.setState({ confirmDeleteOpen: true });
 }
 
 handleDeleteConfirm() {
-  this.setState({ confirmDeleteOpen: false });
-  // axios.delete(...)
+  this.setState({ confirmDeleteOpen: false, loadingAction: "delete" });
+  var self = this;
+  axios.delete(...)
+    .then(function(response) {
+      self.setState({ loadingAction: null });
+      // ... (existing success logic)
+    })
+    .catch(function(error) {
+      self.setState({ loadingAction: null });
+      handleAxiosError(error);
+    });
 }
 
 handleDeleteCancel() {
@@ -292,7 +350,16 @@ handleDeleteCancel() {
 />
 ```
 
-This avoids promise-based patterns and stays consistent with the class component / callback style used throughout the codebase. Each of the three edit components (events, guest room reservations, common house reservations) gets a small `confirmDeleteOpen` state field plus two extra handler methods.
+The `loadingAction` guard moves to `handleDeleteClick` (don't open the modal if
+a submit/delete is already in flight). Setting `loadingAction: "delete"` moves
+to `handleDeleteConfirm` (set it when the user actually confirms, not when the
+modal opens). The `.then()` and `.catch()` clearing of `loadingAction` is
+preserved exactly as implemented.
+
+This avoids promise-based patterns and stays consistent with the class
+component / callback style used throughout the codebase. Each of the three edit
+components gets a `confirmDeleteOpen` state field plus two extra handler
+methods.
 
 
 ## Implementation with the Shared Axios Error Handler
@@ -308,7 +375,8 @@ src/helpers/handle_axios_error.js
 ```js
 import toastStore from "../stores/toast_store";
 
-export default function handleAxiosError(error) {
+export default function handleAxiosError(error, options) {
+  var silent = options && options.silent;
   if (error.response) {
     const data = error.response.data;
     if (data.message) {
@@ -317,16 +385,69 @@ export default function handleAxiosError(error) {
       console.error("Bad response from server", error);
     }
   } else if (error.request) {
-    toastStore.addToast("Error: no response received from server.", "error");
+    if (silent) {
+      console.error("Error: no response received from server.");
+    } else {
+      toastStore.addToast("Error: no response received from server.", "error");
+    }
   } else {
-    toastStore.addToast("Error: could not submit form.", "error");
+    if (silent) {
+      console.error("Error: could not submit form.");
+    } else {
+      toastStore.addToast("Error: could not submit form.", "error");
+    }
   }
 }
 ```
 
+The `silent` option controls branches B and C only (no response / request setup
+error). Branch A (server returned an error message) always shows a toast because
+the server explicitly sent a message for the user. The `silent` option preserves
+the existing behavior of files that intentionally use `console.error` for
+branches B and C.
+
+**Important:** The goal is to replicate existing behavior exactly. If a call site
+currently uses `console.error`, it must stay as `console.error`. If it currently
+uses `window.alert`, it becomes a toast. No errors should be newly surfaced.
+
+### Which files use `silent: true`
+
+These files currently use `console.error` (not `window.alert`) for branches B
+and C. They must call `handleAxiosError(error, { silent: true })`:
+
+- `src/stores/data_store.js` — `loadDataAsync`, `loadMonthAsync`, `loadNext`,
+  `loadPrev` (GET requests for loading data)
+- `src/components/calendar/side_bar.jsx` — `openNextMeal` (GET)
+- `src/components/calendar/webcal_links.jsx` — `componentDidMount` (GET)
+- `src/components/rotations/show.jsx` — `componentDidMount` (GET)
+- `src/components/history/show.jsx` — `componentDidMount` (GET)
+- `src/components/guest_room_reservations/new.jsx` — `componentDidMount` (GET)
+- `src/components/guest_room_reservations/edit.jsx` — `componentDidMount` (GET)
+- `src/components/common_house_reservations/new.jsx` — `componentDidMount` (GET)
+- `src/components/common_house_reservations/edit.jsx` — `componentDidMount` (GET)
+- `src/components/events/edit.jsx` — `componentDidMount` (GET)
+- `src/components/residents/password_new.jsx` — `componentDidMount` (GET)
+
+All other call sites use `handleAxiosError(error)` (no options) to show toasts
+for all three branches, matching the current `window.alert` behavior.
+
+**Special case — `password_new.jsx` componentDidMount:** This catch block has
+custom redirect logic (`self.props.history.push("/")`) inside the
+`if (error.response)` branch that runs after the alert. This redirect must be
+preserved as additional logic after the handler call:
+
+```js
+.catch(function(error) {
+  handleAxiosError(error, { silent: true });
+  if (error.response) {
+    self.props.history.push("/");
+  }
+});
+```
+
 ### How Catch Blocks Change
 
-**Before (typical pattern, e.g., resident.js toggleLate):**
+**Before (form submit pattern — all three branches alert):**
 ```js
 .catch(function(error) {
   if (!isAlive(self)) return;
@@ -356,7 +477,33 @@ export default function handleAxiosError(error) {
 });
 ```
 
-The rollback logic (reverting optimistic updates, re-incrementing extras, etc.) stays in each individual catch block. Only the error display logic is extracted.
+**Before (data loading pattern — branches B/C use console.error):**
+```js
+.catch(function(error) {
+  if (error.response) {
+    const data = error.response.data;
+    if (data.message) {
+      window.alert(data.message);
+    } else {
+      console.error("Bad response from server", error);
+    }
+  } else if (error.request) {
+    console.error("Error: No response from server.", error.request);
+  } else {
+    console.error("Error: Could not retrieve data.", error.message);
+  }
+});
+```
+
+**After:**
+```js
+.catch(function(error) {
+  handleAxiosError(error, { silent: true });
+});
+```
+
+The rollback logic (reverting optimistic updates, re-incrementing extras, etc.)
+stays in each individual catch block. Only the error display logic is extracted.
 
 ### Axios Interceptor: Not Recommended
 
@@ -401,32 +548,43 @@ Work file-by-file. For each file:
 4. For the validation message (data_store.js line 169): replace `window.alert("All cook costs must be set before closing.")` with `toastStore.addToast("All cook costs must be set before closing.", "warning")`.
 5. Verify no remaining `window.alert(` calls in `src/`.
 
-Recommended order within this phase (stores first, then components, smallest files first):
+Recommended order within this phase (stores first, then components, smallest
+files first). Files marked with **(silent)** have `componentDidMount` or data
+loading catch blocks that must use `handleAxiosError(error, { silent: true })`
+to preserve existing `console.error` behavior for branches B and C:
+
 1. `src/stores/meal.js` (6 alert calls, 2 catch blocks)
 2. `src/stores/resident.js` (18 alert calls, 6 catch blocks)
-3. `src/stores/data_store.js` (14 alert calls, 1 validation + 7 catch blocks)
-4. `src/components/calendar/webcal_links.jsx` (1 alert call)
-5. `src/components/calendar/side_bar.jsx` (1 alert call)
-6. `src/components/rotations/show.jsx` (1 alert call)
-7. `src/components/history/show.jsx` (1 alert call)
+3. `src/stores/data_store.js` (14 alert calls, 1 validation + 7 catch blocks) **(silent for loadDataAsync, loadMonthAsync, loadNext, loadPrev)**
+4. `src/components/calendar/webcal_links.jsx` (1 alert call) **(silent)**
+5. `src/components/calendar/side_bar.jsx` (1 alert call) **(silent)**
+6. `src/components/rotations/show.jsx` (1 alert call) **(silent)**
+7. `src/components/history/show.jsx` (1 alert call) **(silent)**
 8. `src/components/residents/login.jsx` (3 alert calls)
 9. `src/components/residents/password_reset.jsx` (4 alert calls, 1 is success)
-10. `src/components/residents/password_new.jsx` (5 alert calls, 1 is success)
+10. `src/components/residents/password_new.jsx` (5 alert calls, 1 is success) **(silent for componentDidMount; componentDidMount also has redirect logic — see note below)**
 11. `src/components/events/new.jsx` (3 alert calls)
-12. `src/components/events/edit.jsx` (7 alert calls)
-13. `src/components/guest_room_reservations/new.jsx` (4 alert calls)
-14. `src/components/guest_room_reservations/edit.jsx` (7 alert calls)
-15. `src/components/common_house_reservations/new.jsx` (4 alert calls)
-16. `src/components/common_house_reservations/edit.jsx` (8 alert calls)
+12. `src/components/events/edit.jsx` (7 alert calls) **(silent for componentDidMount)**
+13. `src/components/guest_room_reservations/new.jsx` (4 alert calls) **(silent for componentDidMount)**
+14. `src/components/guest_room_reservations/edit.jsx` (7 alert calls) **(silent for componentDidMount)**
+15. `src/components/common_house_reservations/new.jsx` (4 alert calls) **(silent for componentDidMount)**
+16. `src/components/common_house_reservations/edit.jsx` (8 alert calls) **(silent for componentDidMount)**
 
 ### Phase 5: Replace window.confirm() Calls
 
 For each of the three edit components:
 1. Import `ConfirmModal`.
-2. Add `confirmDeleteOpen` to component state.
-3. Split `handleDelete` into `handleDeleteClick`, `handleDeleteConfirm`, `handleDeleteCancel`.
-4. Add `<ConfirmModal>` to the render method.
-5. Update the Delete button's `onClick` to call `handleDeleteClick`.
+2. Add `confirmDeleteOpen: false` to component state (alongside existing
+   `loadingAction: null`).
+3. Split `handleDelete` into `handleDeleteClick`, `handleDeleteConfirm`,
+   `handleDeleteCancel`. **Preserve the `loadingAction` guard and state
+   transitions** — see the pattern in the "Confirmation Modal Design" section
+   above. The `loadingAction: "delete"` set, `.then()` clear, and `.catch()`
+   clear must all be kept.
+4. Replace the error handling in the delete `.catch()` with
+   `handleAxiosError(error)` (if not already done in Phase 4).
+5. Add `<ConfirmModal>` to the render method.
+6. Update the Delete button's `onClick` to call `handleDeleteClick`.
 
 Files:
 1. `src/components/events/edit.jsx`

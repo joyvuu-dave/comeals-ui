@@ -23,7 +23,8 @@ const CommonHouseReservationsNew = inject("store")(
         title: "",
         day: null,
         start_time: "",
-        end_time: ""
+        end_time: "",
+        loading: false
       };
     }
 
@@ -61,6 +62,7 @@ const CommonHouseReservationsNew = inject("store")(
 
     handleSubmit(e) {
       e.preventDefault();
+      this.setState({ loading: true });
       var self = this;
       var s = self.state;
       axios
@@ -81,11 +83,13 @@ const CommonHouseReservationsNew = inject("store")(
           }
         )
         .then(function(response) {
+          self.setState({ loading: false });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
         .catch(function(error) {
+          self.setState({ loading: false });
           if (error.response) {
             const data = error.response.data;
             if (data.message) {
@@ -126,6 +130,7 @@ const CommonHouseReservationsNew = inject("store")(
                   <select
                     id="local.resident_id"
                     value={this.state.resident_id}
+                    disabled={this.state.loading}
                     onChange={e =>
                       this.setState({ resident_id: e.target.value })
                     }
@@ -144,6 +149,7 @@ const CommonHouseReservationsNew = inject("store")(
                     type="text"
                     id="local.title"
                     placeholder="optional"
+                    disabled={this.state.loading}
                     value={this.state.title}
                     onChange={e => this.setState({ title: e.target.value })}
                   />
@@ -151,24 +157,27 @@ const CommonHouseReservationsNew = inject("store")(
 
                   <label>Day</label>
                   <br />
-                  <DayPickerInput
-                    formatDate={formatDate}
-                    parseDate={parseDate}
-                    placeholder={""}
-                    onDayChange={this.handleDayChange}
-                    dayPickerProps={{
-                      initialMonth: moment(
-                        this.props.match.params.date
-                      ).toDate(),
-                      disabledDays: [
-                        {
-                          after: moment(this.props.match.params.date)
-                            .add(6, "M")
-                            .toDate()
-                        }
-                      ]
-                    }}
-                  />
+                  <div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                    <DayPickerInput
+                      formatDate={formatDate}
+                      parseDate={parseDate}
+                      placeholder={""}
+                      onDayChange={this.handleDayChange}
+                      inputProps={{ disabled: this.state.loading }}
+                      dayPickerProps={{
+                        initialMonth: moment(
+                          this.props.match.params.date
+                        ).toDate(),
+                        disabledDays: [
+                          {
+                            after: moment(this.props.match.params.date)
+                              .add(6, "M")
+                              .toDate()
+                          }
+                        ]
+                      }}
+                    />
+                  </div>
                   <br />
                   <br />
 
@@ -176,6 +185,7 @@ const CommonHouseReservationsNew = inject("store")(
                   <select
                     id="local.start_time"
                     value={this.state.start_time}
+                    disabled={this.state.loading}
                     onChange={e =>
                       this.setState({ start_time: e.target.value })
                     }
@@ -193,6 +203,7 @@ const CommonHouseReservationsNew = inject("store")(
                   <select
                     id="local.end_time"
                     value={this.state.end_time}
+                    disabled={this.state.loading}
                     onChange={e => this.setState({ end_time: e.target.value })}
                   >
                     <option />
@@ -204,7 +215,11 @@ const CommonHouseReservationsNew = inject("store")(
                   </select>
                   <br />
 
-                  <button type="submit" className="button-dark">
+                  <button
+                    type="submit"
+                    className={this.state.loading ? "button-dark button-loader" : "button-dark"}
+                    disabled={this.state.loading}
+                  >
                     Create
                   </button>
                 </form>

@@ -2,7 +2,7 @@
 
 ## Problem
 
-Six form components fire API calls on explicit form submit but have no loading
+Seven form components fire API calls on explicit form submit but have no loading
 state. A user can click the submit (or delete) button multiple times before the
 request completes, causing duplicate records or conflicting server-side state.
 
@@ -21,6 +21,7 @@ call that returns a promise. None of them currently track a `loading` flag.
 | 4 | `src/components/guest_room_reservations/edit.jsx` | `handleSubmit` (PATCH) | `handleDelete` (DELETE) |
 | 5 | `src/components/common_house_reservations/new.jsx` | `handleSubmit` (POST) | n/a |
 | 6 | `src/components/common_house_reservations/edit.jsx` | `handleSubmit` (PATCH) | `handleDelete` (DELETE) |
+| 7 | `src/components/residents/password_new.jsx` | `handleSubmit` (POST) | n/a |
 
 ### Interactions that must NOT be changed (deliberate instant-action patterns)
 
@@ -45,30 +46,41 @@ do not use `<form onSubmit>` and have no submit button. They must be left alone.
 
 ## Pattern to follow
 
-Match the existing pattern from `login.jsx` and `password_reset.jsx` exactly.
+Based on the existing pattern from `login.jsx` and `password_reset.jsx`, adapted
+to support both submit and delete actions.
 
-### 1. Add `loading: false` to initial state
+### New forms (1-3, 5, 7) — simple `loading` boolean
 
-In the constructor, add `loading: false` to `this.state`.
+These forms only have a submit action (no delete), so a boolean is sufficient.
 
-### 2. Set `loading: true` at the start of handleSubmit
+### Edit forms (2, 4, 6) — `loadingAction` string
+
+These forms have both submit and delete. A simple `loading` boolean would show
+the spinner on the Submit button even when the user clicked Delete — confusing
+UX. Instead, use a `loadingAction` state: `null`, `"submit"`, or `"delete"`.
+Each button shows the spinner only for its own action, while both check
+`loadingAction !== null` for `disabled`.
+
+### 1. Add loading state to initial state
+
+In the constructor, add to `this.state`:
+
+- **New forms / password_new**: `loading: false`
+- **Edit forms**: `loadingAction: null`
+
+### 2. Set loading at the start of handleSubmit
 
 Immediately after `e.preventDefault()`, add:
-```js
-this.setState({ loading: true });
-```
 
-### 3. Set `loading: false` in both `.then()` and `.catch()`
+- **New forms / password_new**: `this.setState({ loading: true });`
+- **Edit forms**: `this.setState({ loadingAction: "submit" });`
 
-At the top of the `.then()` callback, add:
-```js
-self.setState({ loading: false });
-```
+### 3. Clear loading in both `.then()` and `.catch()`
 
-At the top of the `.catch()` callback, add:
-```js
-self.setState({ loading: false });
-```
+At the top of each callback, add:
+
+- **New forms / password_new**: `self.setState({ loading: false });`
+- **Edit forms**: `self.setState({ loadingAction: null });`
 
 This ensures the form unlocks regardless of success or failure.
 
@@ -80,7 +92,8 @@ Change the submit button from:
   Create
 </button>
 ```
-to:
+
+**New forms:**
 ```jsx
 <button
   type="submit"
@@ -91,134 +104,188 @@ to:
 </button>
 ```
 
+**Edit forms:**
+```jsx
+<button
+  type="submit"
+  className={this.state.loadingAction === "submit" ? "button-dark button-loader" : "button-dark"}
+  disabled={this.state.loadingAction !== null}
+>
+  Update
+</button>
+```
+
 Note: The existing `button-dark` class must be preserved (unlike login.jsx which
 has no base button class). The CSS in `shoelace.css` already defines a
-`button-dark.button-loader` variant, so both classes can coexist.
+`button-dark.button-loader` variant (line 841), so both classes can coexist.
 
 ### 5. Disable form inputs during submission
 
-Add `disabled={this.state.loading}` to all `<input>`, `<select>`, and
-`<textarea>` elements within the form. For `DayPickerInput`, wrap it in a
-container with `pointerEvents: "none"` and `opacity: 0.5` when loading, since
-`DayPickerInput` does not accept a `disabled` prop directly.
+For standard elements, add `disabled={this.state.loading}` (new forms) or
+`disabled={this.state.loadingAction !== null}` (edit forms) to all `<input>`,
+`<select>`, and `<textarea>` elements within the form.
+
+For `DayPickerInput`, use both approaches together:
+- `inputProps={{ disabled: ... }}` to disable the underlying text input
+  (prevents opening the calendar overlay)
+- Wrap in a container with `pointerEvents: "none"` and `opacity: 0.5` when
+  loading — this provides visual disabled appearance (the input alone doesn't
+  grey out the DayPickerInput container) and blocks interaction with the
+  calendar overlay if it happens to be open
+
+```jsx
+<div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInput
+    ...
+    inputProps={{ disabled: this.state.loading }}
+  />
+</div>
+```
+
+(Edit forms: substitute `this.state.loadingAction !== null` for
+`this.state.loading` in the above.)
 
 ### 6. Protect handleDelete in edit forms
 
 The three edit forms have a `handleDelete` method with a `window.confirm()`
 guard followed by an axios DELETE call. These also need loading protection:
 
-- Check `if (this.state.loading) return;` at the top of `handleDelete` (before
-  the confirm dialog) to prevent triggering delete while a submit is in flight.
-- Set `this.setState({ loading: true })` after the confirm dialog returns true,
-  before the axios call.
-- Set `self.setState({ loading: false })` in both `.then()` and `.catch()`.
-- Add `disabled={this.state.loading}` to the Delete button.
+- Check `if (this.state.loadingAction) return;` at the top of `handleDelete`
+  (before the confirm dialog) to prevent triggering delete while a submit is
+  in flight.
+- Set `this.setState({ loadingAction: "delete" })` after the confirm dialog
+  returns true, before the axios call.
+- Set `self.setState({ loadingAction: null })` in both `.then()` and `.catch()`.
+- Disable and add spinner to the Delete button:
 
-The `loading` state is shared between submit and delete -- this is intentional.
-A user should not be able to click Delete while a submit is in flight, or
-vice versa.
+```jsx
+<button
+  className={this.state.loadingAction === "delete" ? "mar-l-md button-warning button-loader" : "mar-l-md button-warning"}
+  disabled={this.state.loadingAction !== null}
+  onClick={this.handleDelete.bind(this)}
+>
+  Delete
+</button>
+```
+
+The CSS already defines `.button-warning.button-loader:after` (line 835 of
+`shoelace.css`) with white spinner colors.
 
 ## Specific changes per file
 
-### `src/components/events/new.jsx`
+### `src/components/events/new.jsx` (loading boolean)
 
 - **Constructor**: Add `loading: false` to `this.state`.
 - **handleSubmit**: Add `this.setState({ loading: true })` after
   `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
   `.then()` and `.catch()`.
-- **Submit button** (line 164): Add `disabled={this.state.loading}`, change
-  className to conditional `"button-dark button-loader"` / `"button-dark"`.
-- **Form inputs**: Add `disabled={this.state.loading}` to the title `<input>`
-  (line 93), description `<textarea>` (line 100), start_time `<select>`
-  (line 129), end_time `<select>` (line 145), all_day `<input>` checkbox
-  (line 158). Wrap `DayPickerInput` (line 109) in a disabled-style container
-  when loading.
+- **Submit button**: Add `disabled={this.state.loading}`, change className to
+  conditional `"button-dark button-loader"` / `"button-dark"`.
+- **Form inputs**: Add `disabled={this.state.loading}` to the title `<input>`,
+  description `<textarea>`, start_time `<select>`, end_time `<select>`,
+  all_day `<input>` checkbox. Wrap `DayPickerInput` in disabled wrapper and
+  add `inputProps={{ disabled: this.state.loading }}`.
 
-### `src/components/events/edit.jsx`
+### `src/components/events/edit.jsx` (loadingAction)
+
+- **Constructor**: Add `loadingAction: null` to `this.state`.
+- **handleSubmit**: Add `this.setState({ loadingAction: "submit" })` after
+  `e.preventDefault()`. Add `self.setState({ loadingAction: null })` at the
+  top of `.then()` and `.catch()`.
+- **handleDelete**: Add early return if `this.state.loadingAction`. Add
+  `this.setState({ loadingAction: "delete" })` after confirm returns true. Add
+  `self.setState({ loadingAction: null })` at the top of `.then()` and
+  `.catch()`.
+- **Submit button**: Spinner on `loadingAction === "submit"`, disabled on
+  `loadingAction !== null`.
+- **Delete button**: Spinner on `loadingAction === "delete"`, disabled on
+  `loadingAction !== null`.
+- **Form inputs**: Add `disabled={this.state.loadingAction !== null}` to all
+  inputs. Wrap `DayPickerInput` in disabled wrapper and add
+  `inputProps={{ disabled: this.state.loadingAction !== null }}`.
+
+### `src/components/guest_room_reservations/new.jsx` (loading boolean)
 
 - **Constructor**: Add `loading: false` to `this.state`.
 - **handleSubmit**: Add `this.setState({ loading: true })` after
   `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
   `.then()` and `.catch()`.
-- **handleDelete**: Add early return if `this.state.loading`. Add
-  `this.setState({ loading: true })` after confirm returns true. Add
-  `self.setState({ loading: false })` at the top of `.then()` and `.catch()`.
-- **Submit button** (line 260): Add `disabled={this.state.loading}`, change
-  className to conditional.
-- **Delete button** (line 167): Add `disabled={this.state.loading}`.
-- **Form inputs**: Add `disabled={this.state.loading}` to the title `<input>`
-  (line 184), description `<textarea>` (line 191), start_time `<select>`
-  (line 219), end_time `<select>` (line 237), all_day `<input>` checkbox
-  (line 253). Wrap `DayPickerInput` (line 201) in a disabled-style container
-  when loading.
-
-### `src/components/guest_room_reservations/new.jsx`
-
-- **Constructor**: Add `loading: false` to `this.state`.
-- **handleSubmit**: Add `this.setState({ loading: true })` after
-  `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
-  `.then()` and `.catch()`.
-- **Submit button** (line 153): Add `disabled={this.state.loading}`, change
-  className to conditional.
+- **Submit button**: Add `disabled={this.state.loading}`, change className to
+  conditional.
 - **Form inputs**: Add `disabled={this.state.loading}` to the resident_id
-  `<select>` (line 114). Wrap `DayPickerInput` (line 132) in a disabled-style
-  container when loading.
+  `<select>`. Wrap `DayPickerInput` in disabled wrapper and add
+  `inputProps={{ disabled: this.state.loading }}`.
 
-### `src/components/guest_room_reservations/edit.jsx`
+### `src/components/guest_room_reservations/edit.jsx` (loadingAction)
 
-- **Constructor**: Add `loading: false` to `this.state`.
-- **handleSubmit**: Add `this.setState({ loading: true })` after
-  `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
-  `.then()` and `.catch()`.
-- **handleDelete**: Add early return if `this.state.loading`. Add
-  `this.setState({ loading: true })` after confirm returns true. Add
-  `self.setState({ loading: false })` at the top of `.then()` and `.catch()`.
-- **Submit button** (line 193): Add `disabled={this.state.loading}`, change
-  className to conditional.
-- **Delete button** (line 141): Add `disabled={this.state.loading}`.
-- **Form inputs**: Add `disabled={this.state.loading}` to the resident_id
-  `<select>` (line 159). Wrap `DayPickerInput` (line 175) in a disabled-style
-  container when loading.
+- **Constructor**: Add `loadingAction: null` to `this.state`.
+- **handleSubmit**: Add `this.setState({ loadingAction: "submit" })` after
+  `e.preventDefault()`. Add `self.setState({ loadingAction: null })` at the
+  top of `.then()` and `.catch()`.
+- **handleDelete**: Add early return if `this.state.loadingAction`. Add
+  `this.setState({ loadingAction: "delete" })` after confirm returns true. Add
+  `self.setState({ loadingAction: null })` at the top of `.then()` and
+  `.catch()`.
+- **Submit button**: Spinner on `loadingAction === "submit"`, disabled on
+  `loadingAction !== null`.
+- **Delete button**: Spinner on `loadingAction === "delete"`, disabled on
+  `loadingAction !== null`.
+- **Form inputs**: Add `disabled={this.state.loadingAction !== null}` to the
+  resident_id `<select>`. Wrap `DayPickerInput` in disabled wrapper and add
+  `inputProps={{ disabled: this.state.loadingAction !== null }}`.
 
-### `src/components/common_house_reservations/new.jsx`
-
-- **Constructor**: Add `loading: false` to `this.state`.
-- **handleSubmit**: Add `this.setState({ loading: true })` after
-  `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
-  `.then()` and `.catch()`.
-- **Submit button** (line 207): Add `disabled={this.state.loading}`, change
-  className to conditional.
-- **Form inputs**: Add `disabled={this.state.loading}` to the resident_id
-  `<select>` (line 127), title `<input>` (line 143), start_time `<select>`
-  (line 177), end_time `<select>` (line 197). Wrap `DayPickerInput` (line 154)
-  in a disabled-style container when loading.
-
-### `src/components/common_house_reservations/edit.jsx`
+### `src/components/common_house_reservations/new.jsx` (loading boolean)
 
 - **Constructor**: Add `loading: false` to `this.state`.
 - **handleSubmit**: Add `this.setState({ loading: true })` after
   `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
   `.then()` and `.catch()`.
-- **handleDelete**: Add early return if `this.state.loading`. Add
-  `this.setState({ loading: true })` after confirm returns true. Add
-  `self.setState({ loading: false })` at the top of `.then()` and `.catch()`.
-- **Submit button** (line 265): Add `disabled={this.state.loading}`, change
-  className to conditional.
-- **Delete button** (line 169): Add `disabled={this.state.loading}`.
+- **Submit button**: Add `disabled={this.state.loading}`, change className to
+  conditional.
 - **Form inputs**: Add `disabled={this.state.loading}` to the resident_id
-  `<select>` (line 186), title `<input>` (line 203), start_time `<select>`
-  (line 234), end_time `<select>` (line 252). Wrap `DayPickerInput` (line 215)
-  in a disabled-style container when loading.
+  `<select>`, title `<input>`, start_time `<select>`, end_time `<select>`.
+  Wrap `DayPickerInput` in disabled wrapper and add
+  `inputProps={{ disabled: this.state.loading }}`.
+
+### `src/components/common_house_reservations/edit.jsx` (loadingAction)
+
+- **Constructor**: Add `loadingAction: null` to `this.state`.
+- **handleSubmit**: Add `this.setState({ loadingAction: "submit" })` after
+  `e.preventDefault()`. Add `self.setState({ loadingAction: null })` at the
+  top of `.then()` and `.catch()`.
+- **handleDelete**: Add early return if `this.state.loadingAction`. Add
+  `this.setState({ loadingAction: "delete" })` after confirm returns true. Add
+  `self.setState({ loadingAction: null })` at the top of `.then()` and
+  `.catch()`.
+- **Submit button**: Spinner on `loadingAction === "submit"`, disabled on
+  `loadingAction !== null`.
+- **Delete button**: Spinner on `loadingAction === "delete"`, disabled on
+  `loadingAction !== null`.
+- **Form inputs**: Add `disabled={this.state.loadingAction !== null}` to the
+  resident_id `<select>`, title `<input>`, start_time `<select>`, end_time
+  `<select>`. Wrap `DayPickerInput` in disabled wrapper and add
+  `inputProps={{ disabled: this.state.loadingAction !== null }}`.
+
+### `src/components/residents/password_new.jsx` (loading boolean)
+
+- **Constructor**: Add `loading: false` to `this.state`.
+- **handleSubmit**: Add `this.setState({ loading: true })` after
+  `e.preventDefault()`. Add `self.setState({ loading: false })` at the top of
+  `.then()` and `.catch()`.
+- **Submit button** (line 97): Add `disabled={this.state.loading}`, change
+  className to conditional. Note: this button currently has no className --
+  match login.jsx pattern (`className={this.state.loading ? "button-loader" : ""}`).
+- **Form inputs**: Add `disabled={this.state.loading}` to the password
+  `<input>` (line 88).
 
 ## Risks and considerations
 
-1. **DayPickerInput lacks a `disabled` prop.** The `react-day-picker` v7
-   `DayPickerInput` component does not natively support a `disabled` attribute.
-   The workaround is to wrap it in a `<div>` with inline styles
-   `{ pointerEvents: "none", opacity: 0.5 }` when `this.state.loading` is true.
-   Alternatively, pass `inputProps={{ disabled: this.state.loading }}` to
-   `DayPickerInput`, which forwards props to the underlying `<input>` element.
-   The `inputProps` approach is cleaner and should be tried first.
+1. **DayPickerInput disabled handling.** `DayPickerInput` does not accept a
+   `disabled` prop directly. Use both: `inputProps={{ disabled: ... }}` to
+   disable the underlying `<input>` (prevents opening the calendar), and a
+   wrapper `<div>` with `{ pointerEvents: "none", opacity: 0.5 }` for visual
+   consistency and to block interaction with the calendar overlay if it happens
+   to already be open.
 
 2. **Close-modal-on-success while loading is false.** In the `.then()` handler,
    `loading` is set to `false` before `self.props.handleCloseModal()` is called.
@@ -245,7 +312,7 @@ vice versa.
 
 ## Testing
 
-For each of the six forms:
+For each of the seven forms:
 - Verify the submit button shows a spinner and becomes unclickable during
   submission.
 - Verify form inputs are disabled during submission.

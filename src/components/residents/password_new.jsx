@@ -8,7 +8,8 @@ class ResidentsPasswordNew extends Component {
     this.state = {
       ready: false,
       name: "",
-      password: ""
+      password: "",
+      loading: false
     };
   }
 
@@ -43,6 +44,7 @@ class ResidentsPasswordNew extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    this.setState({ loading: true });
     var self = this;
 
     axios
@@ -53,6 +55,7 @@ class ResidentsPasswordNew extends Component {
         }
       )
       .then(function(response) {
+        self.setState({ loading: false });
         if (response.status === 200) {
           if (response.data.message) {
             window.alert(response.data.message);
@@ -61,6 +64,7 @@ class ResidentsPasswordNew extends Component {
         }
       })
       .catch(function(error) {
+        self.setState({ loading: false });
         if (error.response) {
           const data = error.response.data;
           if (data.message) {
@@ -90,11 +94,18 @@ class ResidentsPasswordNew extends Component {
                   placeholder="New Password"
                   value={this.state.password}
                   onChange={e => this.setState({ password: e.target.value })}
+                  disabled={this.state.loading}
                 />
               </label>
             </fieldset>
 
-            <button type="submit">Submit</button>
+            <button
+              type="submit"
+              className={this.state.loading ? "button-loader" : ""}
+              disabled={this.state.loading}
+            >
+              Submit
+            </button>
           </form>
         )}
         {!this.state.ready && <h3>Loading...</h3>}

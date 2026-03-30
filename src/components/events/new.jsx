@@ -22,12 +22,14 @@ const EventsNew = inject("store")(
         day: null,
         start_time: "",
         end_time: "",
-        all_day: false
+        all_day: false,
+        loading: false
       };
     }
 
     handleSubmit(e) {
       e.preventDefault();
+      this.setState({ loading: true });
       var self = this;
       var s = self.state;
       axios
@@ -49,11 +51,13 @@ const EventsNew = inject("store")(
           }
         )
         .then(function(response) {
+          self.setState({ loading: false });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
         .catch(function(error) {
+          self.setState({ loading: false });
           if (error.response) {
             const data = error.response.data;
             if (data.message) {
@@ -94,6 +98,7 @@ const EventsNew = inject("store")(
                 id="local.title"
                 value={this.state.title}
                 onChange={e => this.setState({ title: e.target.value })}
+                disabled={this.state.loading}
               />
               <br />
               <label>Description</label>
@@ -102,26 +107,30 @@ const EventsNew = inject("store")(
                 placeholder="optional"
                 value={this.state.description}
                 onChange={e => this.setState({ description: e.target.value })}
+                disabled={this.state.loading}
               />
               <br />
               <label>Day</label>
               <br />
-              <DayPickerInput
-                formatDate={formatDate}
-                parseDate={parseDate}
-                placeholder={""}
-                onDayChange={this.handleDayChange}
-                dayPickerProps={{
-                  initialMonth: moment(this.props.match.params.date).toDate(),
-                  disabledDays: [
-                    {
-                      after: moment(this.props.match.params.date)
-                        .add(6, "M")
-                        .toDate()
-                    }
-                  ]
-                }}
-              />
+              <div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                <DayPickerInput
+                  formatDate={formatDate}
+                  parseDate={parseDate}
+                  placeholder={""}
+                  onDayChange={this.handleDayChange}
+                  inputProps={{ disabled: this.state.loading }}
+                  dayPickerProps={{
+                    initialMonth: moment(this.props.match.params.date).toDate(),
+                    disabledDays: [
+                      {
+                        after: moment(this.props.match.params.date)
+                          .add(6, "M")
+                          .toDate()
+                      }
+                    ]
+                  }}
+                />
+              </div>
               <br />
               <br />
               <label>Start Time</label>
@@ -129,6 +138,7 @@ const EventsNew = inject("store")(
                 id="local.start_time"
                 value={this.state.start_time}
                 onChange={e => this.setState({ start_time: e.target.value })}
+                disabled={this.state.loading}
               >
                 <option />
                 {generateTimes().map(time => (
@@ -143,6 +153,7 @@ const EventsNew = inject("store")(
                 id="local.end_time"
                 value={this.state.end_time}
                 onChange={e => this.setState({ end_time: e.target.value })}
+                disabled={this.state.loading}
               >
                 <option />
                 {generateTimes().map(time => (
@@ -158,10 +169,15 @@ const EventsNew = inject("store")(
                 type="checkbox"
                 checked={this.state.all_day}
                 onChange={e => this.setState({ all_day: e.target.checked })}
+                disabled={this.state.loading}
               />
               <br />
               <br />
-              <button type="submit" className="button-dark">
+              <button
+                type="submit"
+                className={this.state.loading ? "button-dark button-loader" : "button-dark"}
+                disabled={this.state.loading}
+              >
                 Create
               </button>
             </form>
