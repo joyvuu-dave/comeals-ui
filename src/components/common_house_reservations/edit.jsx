@@ -23,7 +23,8 @@ const CommonHouseReservationsEdit = inject("store")(
         title: "",
         day: "",
         start_time: "",
-        end_time: ""
+        end_time: "",
+        loadingAction: null
       };
     }
 
@@ -83,6 +84,7 @@ const CommonHouseReservationsEdit = inject("store")(
 
     handleSubmit(e) {
       e.preventDefault();
+      this.setState({ loadingAction: "submit" });
       var self = this;
       var s = self.state;
       axios
@@ -103,11 +105,13 @@ const CommonHouseReservationsEdit = inject("store")(
           }
         )
         .then(function(response) {
+          self.setState({ loadingAction: null });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
         .catch(function(error) {
+          self.setState({ loadingAction: null });
           if (error.response) {
             const data = error.response.data;
             if (data.message) {
@@ -124,7 +128,9 @@ const CommonHouseReservationsEdit = inject("store")(
     }
 
     handleDelete() {
+      if (this.state.loadingAction) return;
       if (window.confirm("Do you really want to delete this reservation?")) {
+        this.setState({ loadingAction: "delete" });
         var self = this;
         axios
           .delete(
@@ -133,11 +139,13 @@ const CommonHouseReservationsEdit = inject("store")(
             }/delete?token=${Cookie.get("token")}`
           )
           .then(function(response) {
+            self.setState({ loadingAction: null });
             if (response.status === 200) {
               self.props.handleCloseModal();
             }
           })
           .catch(function(error) {
+            self.setState({ loadingAction: null });
             if (error.response) {
               const data = error.response.data;
               if (data.message) {
@@ -168,7 +176,8 @@ const CommonHouseReservationsEdit = inject("store")(
                 <button
                   onClick={this.handleDelete.bind(this)}
                   type="button"
-                  className="mar-l-md button-warning"
+                  className={this.state.loadingAction === "delete" ? "mar-l-md button-warning button-loader" : "mar-l-md button-warning"}
+                  disabled={this.state.loadingAction !== null}
                 >
                   Delete
                 </button>
@@ -189,6 +198,7 @@ const CommonHouseReservationsEdit = inject("store")(
                     onChange={e =>
                       this.setState({ resident_id: e.target.value })
                     }
+                    disabled={this.state.loadingAction !== null}
                   >
                     {this.state.residents.map(resident => (
                       <option key={resident[0]} value={resident[0]}>
@@ -206,27 +216,31 @@ const CommonHouseReservationsEdit = inject("store")(
                     placeholder="optional"
                     value={this.state.title}
                     onChange={e => this.setState({ title: e.target.value })}
+                    disabled={this.state.loadingAction !== null}
                   />
                   <br />
                   <br />
 
                   <label>Day</label>
                   <br />
-                  <DayPickerInput
-                    formatDate={formatDate}
-                    parseDate={parseDate}
-                    onDayChange={this.handleDayChange}
-                    value={formatDate(this.state.event.start_date)}
-                    dayPickerProps={{
-                      disabledDays: [
-                        {
-                          after: moment(this.state.event.start_date)
-                            .add(6, "M")
-                            .toDate()
-                        }
-                      ]
-                    }}
-                  />
+                  <div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                    <DayPickerInput
+                      formatDate={formatDate}
+                      parseDate={parseDate}
+                      onDayChange={this.handleDayChange}
+                      value={formatDate(this.state.event.start_date)}
+                      dayPickerProps={{
+                        disabledDays: [
+                          {
+                            after: moment(this.state.event.start_date)
+                              .add(6, "M")
+                              .toDate()
+                          }
+                        ]
+                      }}
+                      inputProps={{ disabled: this.state.loadingAction !== null }}
+                    />
+                  </div>
                   <br />
                   <br />
 
@@ -237,6 +251,7 @@ const CommonHouseReservationsEdit = inject("store")(
                     onChange={e =>
                       this.setState({ start_time: e.target.value })
                     }
+                    disabled={this.state.loadingAction !== null}
                   >
                     <option />
                     {generateTimes().map(time => (
@@ -252,6 +267,7 @@ const CommonHouseReservationsEdit = inject("store")(
                     id="local.end_time"
                     value={this.state.end_time}
                     onChange={e => this.setState({ end_time: e.target.value })}
+                    disabled={this.state.loadingAction !== null}
                   >
                     <option />
                     {generateTimes().map(time => (
@@ -262,7 +278,11 @@ const CommonHouseReservationsEdit = inject("store")(
                   </select>
                   <br />
 
-                  <button type="submit" className="button-dark">
+                  <button
+                    type="submit"
+                    className={this.state.loadingAction === "submit" ? "button-dark button-loader" : "button-dark"}
+                    disabled={this.state.loadingAction !== null}
+                  >
                     Update
                   </button>
                 </form>

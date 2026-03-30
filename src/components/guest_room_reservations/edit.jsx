@@ -19,7 +19,8 @@ const GuestRoomReservationsEdit = inject("store")(
         event: {},
         hosts: [],
         resident_id: "",
-        day: ""
+        day: "",
+        loadingAction: null
       };
     }
 
@@ -63,6 +64,7 @@ const GuestRoomReservationsEdit = inject("store")(
 
     handleSubmit(e) {
       e.preventDefault();
+      this.setState({ loadingAction: "submit" });
       var self = this;
       axios
         .patch(
@@ -75,11 +77,13 @@ const GuestRoomReservationsEdit = inject("store")(
           }
         )
         .then(function(response) {
+          self.setState({ loadingAction: null });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
         .catch(function(error) {
+          self.setState({ loadingAction: null });
           if (error.response) {
             const data = error.response.data;
             if (data.message) {
@@ -96,7 +100,9 @@ const GuestRoomReservationsEdit = inject("store")(
     }
 
     handleDelete() {
+      if (this.state.loadingAction) return;
       if (window.confirm("Do you really want to delete this reservation?")) {
+        this.setState({ loadingAction: "delete" });
         var self = this;
         axios
           .delete(
@@ -105,11 +111,13 @@ const GuestRoomReservationsEdit = inject("store")(
             }/delete?token=${Cookie.get("token")}`
           )
           .then(function(response) {
+            self.setState({ loadingAction: null });
             if (response.status === 200) {
               self.props.handleCloseModal();
             }
           })
           .catch(function(error) {
+            self.setState({ loadingAction: null });
             if (error.response) {
               const data = error.response.data;
               if (data.message) {
@@ -140,7 +148,8 @@ const GuestRoomReservationsEdit = inject("store")(
                 <button
                   onClick={this.handleDelete.bind(this)}
                   type="button"
-                  className="mar-l-md button-warning"
+                  className={this.state.loadingAction === "delete" ? "mar-l-md button-warning button-loader" : "mar-l-md button-warning"}
+                  disabled={this.state.loadingAction !== null}
                 >
                   Delete
                 </button>
@@ -161,6 +170,7 @@ const GuestRoomReservationsEdit = inject("store")(
                     onChange={e =>
                       this.setState({ resident_id: e.target.value })
                     }
+                    disabled={this.state.loadingAction !== null}
                   >
                     {this.state.hosts.map(host => (
                       <option key={host[0]} value={host[0]}>
@@ -172,25 +182,32 @@ const GuestRoomReservationsEdit = inject("store")(
 
                   <label>Day</label>
                   <br />
-                  <DayPickerInput
-                    formatDate={formatDate}
-                    parseDate={parseDate}
-                    onDayChange={this.handleDayChange}
-                    value={formatDate(this.state.event.date)}
-                    dayPickerProps={{
-                      disabledDays: [
-                        {
-                          after: moment(this.state.event.date)
-                            .add(6, "M")
-                            .toDate()
-                        }
-                      ]
-                    }}
-                  />
+                  <div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                    <DayPickerInput
+                      formatDate={formatDate}
+                      parseDate={parseDate}
+                      onDayChange={this.handleDayChange}
+                      value={formatDate(this.state.event.date)}
+                      dayPickerProps={{
+                        disabledDays: [
+                          {
+                            after: moment(this.state.event.date)
+                              .add(6, "M")
+                              .toDate()
+                          }
+                        ]
+                      }}
+                      inputProps={{ disabled: this.state.loadingAction !== null }}
+                    />
+                  </div>
                   <br />
                   <br />
 
-                  <button type="submit" className="button-dark">
+                  <button
+                    type="submit"
+                    className={this.state.loadingAction === "submit" ? "button-dark button-loader" : "button-dark"}
+                    disabled={this.state.loadingAction !== null}
+                  >
                     Update
                   </button>
                 </form>
