@@ -284,7 +284,10 @@ export const DataStore = types
             localforage
               .setItem(response.data.id.toString(), response.data)
               .then(function() {
-                self.loadData(response.data);
+                // Skip stale responses from a previous meal
+                if (self.meal && self.meal.id === response.data.id) {
+                  self.loadData(response.data);
+                }
               });
           }
         })
@@ -533,6 +536,9 @@ export const DataStore = types
       self.meal = id;
 
       localforage.getItem(id.toString()).then(function(value) {
+        // Skip if user already navigated to a different meal
+        if (!self.meal || self.meal.id !== id) return;
+
         if (value === null) {
           self.loadDataAsync();
         } else {

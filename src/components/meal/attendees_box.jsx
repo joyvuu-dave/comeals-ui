@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { inject, observer } from "mobx-react";
+import { isAlive } from "mobx-state-tree";
 import Cow from "../../images/cow.png";
 import Carrot from "../../images/carrot.png";
 import GuestDropdown from "./guest_dropdown";
@@ -27,6 +28,7 @@ const AttendeeComponent = inject("store")(
     class AttendeeComponent extends Component {
       render() {
         const resident = this.props.resident;
+        if (!isAlive(resident)) return null;
         const guests = resident.guests;
         const vegGuestsCount = guests.filter(guest => guest.vegetarian === true)
           .length;
