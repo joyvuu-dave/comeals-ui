@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import DayPickerInput from "react-day-picker/DayPickerInput";
-import { formatDate, parseDate } from "react-day-picker/moment";
-import moment from "moment";
+import DayPickerInputWrapper from "../common/day_picker_input";
+import dayjs from "dayjs";
 import axios from "axios";
 import Cookie from "js-cookie";
 import { inject } from "mobx-react";
@@ -114,24 +113,15 @@ const GuestRoomReservationsNew = inject("store")(
                   <label>Day</label>
                   <br />
                   <div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
-                    <DayPickerInput
-                      formatDate={formatDate}
-                      parseDate={parseDate}
-                      placeholder={""}
+                    <DayPickerInputWrapper
+                      value={this.state.day}
+                      placeholder=""
                       onDayChange={this.handleDayChange}
-                      inputProps={{ disabled: this.state.loading }}
-                      dayPickerProps={{
-                        initialMonth: moment(
-                          this.props.match.params.date
-                        ).toDate(),
-                        disabledDays: [
-                          {
-                            after: moment(this.props.match.params.date)
-                              .add(6, "M")
-                              .toDate()
-                          }
-                        ]
-                      }}
+                      inputDisabled={this.state.loading}
+                      defaultMonth={dayjs(this.props.match.params.date).toDate()}
+                      disabledDays={[{
+                        after: dayjs(this.props.match.params.date).add(6, "month").toDate()
+                      }]}
                     />
                   </div>
                   <br />

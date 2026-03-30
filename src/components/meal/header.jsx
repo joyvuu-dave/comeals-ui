@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
-import moment from "moment";
+import dayjs from "dayjs";
 import ButtonBar from "./button_bar";
 import Cookie from "js-cookie";
 
@@ -24,7 +24,7 @@ const Header = inject("store")(
             <button
               onClick={() =>
                 this.props.history.push(
-                  `/calendar/all/${moment(
+                  `/calendar/all/${dayjs(
                     this.props.store.isLoading
                       ? new Date()
                       : this.props.store.meal.date

@@ -11,7 +11,7 @@ import EventSource from "./event_source";
 
 import Pusher from "pusher-js";
 import localforage from "localforage";
-import moment from "moment";
+import dayjs from "dayjs";
 
 import handleAxiosError from "../helpers/handle_axios_error";
 import toastStore from "./toast_store";
@@ -42,7 +42,7 @@ export const DataStore = types
     modalChangedData: false,
     showHistory: false,
     calendarEvents: types.optional(types.array(types.frozen()), []),
-    currentDate: types.optional(types.string, function() { return moment().format("YYYY-MM-DD"); }),
+    currentDate: types.optional(types.string, function() { return dayjs().format("YYYY-MM-DD"); }),
     isOnline: false
   })
   .views(self => ({
@@ -465,40 +465,24 @@ export const DataStore = types
         self.clearCalendarEvents();
       }
 
-      // #1 Meals
-      data.meals.forEach(event => {
-        self.calendarEvents.push(event);
-      });
+      // Convert event start/end strings to native Date objects.
+      // react-big-calendar requires native Dates for its date arithmetic.
+      function pushEvents(events) {
+        events.forEach(function(event) {
+          var converted = Object.assign({}, event);
+          if (converted.start) converted.start = new Date(converted.start);
+          if (converted.end) converted.end = new Date(converted.end);
+          self.calendarEvents.push(converted);
+        });
+      }
 
-      // #2 Bills
-      data.bills.forEach(event => {
-        self.calendarEvents.push(event);
-      });
-
-      // #3 Rotations
-      data.rotations.forEach(event => {
-        self.calendarEvents.push(event);
-      });
-
-      // #4 Birthdays
-      data.birthdays.forEach(event => {
-        self.calendarEvents.push(event);
-      });
-
-      // #5 Common House Reservations
-      data.common_house_reservations.forEach(event => {
-        self.calendarEvents.push(event);
-      });
-
-      // #6 Guest Room Reservations
-      data.guest_room_reservations.forEach(event => {
-        self.calendarEvents.push(event);
-      });
-
-      // #7 Events
-      data.events.forEach(event => {
-        self.calendarEvents.push(event);
-      });
+      pushEvents(data.meals);           // #1 Meals
+      pushEvents(data.bills);           // #2 Bills
+      pushEvents(data.rotations);       // #3 Rotations
+      pushEvents(data.birthdays);       // #4 Birthdays
+      pushEvents(data.common_house_reservations); // #5 Common House Reservations
+      pushEvents(data.guest_room_reservations);   // #6 Guest Room Reservations
+      pushEvents(data.events);          // #7 Events
 
       // Change loading state
       self.isLoading = false;
@@ -511,7 +495,7 @@ export const DataStore = types
       // Subscribe to changes of this month
       var subscribeString = `community-${Cookie.get(
         "community_id"
-      )}-calendar-${moment(self.currentDate).format("YYYY")}-${moment(
+      )}-calendar-${dayjs(self.currentDate).format("YYYY")}-${dayjs(
         self.currentDate
       ).format("M")}`;
       window.Comeals.channel = window.Comeals.pusher.subscribe(subscribeString);
@@ -560,7 +544,7 @@ export const DataStore = types
     switchMonths(date) {
       self.currentDate = date;
 
-      var myDate = moment(date);
+      var myDate = dayjs(date);
       const key = `community-${Cookie.get(
         "community_id"
       )}-calendar-${myDate.format("YYYY")}-${myDate.format("M")}`;

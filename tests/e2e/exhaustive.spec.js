@@ -1,11 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const {
-  setupAuthenticatedPage,
-  stubPusher,
-  disableIdleTimer,
-  mockApi,
-} = require("../helpers/setup");
-const mealFixture = require("../fixtures/meal.json");
+const { setupAuthenticatedPage } = require("../helpers/setup");
 
 test.describe("Exhaustive Coverage", () => {
   test.describe("Calendar Page", () => {
@@ -115,7 +109,7 @@ test.describe("Exhaustive Coverage", () => {
       expect(texts.some((t) => t.includes("¯\\_(ツ)_/¯"))).toBe(true);
     });
 
-    test("date box shows relative date from moment.js", async ({ page }) => {
+    test("date box shows relative date from dayjs", async ({ page }) => {
       await page.goto("/meals/42/edit/");
       await page.waitForLoadState("networkidle");
 
@@ -250,19 +244,19 @@ test.describe("Exhaustive Coverage", () => {
       const modal = page.locator(".ReactModal__Content--after-open");
       await expect(modal).toBeVisible({ timeout: 5000 });
 
-      // Find the DayPickerInput (it renders an input with the DayPicker overlay)
-      const dayInput = modal.locator(".DayPickerInput input");
+      // Find the DayPickerInput wrapper (renders a readonly input)
+      const dayInput = modal.locator("input[readonly]");
       await expect(dayInput).toBeVisible({ timeout: 3000 });
 
       // Click to open the calendar overlay
       await dayInput.click();
 
-      // The DayPicker overlay should appear
-      const overlay = modal.locator(".DayPickerInput-Overlay");
+      // The DayPicker overlay should appear (v9 uses .rdp-root class)
+      const overlay = modal.locator(".rdp-root");
       await expect(overlay).toBeVisible({ timeout: 3000 });
 
-      // Click a day in the picker (find a clickable day)
-      const day = overlay.locator('.DayPicker-Day[aria-disabled="false"]').first();
+      // Click a day in the picker (find a clickable day button)
+      const day = overlay.locator(".rdp-day_button").first();
       if (await day.isVisible({ timeout: 2000 })) {
         await day.click();
 
