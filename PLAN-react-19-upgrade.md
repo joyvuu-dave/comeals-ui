@@ -221,7 +221,7 @@ class DebouncedTextarea extends Component {
         className={this.props.className}
         style={this.props.style}
         disabled={this.props.disabled}
-        aria-label={this.props.ariaLabel}
+        aria-label={this.props["aria-label"]}
       />
     );
   }
@@ -243,8 +243,9 @@ class DebouncedTextarea extends Component {
 
 2. **`style` and `aria-label` props.** The current `DebounceInput` receives
    `style={styles.text}` and `aria-label="Enter meal description"`. The
-   replacement passes these through. Note: `aria-label` is passed as
-   `ariaLabel` (JSX camelCase) to avoid the hyphenated prop warning.
+   replacement passes these through. React supports `aria-*` as hyphenated
+   props in JSX, so the usage stays `aria-label="..."` unchanged. The
+   component accesses it via `this.props["aria-label"]`.
 
 3. **`minLength={2}` is dropped.** The `DebounceInput` only fired `onChange`
    after the input had at least 2 characters. The replacement fires on any
