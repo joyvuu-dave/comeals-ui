@@ -37,7 +37,7 @@ module.exports = [
       "no-console": ["warn", { allow: ["error", "warn"] }],
 
       // --- React rules (conservative) ---
-      "react/jsx-uses-react": "error",
+      "react/jsx-uses-react": "off",   // Not needed with automatic JSX runtime
       "react/jsx-uses-vars": "error",
       "react/no-direct-mutation-state": "error",
       "react/no-deprecated": "warn",

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import axios from "axios";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import Cookie from "js-cookie";

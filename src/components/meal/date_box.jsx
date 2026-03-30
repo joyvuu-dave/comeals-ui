@@ -1,6 +1,7 @@
 import React, { Component, Suspense } from "react";
 import { inject, observer } from "mobx-react";
-import { Route, withRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { withRouter } from "../../helpers/with_router";
 import dayjs from "dayjs";
 import Modal from "react-modal";
 
@@ -158,25 +159,27 @@ const DateBox = inject("store")(
                 </h1>
               )}
               <div>
-                <Route
-                  path={this.props.match.url + "/history"}
-                  render={() => (
-                    <Modal
-                      isOpen={true}
-                      contentLabel="History Modal"
-                      onRequestClose={this.handleCloseModal}
-                      style={{
-                        content: {
-                          backgroundColor: "#CCDEEA"
-                        }
-                      }}
-                    >
-                      <Suspense fallback={<h3>Loading...</h3>}>
-                        <MealHistoryShow id={this.props.match.params.id} />
-                      </Suspense>
-                    </Modal>
-                  )}
-                />
+                <Routes>
+                  <Route
+                    path="history/*"
+                    element={
+                      <Modal
+                        isOpen={true}
+                        contentLabel="History Modal"
+                        onRequestClose={this.handleCloseModal}
+                        style={{
+                          content: {
+                            backgroundColor: "#CCDEEA"
+                          }
+                        }}
+                      >
+                        <Suspense fallback={<h3>Loading...</h3>}>
+                          <MealHistoryShow id={this.props.match.params.id} />
+                        </Suspense>
+                      </Modal>
+                    }
+                  />
+                </Routes>
               </div>
             </div>
           );

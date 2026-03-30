@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { inject } from "mobx-react";
 import Cookie from "js-cookie";
 import axios from "axios";

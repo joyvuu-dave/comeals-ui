@@ -1,6 +1,7 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { inject, observer } from "mobx-react";
-import { Redirect, Link, withRouter } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
+import { withRouter } from "../../helpers/with_router";
 import axios from "axios";
 import Cookie from "js-cookie";
 import dayjs from "dayjs";
@@ -120,7 +121,7 @@ const ResidentsLogin = inject("store")(
               Cookie.get("token") !== "undefined" &&
               Cookie.get("token") !== undefined)
           ) {
-            return <Redirect to={from} />;
+            return <Navigate to={from} replace />;
           }
 
           return (

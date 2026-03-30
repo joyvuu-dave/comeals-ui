@@ -3,11 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [
-    react({
-      // React 16 uses the classic JSX runtime (React.createElement)
-      // not the automatic runtime (react/jsx-runtime) added in React 17
-      jsxRuntime: "classic",
-    }),
+    react(),
   ],
   server: {
     port: 3001,
