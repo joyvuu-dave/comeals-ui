@@ -1,7 +1,20 @@
 # Migration Plan: Replace moment.js with dayjs + Upgrade react-day-picker v7 to v9
 
-**Date:** 2026-03-28
+**Date:** 2026-03-28 (updated 2026-03-30)
 **Scope:** 12 source files, 1 CSS file, 2 config files, 2 e2e test files
+
+**Note:** Since this plan was originally written, three other plans have been
+implemented that modified the 6 form components:
+1. **Form loading states** — added `loading`/`loadingAction` state, disabled
+   inputs during submission, wrapped DayPickerInput in a loading div
+2. **Toast notifications** — replaced `window.alert()` catch blocks with
+   `handleAxiosError()`
+3. **Confirmation modals** — replaced `window.confirm()` in edit forms with
+   `ConfirmModal` component, split `handleDelete` into three methods
+
+The "BEFORE" code snippets in this plan reflect the current state of the files
+(after those changes). The DayPicker migration must preserve the loading wrapper
+divs and `inputDisabled` behavior.
 
 ---
 
@@ -242,6 +255,17 @@ from: { pathname: `/calendar/all/${moment().format("YYYY-MM-DD")}` }
 from: { pathname: `/calendar/all/${dayjs().format("YYYY-MM-DD")}` }
 ```
 
+#### 1.4.7–1.4.12 Form components (events, guest_room_reservations, common_house_reservations)
+
+**Note:** The moment-to-dayjs changes in these 6 form files happen simultaneously
+with the react-day-picker v9 migration (Part 2). The final code uses
+`DayPickerInputWrapper` with `disabledDays` and `defaultMonth` props — see
+sections 2.4.1–2.4.6 for the complete replacement patterns including loading
+state wrappers.
+
+The moment usages below are all inside DayPickerInput props that get replaced
+by the wrapper. They are listed here for reference only.
+
 #### 1.4.7 `src/components/events/new.jsx`
 
 **Current moment usage (2 call sites, both inside DayPickerInput props):**
@@ -270,7 +294,7 @@ These prop names will also change as part of the react-day-picker v9 migration
 // BEFORE
 disabledDays: [{ after: moment(this.state.event.start_date).add(6, "M").toDate() }]
 // AFTER
-disabled: [{ after: dayjs(this.state.event.start_date).add(6, "month").toDate() }]
+disabledDays: [{ after: dayjs(this.state.event.start_date).add(6, "month").toDate() }]
 ```
 
 Also changes as part of react-day-picker v9 migration.
@@ -285,7 +309,7 @@ initialMonth: moment(this.props.match.params.date).toDate(),
 disabledDays: [{ after: moment(this.props.match.params.date).add(6, "M").toDate() }]
 // AFTER
 defaultMonth: dayjs(this.props.match.params.date).toDate(),
-disabled: [{ after: dayjs(this.props.match.params.date).add(6, "month").toDate() }]
+disabledDays: [{ after: dayjs(this.props.match.params.date).add(6, "month").toDate() }]
 ```
 
 #### 1.4.10 `src/components/guest_room_reservations/edit.jsx`
@@ -296,7 +320,7 @@ disabled: [{ after: dayjs(this.props.match.params.date).add(6, "month").toDate()
 // BEFORE
 disabledDays: [{ after: moment(this.state.event.date).add(6, "M").toDate() }]
 // AFTER
-disabled: [{ after: dayjs(this.state.event.date).add(6, "month").toDate() }]
+disabledDays: [{ after: dayjs(this.state.event.date).add(6, "month").toDate() }]
 ```
 
 #### 1.4.11 `src/components/common_house_reservations/new.jsx`
@@ -309,7 +333,7 @@ initialMonth: moment(this.props.match.params.date).toDate(),
 disabledDays: [{ after: moment(this.props.match.params.date).add(6, "M").toDate() }]
 // AFTER
 defaultMonth: dayjs(this.props.match.params.date).toDate(),
-disabled: [{ after: dayjs(this.props.match.params.date).add(6, "month").toDate() }]
+disabledDays: [{ after: dayjs(this.props.match.params.date).add(6, "month").toDate() }]
 ```
 
 #### 1.4.12 `src/components/common_house_reservations/edit.jsx`
@@ -320,7 +344,7 @@ disabled: [{ after: dayjs(this.props.match.params.date).add(6, "month").toDate()
 // BEFORE
 disabledDays: [{ after: moment(this.state.event.start_date).add(6, "M").toDate() }]
 // AFTER
-disabled: [{ after: dayjs(this.state.event.start_date).add(6, "month").toDate() }]
+disabledDays: [{ after: dayjs(this.state.event.start_date).add(6, "month").toDate() }]
 ```
 
 ### 1.5 react-big-calendar: momentLocalizer to dayjsLocalizer
@@ -422,6 +446,7 @@ class DayPickerInputWrapper extends Component {
   }
 
   handleInputClick() {
+    if (this.props.inputDisabled) return;
     this.setState({ isOpen: true });
   }
 
@@ -443,6 +468,7 @@ class DayPickerInputWrapper extends Component {
         <input
           type="text"
           readOnly
+          disabled={this.props.inputDisabled}
           value={this.formatValue()}
           onClick={this.handleInputClick}
           placeholder={this.props.placeholder || ""}
@@ -457,10 +483,10 @@ class DayPickerInputWrapper extends Component {
           }}>
             <DayPicker
               mode="single"
-              selected={this.props.value ? new Date(this.props.value) : undefined}
+              selected={this.props.value ? dayjs(this.props.value).toDate() : undefined}
               onSelect={this.handleDaySelect}
               defaultMonth={this.props.defaultMonth}
-              disabled={this.props.disabled}
+              disabled={this.props.disabledDays}
             />
           </div>
         )}
@@ -472,11 +498,36 @@ class DayPickerInputWrapper extends Component {
 export default DayPickerInputWrapper;
 ```
 
+**Changes from the naive implementation:**
+
+- **`selected` uses `dayjs().toDate()` instead of `new Date()`** — `new Date("2026-01-15")`
+  parses date-only strings as UTC midnight, which displays as the wrong day in
+  timezones behind UTC. `dayjs("2026-01-15").toDate()` parses as local time,
+  matching the original moment behavior.
+- **`disabledDays` prop (not `disabled`)** — avoids confusion with the HTML
+  `disabled` attribute. The wrapper maps `this.props.disabledDays` to
+  `<DayPicker disabled={...}>` internally.
+- **`inputDisabled` prop** — adds `disabled` to the `<input>` element for form
+  loading states. When `inputDisabled` is true, `handleInputClick` also returns
+  early to prevent opening the calendar.
+
+**Props summary:**
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `value` | Date/string | Currently selected date |
+| `placeholder` | string | Placeholder text when no date selected |
+| `onDayChange` | function(Date) | Callback when a day is selected |
+| `defaultMonth` | Date | Initial month shown in calendar |
+| `disabledDays` | matcher[] | Days that cannot be selected (passed to DayPicker `disabled`) |
+| `inputDisabled` | boolean | Disables the input element (for form loading states) |
+
 This wrapper replicates the v7 DayPickerInput behavior:
 - Shows a text input that displays the formatted date
 - Opens a DayPicker calendar dropdown on click
 - Closes on outside click
 - Calls `onDayChange(date)` when a day is selected
+- Supports disabling the input for form loading states
 
 ### 2.4 Form Component Migration (6 files)
 
@@ -484,23 +535,31 @@ All 6 form components follow an identical pattern. Here is what changes for each
 
 #### 2.4.1 `src/components/events/new.jsx`
 
-**Current code:**
+**Note:** This file (and all 6 form files) was modified by the form loading
+states plan and the toast notification plan. The current code has a loading
+wrapper div around DayPickerInput with `inputProps={{ disabled }}` and
+`pointerEvents`/`opacity` styling. These must be preserved in the migration.
+
+**Current code (after loading states + toast changes):**
 ```jsx
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
 // ...
-<DayPickerInput
-  formatDate={formatDate}
-  parseDate={parseDate}
-  placeholder={""}
-  onDayChange={this.handleDayChange}
-  dayPickerProps={{
-    initialMonth: moment(this.props.match.params.date).toDate(),
-    disabledDays: [{
-      after: moment(this.props.match.params.date).add(6, "M").toDate()
-    }]
-  }}
-/>
+<div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInput
+    formatDate={formatDate}
+    parseDate={parseDate}
+    placeholder={""}
+    onDayChange={this.handleDayChange}
+    inputProps={{ disabled: this.state.loading }}
+    dayPickerProps={{
+      initialMonth: moment(this.props.match.params.date).toDate(),
+      disabledDays: [{
+        after: moment(this.props.match.params.date).add(6, "M").toDate()
+      }]
+    }}
+  />
+</div>
 ```
 
 **v9 replacement:**
@@ -508,190 +567,164 @@ import { formatDate, parseDate } from "react-day-picker/moment";
 import DayPickerInputWrapper from "../common/day_picker_input";
 import dayjs from "dayjs";
 // ...
-<DayPickerInputWrapper
-  placeholder=""
-  onDayChange={this.handleDayChange}
-  defaultMonth={dayjs(this.props.match.params.date).toDate()}
-  disabled={[{
-    after: dayjs(this.props.match.params.date).add(6, "month").toDate()
-  }]}
-/>
+<div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInputWrapper
+    placeholder=""
+    onDayChange={this.handleDayChange}
+    inputDisabled={this.state.loading}
+    defaultMonth={dayjs(this.props.match.params.date).toDate()}
+    disabledDays={[{
+      after: dayjs(this.props.match.params.date).add(6, "month").toDate()
+    }]}
+  />
+</div>
 ```
 
 **Props that changed:**
 - `formatDate` / `parseDate` -- removed (handled inside wrapper with dayjs)
+- `inputProps={{ disabled }}` --> `inputDisabled` (wrapper prop)
 - `dayPickerProps.initialMonth` --> `defaultMonth` (v9 DayPicker prop name)
-- `dayPickerProps.disabledDays` --> `disabled` (v9 DayPicker prop name)
+- `dayPickerProps.disabledDays` --> `disabledDays` (wrapper maps to DayPicker `disabled`)
 - `onDayChange` -- kept (wrapper passes through)
+- Loading wrapper div -- kept as-is
 
 #### 2.4.2 `src/components/events/edit.jsx`
 
-**Current code:**
+**Note:** Edit forms use `loadingAction` (not `loading`). They also have
+`handleDeleteClick`/`handleDeleteConfirm`/`handleDeleteCancel` methods and a
+`<ConfirmModal>` — these are unrelated to the DayPicker migration but the
+plan's code snippets should reflect the actual component structure.
+
+**Current code (after loading states + toast + confirm modal changes):**
 ```jsx
-<DayPickerInput
-  formatDate={formatDate}
-  parseDate={parseDate}
-  onDayChange={this.handleDayChange}
-  value={formatDate(this.state.event.start_date)}
-  dayPickerProps={{
-    disabledDays: [{
-      after: moment(this.state.event.start_date).add(6, "M").toDate()
-    }]
-  }}
-/>
+<div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInput
+    formatDate={formatDate}
+    parseDate={parseDate}
+    onDayChange={this.handleDayChange}
+    value={formatDate(this.state.event.start_date)}
+    inputProps={{ disabled: this.state.loadingAction !== null }}
+    dayPickerProps={{
+      disabledDays: [{
+        after: moment(this.state.event.start_date).add(6, "M").toDate()
+      }]
+    }}
+  />
+</div>
 ```
 
 **v9 replacement:**
 ```jsx
-<DayPickerInputWrapper
-  value={this.state.event.start_date}
-  onDayChange={this.handleDayChange}
-  disabled={[{
-    after: dayjs(this.state.event.start_date).add(6, "month").toDate()
-  }]}
-/>
+<div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInputWrapper
+    value={this.state.event.start_date}
+    onDayChange={this.handleDayChange}
+    inputDisabled={this.state.loadingAction !== null}
+    disabledDays={[{
+      after: dayjs(this.state.event.start_date).add(6, "month").toDate()
+    }]}
+  />
+</div>
 ```
 
 **Props that changed:**
 - `formatDate` / `parseDate` -- removed
-- `value={formatDate(this.state.event.start_date)}` --> `value={this.state.event.start_date}` (wrapper formats internally)
-- `dayPickerProps.disabledDays` --> `disabled`
+- `value={formatDate(...)}` --> `value={this.state.event.start_date}` (wrapper formats internally)
+- `inputProps={{ disabled }}` --> `inputDisabled`
+- `dayPickerProps.disabledDays` --> `disabledDays`
+- Loading wrapper div -- kept as-is
 
 #### 2.4.3 `src/components/guest_room_reservations/new.jsx`
 
-**Current code:**
-```jsx
-<DayPickerInput
-  formatDate={formatDate}
-  parseDate={parseDate}
-  placeholder={""}
-  onDayChange={this.handleDayChange}
-  dayPickerProps={{
-    initialMonth: moment(this.props.match.params.date).toDate(),
-    disabledDays: [{
-      after: moment(this.props.match.params.date).add(6, "M").toDate()
-    }]
-  }}
-/>
-```
+Same pattern as events/new.jsx — `loading` boolean, loading wrapper div
+preserved, `inputDisabled={this.state.loading}`:
 
-**v9 replacement:**
 ```jsx
-<DayPickerInputWrapper
-  placeholder=""
-  onDayChange={this.handleDayChange}
-  defaultMonth={dayjs(this.props.match.params.date).toDate()}
-  disabled={[{
-    after: dayjs(this.props.match.params.date).add(6, "month").toDate()
-  }]}
-/>
+<div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInputWrapper
+    placeholder=""
+    onDayChange={this.handleDayChange}
+    inputDisabled={this.state.loading}
+    defaultMonth={dayjs(this.props.match.params.date).toDate()}
+    disabledDays={[{
+      after: dayjs(this.props.match.params.date).add(6, "month").toDate()
+    }]}
+  />
+</div>
 ```
-
-Same pattern as events/new.jsx.
 
 #### 2.4.4 `src/components/guest_room_reservations/edit.jsx`
 
-**Current code:**
-```jsx
-<DayPickerInput
-  formatDate={formatDate}
-  parseDate={parseDate}
-  onDayChange={this.handleDayChange}
-  value={formatDate(this.state.event.date)}
-  dayPickerProps={{
-    disabledDays: [{
-      after: moment(this.state.event.date).add(6, "M").toDate()
-    }]
-  }}
-/>
-```
+Same pattern as events/edit.jsx — `loadingAction`, loading wrapper div
+preserved, `inputDisabled={this.state.loadingAction !== null}`:
 
-**v9 replacement:**
 ```jsx
-<DayPickerInputWrapper
-  value={this.state.event.date}
-  onDayChange={this.handleDayChange}
-  disabled={[{
-    after: dayjs(this.state.event.date).add(6, "month").toDate()
-  }]}
-/>
+<div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInputWrapper
+    value={this.state.event.date}
+    onDayChange={this.handleDayChange}
+    inputDisabled={this.state.loadingAction !== null}
+    disabledDays={[{
+      after: dayjs(this.state.event.date).add(6, "month").toDate()
+    }]}
+  />
+</div>
 ```
 
 #### 2.4.5 `src/components/common_house_reservations/new.jsx`
 
-**Current code:**
-```jsx
-<DayPickerInput
-  formatDate={formatDate}
-  parseDate={parseDate}
-  placeholder={""}
-  onDayChange={this.handleDayChange}
-  dayPickerProps={{
-    initialMonth: moment(this.props.match.params.date).toDate(),
-    disabledDays: [{
-      after: moment(this.props.match.params.date).add(6, "M").toDate()
-    }]
-  }}
-/>
-```
+Same pattern as events/new.jsx — `loading` boolean:
 
-**v9 replacement:**
 ```jsx
-<DayPickerInputWrapper
-  placeholder=""
-  onDayChange={this.handleDayChange}
-  defaultMonth={dayjs(this.props.match.params.date).toDate()}
-  disabled={[{
-    after: dayjs(this.props.match.params.date).add(6, "month").toDate()
-  }]}
-/>
+<div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInputWrapper
+    placeholder=""
+    onDayChange={this.handleDayChange}
+    inputDisabled={this.state.loading}
+    defaultMonth={dayjs(this.props.match.params.date).toDate()}
+    disabledDays={[{
+      after: dayjs(this.props.match.params.date).add(6, "month").toDate()
+    }]}
+  />
+</div>
 ```
-
-Same pattern as events/new.jsx and guest_room_reservations/new.jsx.
 
 #### 2.4.6 `src/components/common_house_reservations/edit.jsx`
 
-**Current code:**
+Same pattern as events/edit.jsx — `loadingAction`:
+
 ```jsx
-<DayPickerInput
-  formatDate={formatDate}
-  parseDate={parseDate}
-  onDayChange={this.handleDayChange}
-  value={formatDate(this.state.event.start_date)}
-  dayPickerProps={{
-    disabledDays: [{
-      after: moment(this.state.event.start_date).add(6, "M").toDate()
-    }]
-  }}
-/>
+<div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+  <DayPickerInputWrapper
+    value={this.state.event.start_date}
+    onDayChange={this.handleDayChange}
+    inputDisabled={this.state.loadingAction !== null}
+    disabledDays={[{
+      after: dayjs(this.state.event.start_date).add(6, "month").toDate()
+    }]}
+  />
+</div>
 ```
 
-**v9 replacement:**
-```jsx
-<DayPickerInputWrapper
-  value={this.state.event.start_date}
-  onDayChange={this.handleDayChange}
-  disabled={[{
-    after: dayjs(this.state.event.start_date).add(6, "month").toDate()
-  }]}
-/>
-```
+### 2.5 Import Changes Summary (All 6 Form Files)
 
-### 2.5 Removed Imports Summary
-
-These imports are deleted from ALL 6 form files:
+Since Parts 1 and 2 happen simultaneously, all import changes are listed here:
 
 ```js
-// DELETE these two lines from every form component
+// DELETE these three lines from every form component:
 import DayPickerInput from "react-day-picker/DayPickerInput";
 import { formatDate, parseDate } from "react-day-picker/moment";
-```
+import moment from "moment";
 
-Replaced with:
-
-```js
+// ADD these two lines:
 import DayPickerInputWrapper from "../common/day_picker_input";
+import dayjs from "dayjs";
 ```
+
+Note: The `import moment from "moment"` line is also removed from the 6
+non-form files (data_store, calendar/show, meal/date_box, meal/header,
+history/show, residents/login) and replaced with `import dayjs from "dayjs"`
+as part of the Part 1 migration.
 
 ### 2.6 v9 `disabled` Prop Format
 
@@ -730,14 +763,20 @@ After upgrading to react-day-picker v9, the peer dependency becomes
 `react >= 16.8.0`, which is satisfied by React 18. Therefore,
 `legacy-peer-deps=true` can be removed.
 
-**Before removing**, verify no other package has a conflicting peer dependency:
+**Before removing**, do a clean install without the flag to verify nothing breaks:
 
 ```bash
-npm ls --all 2>&1 | grep "ERESOLVE\|peer dep\|invalid"
+mv .npmrc .npmrc.bak
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-If clean, delete `.npmrc` entirely (it has no other settings) or remove the
-`legacy-peer-deps=true` line.
+If `npm install` succeeds, the `.npmrc` is no longer needed — delete it and
+commit the new `package-lock.json`. If it fails with peer dependency errors,
+restore `.npmrc` and keep `legacy-peer-deps=true` until the conflicting
+packages are updated. Several packages were added recently (eslint@9,
+eslint-plugin-react, eslint-plugin-react-hooks, globals) — verify these don't
+have unresolvable peer conflicts.
 
 ### 3.3 Update E2E Tests
 
@@ -808,24 +847,32 @@ localizer code (and its moment import) is not included in our bundle.
 
 ### Execution Order Within the Single Branch
 
-Do the work in this order to keep the app compiling at each step:
+The app will NOT compile between steps 1 and 4 because upgrading
+react-day-picker to v9 removes the `DayPickerInput` and
+`react-day-picker/moment` imports that the 6 form files still reference.
+This is expected for a single-branch migration -- the app compiles again
+after step 4.
 
-1. **Install dayjs**, register plugins in `src/index.jsx`.
-2. **Create `src/components/common/day_picker_input.jsx`** -- the DayPickerInput
-   replacement wrapper.
-3. **Update `package.json`**: `npm install react-day-picker@^9.14.0 dayjs`.
-4. **Update `src/styles.css`**: change the CSS import path.
-5. **Migrate all 6 form components** (events, guest_room_reservations,
+1. **Install dayjs + upgrade react-day-picker**:
+   `npm install react-day-picker@^9.14.0 dayjs`. Register dayjs plugins
+   (`advancedFormat`, `relativeTime`) in `src/index.jsx`.
+2. **Update `src/styles.css`**: change the CSS import path from
+   `react-day-picker/lib/style.css` to `react-day-picker/style.css`.
+3. **Create `src/components/common/day_picker_input.jsx`** -- the DayPickerInput
+   replacement wrapper (requires v9 to be installed for the `DayPicker` import).
+4. **Migrate all 6 form components** (events, guest_room_reservations,
    common_house_reservations -- new + edit for each). Switch from DayPickerInput
-   to DayPickerInputWrapper, replace moment with dayjs.
-6. **Migrate the 6 non-form files** (data_store, calendar/show, meal/date_box,
+   to DayPickerInputWrapper, replace moment with dayjs, remove v7 imports.
+   App compiles again after this step.
+5. **Migrate the 6 non-form files** (data_store, calendar/show, meal/date_box,
    meal/header, history/show, residents/login). Replace moment with dayjs.
    Switch `momentLocalizer` to `dayjsLocalizer` in calendar/show.
-7. **Remove moment**: `npm uninstall moment`.
-8. **Remove `.npmrc`** or remove the `legacy-peer-deps=true` line.
-9. **Update e2e tests**: fix CSS selectors and comments.
-10. **Regenerate visual baselines**: `npx playwright test --update-snapshots`.
-11. **Run full test suite**: `npm test && npx playwright test`.
+6. **Remove moment**: `npm uninstall moment`.
+7. **Remove `.npmrc`** or remove the `legacy-peer-deps=true` line (after
+   verifying clean install -- see Section 3.2).
+8. **Update e2e tests**: fix CSS selectors and comments.
+9. **Regenerate visual baselines**: `npx playwright test --update-snapshots`.
+10. **Run full test suite**: `npm test && npx playwright test`.
 
 ---
 
