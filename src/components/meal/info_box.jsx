@@ -1,4 +1,3 @@
-import React from "react";
 import { inject, observer } from "mobx-react";
 import Extras from "./extras";
 import CloseButton from "./close_button";

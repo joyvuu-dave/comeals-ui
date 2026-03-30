@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { inject, observer } from "mobx-react";
-import { withRouter } from "react-router-dom";
+import { withRouter } from "../../helpers/with_router";
 
 import Header from "../meal/header";
 import DateBox from "../meal/date_box";

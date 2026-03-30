@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 
 var POLL_INTERVAL = 5 * 60 * 1000; // 5 minutes
 

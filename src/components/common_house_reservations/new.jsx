@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import DayPickerInputWrapper from "../common/day_picker_input";
 import dayjs from "dayjs";
 import axios from "axios";

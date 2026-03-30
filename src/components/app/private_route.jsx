@@ -1,19 +1,11 @@
-import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-export default props => {
-  const { auth, component: Component, ...rest } = props;
+export default function PrivateRoute({ auth, children }) {
+  var location = useLocation();
 
-  return (
-    <Route
-      {...rest}
-      render={props =>
-        auth ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to={{ pathname: "/", state: { from: props.location } }} />
-        )
-      }
-    />
-  );
-};
+  if (!auth) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return children;
+}

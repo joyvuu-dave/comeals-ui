@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Cow from "../../images/cow.png";
 import Carrot from "../../images/carrot.png";
-import onClickOutside from "react-onclickoutside";
 
 const styles = {
   topButton: {
@@ -13,15 +12,27 @@ class GuestDropdown extends Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this);
+    this.wrapperRef = React.createRef();
 
     this.state = {
       open: false
     };
   }
 
-  handleClickOutside = () => {
-    this.setState({ open: false });
-  };
+  componentDidMount() {
+    document.addEventListener("mousedown", this.handleClickOutside);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("mousedown", this.handleClickOutside);
+  }
+
+  handleClickOutside(event) {
+    if (this.wrapperRef.current && !this.wrapperRef.current.contains(event.target)) {
+      this.setState({ open: false });
+    }
+  }
 
   handleClick() {
     this.setState((prevState) => {
@@ -32,6 +43,7 @@ class GuestDropdown extends Component {
   render() {
     return (
       <div
+        ref={this.wrapperRef}
         className={
           this.state.open
             ? "dropdown dropdown-left active"
@@ -63,4 +75,4 @@ class GuestDropdown extends Component {
   }
 }
 
-export default onClickOutside(GuestDropdown);
+export default GuestDropdown;

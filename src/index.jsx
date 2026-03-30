@@ -14,9 +14,10 @@ import ToastContainer from "./components/app/toast_container";
 
 import {
   BrowserRouter as Router,
+  Routes,
   Route,
-  Switch,
-  Redirect
+  Navigate,
+  useLocation
 } from "react-router-dom";
 
 import { DataStore } from "./stores/data_store";
@@ -25,6 +26,14 @@ import ResidentsLogin from "./components/residents/login";
 import PrivateRoute from "./components/app/private_route";
 
 import ScrollToTop from "./components/app/scroll_to_top";
+
+function TrailingSlash() {
+  var location = useLocation();
+  if (!location.pathname.endsWith("/")) {
+    return <Navigate to={location.pathname + "/" + location.search} replace />;
+  }
+  return null;
+}
 
 function isAuthenticated() {
   return (
@@ -88,34 +97,31 @@ document.addEventListener("DOMContentLoaded", () => {
       <Provider store={store}>
         <ToastContainer />
         <Router>
-          <React.Fragment>
           <VersionBanner />
+          <TrailingSlash />
           <ScrollToTop>
             <Suspense fallback={<h3>Loading...</h3>}>
-            <Switch>
+            <Routes>
               <Route
-                exact
-                strict
-                path="/:url*"
-                render={props => (
-                  <Redirect to={`${props.location.pathname}/`} />
-                )}
-              />
-              <PrivateRoute
                 path="/calendar/:type/:date/:modal?/:view?/:id?"
-                auth={isAuthenticated()}
-                component={Calendar}
+                element={
+                  <PrivateRoute auth={isAuthenticated()}>
+                    <Calendar />
+                  </PrivateRoute>
+                }
               />
-              <PrivateRoute
-                path="/meals/:id/edit"
-                auth={isAuthenticated()}
-                component={MealsEdit}
+              <Route
+                path="/meals/:id/edit/*"
+                element={
+                  <PrivateRoute auth={isAuthenticated()}>
+                    <MealsEdit />
+                  </PrivateRoute>
+                }
               />
-              <Route path="/:modal?/:token?" component={ResidentsLogin} />
-            </Switch>
+              <Route path="/:modal?/:token?" element={<ResidentsLogin />} />
+            </Routes>
             </Suspense>
           </ScrollToTop>
-          </React.Fragment>
         </Router>
       </Provider>
   );

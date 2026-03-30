@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { inject, observer } from "mobx-react";
 import Cow from "../../images/cow.png";
 import Carrot from "../../images/carrot.png";

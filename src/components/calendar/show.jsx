@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
-import { withRouter } from "react-router-dom";
+import { withRouter } from "../../helpers/with_router";
 import SideBar from "./side_bar";
 
 import Cookie from "js-cookie";

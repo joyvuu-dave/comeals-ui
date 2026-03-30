@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { inject, observer } from "mobx-react";
 import dayjs from "dayjs";
 import ButtonBar from "./button_bar";
