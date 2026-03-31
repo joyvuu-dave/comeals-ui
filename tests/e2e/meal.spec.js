@@ -490,12 +490,14 @@ test.describe("Meal Editing", () => {
     await page.route("**/api/v1/meals/*/cooks*", (route) => {
       const url = route.request().url();
       apiCalls.push(url);
-      // Return fixture data for any meal
+      // Extract meal ID from URL and return fixture with matching id
+      const mealId = Number(url.match(/\/meals\/(\d+)\//)[1]);
       const mealFixture = require("../fixtures/meal.json");
+      const data = { ...mealFixture, id: mealId };
       route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify(mealFixture),
+        body: JSON.stringify(data),
       });
     });
 
