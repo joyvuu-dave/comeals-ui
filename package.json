@@ -51,6 +51,7 @@
     "test": "vitest run",
     "test:e2e": "npx playwright test",
     "test:e2e:update": "npx playwright test --update-snapshots",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "postinstall": "npx --no-install playwright install || true"
   }
 }
