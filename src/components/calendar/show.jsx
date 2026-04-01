@@ -17,6 +17,7 @@ import EventsEdit from "../events/edit";
 import RotationsShow from "../rotations/show";
 
 import WebcalLinks from "./webcal_links";
+import toastStore from "../../stores/toast_store";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -197,6 +198,7 @@ const MainCalendar = inject("store")(
         }
 
         handleCloseModal() {
+          toastStore.clearAll();
           this.props.history.push(
             `/calendar/${this.props.match.params.type}/${
               this.props.match.params.date

@@ -271,7 +271,10 @@ export const DataStore = types
         data: obj,
         withCredentials: true
       }).catch(function(error) {
-        handleAxiosError(error);
+        var type = handleAxiosError(error);
+        if (type === "warning") {
+          toastStore.addToast("Cooks updated.", "success");
+        }
 
         self.loadDataAsync();
       });
