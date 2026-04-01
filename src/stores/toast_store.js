@@ -22,6 +22,10 @@ class ToastStore {
   removeToast(id) {
     this.toasts = this.toasts.filter(function(t) { return t.id !== id; });
   }
+
+  clearAll() {
+    this.toasts = [];
+  }
 }
 
 var toastStore = new ToastStore();

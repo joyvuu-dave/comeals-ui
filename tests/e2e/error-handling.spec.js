@@ -119,6 +119,78 @@ test.describe("Error Handling & Edge Cases", () => {
       await expect(toast.locator(".toast__message")).toContainText("Title is required");
     });
 
+    test("error toast clears when calendar modal is closed", async ({
+      page,
+      context,
+    }) => {
+      await setupAuthenticatedPage(page, context);
+
+      // Override events endpoint to return error
+      await page.route("**/api/v1/events?*", (route) => {
+        route.fulfill({
+          status: 422,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "Title is required" }),
+        });
+      });
+
+      await page.goto("/calendar/all/2026-01-15/");
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator(".rbc-calendar")).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Open event creation modal and submit to trigger error
+      await page.locator("text=Event").first().click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 5000 });
+      await modal.locator("button:has-text('Create')").click();
+
+      // Error toast should appear
+      await expect(page.locator(".toast--error")).toBeVisible({ timeout: 5000 });
+
+      // Close the modal via X button
+      await modal.locator(".close-button").click();
+
+      // Toast should be cleared
+      await expect(page.locator(".toast--error")).not.toBeVisible({ timeout: 3000 });
+    });
+
+    test("warning response shows yellow toast, not red", async ({
+      page,
+      context,
+    }) => {
+      await setupAuthenticatedPage(page, context);
+
+      // Override events endpoint to return a warning (type: "warning")
+      await page.route("**/api/v1/events?*", (route) => {
+        route.fulfill({
+          status: 400,
+          contentType: "application/json",
+          body: JSON.stringify({
+            message: "Warning: test warning message",
+            type: "warning",
+          }),
+        });
+      });
+
+      await page.goto("/calendar/all/2026-01-15/");
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator(".rbc-calendar")).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Open event creation modal and submit to trigger warning
+      await page.locator("text=Event").first().click();
+      const modal = page.locator(".ReactModal__Content--after-open");
+      await expect(modal).toBeVisible({ timeout: 5000 });
+      await modal.locator("button:has-text('Create')").click();
+
+      // Should show warning toast (yellow), not error toast (red)
+      await expect(page.locator(".toast--warning")).toBeVisible({ timeout: 5000 });
+      await expect(page.locator(".toast--error")).not.toBeVisible();
+    });
+
     test("network error (no response) shows generic alert", async ({
       page,
       context,
