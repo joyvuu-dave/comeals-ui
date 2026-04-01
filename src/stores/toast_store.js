@@ -26,6 +26,12 @@ class ToastStore {
   clearAll() {
     this.toasts = [];
   }
+
+  replaceAll(message, type) {
+    var id = ++this._nextId;
+    this.toasts = [{ id: id, message: message, type: type, timestamp: Date.now() }];
+    return id;
+  }
 }
 
 var toastStore = new ToastStore();

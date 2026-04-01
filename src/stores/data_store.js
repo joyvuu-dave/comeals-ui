@@ -436,8 +436,12 @@ export const DataStore = types
       // Create blanks bills
       array.forEach(() => bills.push([]));
 
-      // Assign ids to bills
-      bills = bills.map(obj => Object.assign({ id: v4() }, obj));
+      // Assign ids to bills (types.identifier requires strings)
+      bills = bills.map(obj => {
+        var bill = Object.assign({ id: v4() }, obj);
+        bill.id = String(bill.id);
+        return bill;
+      });
 
       // Put bills into BillStore
       bills.forEach(bill => {
