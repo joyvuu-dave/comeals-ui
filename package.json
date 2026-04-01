@@ -5,8 +5,8 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": ">=22",
-    "npm": ">=10"
+    "node": ">=24",
+    "npm": ">=11"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
