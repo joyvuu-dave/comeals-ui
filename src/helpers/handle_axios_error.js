@@ -9,7 +9,7 @@ export default function handleAxiosError(error, options) {
       if (silent) {
         console.error(data.message);
       } else {
-        toastStore.addToast(data.message, toastType);
+        toastStore.replaceAll(data.message, toastType);
       }
       return toastType;
     } else {
@@ -20,14 +20,14 @@ export default function handleAxiosError(error, options) {
     if (silent) {
       console.error("Error: no response received from server.");
     } else {
-      toastStore.addToast("Error: no response received from server.", "error");
+      toastStore.replaceAll("Error: no response received from server.", "error");
     }
     return "error";
   } else {
     if (silent) {
       console.error("Error: could not submit form.");
     } else {
-      toastStore.addToast("Error: could not submit form.", "error");
+      toastStore.replaceAll("Error: could not submit form.", "error");
     }
     return "error";
   }
