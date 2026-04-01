@@ -925,7 +925,7 @@ describe("DataStore", () => {
       localforage.setItem.mockResolvedValueOnce();
 
       // Switch to meal 2 and load its data
-      store.meal = 2;
+      runInAction(() => { store.meal = 2; });
       store.loadData(makeMealData(2, { attending: false }));
       expect(store.meal.id).toBe(2);
       expect(store.meal.description).toBe("Meal 2");
@@ -969,7 +969,7 @@ describe("DataStore", () => {
       store.switchMeals(2);
 
       // Before localforage resolves, user navigates to meal 3
-      store.meal = 3;
+      runInAction(() => { store.meal = 3; });
       store.loadData(makeMealData(3, { late: true }));
 
       // Now let localforage resolve (for the stale meal 2 request)
