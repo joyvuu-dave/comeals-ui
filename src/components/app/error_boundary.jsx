@@ -14,8 +14,10 @@ var styles = {
     marginTop: "1rem",
     padding: "0.75rem 2rem",
     fontSize: "1rem",
-    backgroundColor: "#CCDEEA",
-    border: "1px solid #999",
+    lineHeight: "1",
+    backgroundColor: "#444",
+    color: "#fff",
+    border: "none",
     borderRadius: "4px",
     cursor: "pointer",
   },
@@ -39,8 +41,10 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div style={styles.container}>
-          <h2>Something went wrong.</h2>
-          <p>Try refreshing the page. If the problem persists, clear your browser data for this site.</p>
+          <h2>Something went wrong with Comeals.</h2>
+          <p>Try refreshing the page. If that doesn't fix it, email David at{" "}
+            <a href="mailto:david.paul.riddle@gmail.com">david.paul.riddle@gmail.com</a>.
+          </p>
           <button
             style={styles.button}
             onClick={function () {
