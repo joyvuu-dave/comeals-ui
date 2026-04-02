@@ -2,8 +2,8 @@ Front end for Comeals.
 
 ## Prerequisites
 
-- Node.js >= 22
-- npm >= 10
+- Node.js 24
+- npm 11
 
 Install dependencies:
 
