@@ -47,6 +47,7 @@ export const DataStore = types
   })
   .views(self => ({
     get description() {
+      if (!self.meal) return "";
       return self.meal.description;
     },
     get residents() {
@@ -86,6 +87,7 @@ export const DataStore = types
       ).length;
     },
     get extras() {
+      if (!self.meal) return "n/a";
       // Extras only show when the meal is closed
       if (!self.meal.closed) {
         return "n/a";
@@ -98,6 +100,7 @@ export const DataStore = types
       }
     },
     get canAdd() {
+      if (!self.meal) return false;
       return (
         !self.meal.closed ||
         (self.meal.closed && self.extras === "") ||
@@ -552,6 +555,10 @@ export const DataStore = types
           self.loadData(value);
           self.loadDataAsync();
         }
+      }).catch(function(error) {
+        console.error("Failed to load cached meal data, fetching from server:", error);
+        localforage.removeItem(id.toString()).catch(function() {});
+        self.loadDataAsync();
       });
     },
     switchMonths(date) {

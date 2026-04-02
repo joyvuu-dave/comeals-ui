@@ -35,6 +35,7 @@ import ResidentsLogin from "./components/residents/login";
 import PrivateRoute from "./components/app/private_route";
 
 import ScrollToTop from "./components/app/scroll_to_top";
+import ErrorBoundary from "./components/app/error_boundary";
 
 function TrailingSlash() {
   var location = useLocation();
@@ -110,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <TrailingSlash />
           <ScrollToTop>
             <Suspense fallback={<h3>Loading...</h3>}>
+            <ErrorBoundary>
             <Routes>
               <Route
                 path="/calendar/:type/:date/:modal?/:view?/:id?"
@@ -129,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
               />
               <Route path="/:modal?/:token?" element={<ResidentsLogin />} />
             </Routes>
+            </ErrorBoundary>
             </Suspense>
           </ScrollToTop>
         </Router>
