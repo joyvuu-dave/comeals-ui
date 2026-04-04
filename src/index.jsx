@@ -20,6 +20,7 @@ if (import.meta.env.DEV) {
 import Cookie from "js-cookie";
 import VersionBanner from "./components/app/version_banner";
 import ToastContainer from "./components/app/toast_container";
+import SessionExpiredBanner from "./components/app/session_expired_banner";
 
 import {
   BrowserRouter as Router,
@@ -106,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <ToastContainer />
+        <SessionExpiredBanner store={store} />
         <Router>
           <VersionBanner />
           <TrailingSlash />

@@ -43,7 +43,8 @@ export const DataStore = types
     showHistory: false,
     calendarEvents: types.optional(types.array(types.frozen()), []),
     currentDate: types.optional(types.string, function() { return dayjs().format("YYYY-MM-DD"); }),
-    isOnline: false
+    isOnline: false,
+    authExpired: false
   })
   .views(self => ({
     get description() {
@@ -141,6 +142,16 @@ export const DataStore = types
       });
 
       self.setIsOnline();
+
+      axios.interceptors.response.use(
+        function(response) { return response; },
+        function(error) {
+          if (error.response && error.response.status === 401) {
+            self.setAuthExpired(true);
+          }
+          return Promise.reject(error);
+        }
+      );
     },
     toggleEditDescriptionMode() {
       const isSaving = self.editDescriptionMode;
@@ -600,5 +611,8 @@ export const DataStore = types
     },
     setIsOnline() {
       self.isOnline = navigator.onLine;
+    },
+    setAuthExpired(value) {
+      self.authExpired = value;
     }
   }));

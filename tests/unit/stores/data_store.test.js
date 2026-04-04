@@ -4,6 +4,10 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 vi.mock("axios", () => {
   const mockAxios = vi.fn(() => Promise.resolve({ status: 200 }));
   mockAxios.get = vi.fn(() => Promise.resolve({ status: 200, data: {} }));
+  mockAxios.interceptors = {
+    response: { use: vi.fn() },
+    request: { use: vi.fn() },
+  };
   return { default: mockAxios };
 });
 
