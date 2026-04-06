@@ -7,8 +7,7 @@ export default function PrivateRoute({ children }) {
   var token = Cookie.get("token");
   var isAuthenticated = (
     typeof token !== "undefined" &&
-    token !== "undefined" &&
-    token !== undefined
+    token !== "undefined"
   );
 
   if (!isAuthenticated) {

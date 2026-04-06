@@ -96,13 +96,14 @@ const DateBox = inject("store")(
             return "loading...";
           }
 
-          var today = dayjs().tz("America/Los_Angeles").startOf("day");
-          var days = dayjs(this.props.store.meal.date).diff(today, "day");
+          var now = dayjs().tz("America/Los_Angeles");
+          var today = new Date(now.year(), now.month(), now.date());
+          var days = dayjs(this.props.store.meal.date).diff(dayjs(today), "day");
 
           if (days === 0) return "Today";
           if (days === -1) return "Yesterday";
           if (days === 1) return "Tomorrow";
-          return dayjs(this.props.store.meal.date).from(today);
+          return dayjs(this.props.store.meal.date).from(dayjs(today));
         }
 
         displayTopDate() {

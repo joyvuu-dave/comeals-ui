@@ -118,8 +118,7 @@ const ResidentsLogin = inject("store")(
           if (
             redirectToReferrer ||
             (typeof Cookie.get("token") !== "undefined" &&
-              Cookie.get("token") !== "undefined" &&
-              Cookie.get("token") !== undefined)
+              Cookie.get("token") !== "undefined")
           ) {
             return <Navigate to={from} replace />;
           }

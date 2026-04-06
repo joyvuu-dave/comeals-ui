@@ -26,6 +26,7 @@
 - Extract shared axios error handler; replace window.alert() with toast/notification UI
 - Decompose DataStore into focused sub-stores
 - Compute generateTimes() as module-level constant instead of inline in render
+- Extract hardcoded "America/Los_Angeles" timezone string into a single constant. Currently duplicated in 8+ locations across calendar/show.jsx, date_box.jsx, login.jsx, data_store.js, and guest_room_reservations forms. Long-term: the frontend should receive the community timezone from the backend API so different communities can use their own timezone.
 
 ## UX Enhancement
 - Add visual disabled state + user feedback for closed meals with no extras (no max set). When canAdd is false due to no cap, the add-guest button is disabled but there is no visible indication why. Consider a tooltip or message near the extras display.

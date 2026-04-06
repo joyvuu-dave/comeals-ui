@@ -61,7 +61,7 @@ const GuestRoomReservationsEdit = inject("store")(
           }/update?token=${Cookie.get("token")}`,
           {
             resident_id: self.state.resident_id,
-            date: self.state.day ? dayjs(self.state.day).tz("America/Los_Angeles").format("YYYY-MM-DD") : null
+            date: self.state.day ? dayjs(self.state.day).format("YYYY-MM-DD") : null
           }
         )
         .then(function(response) {

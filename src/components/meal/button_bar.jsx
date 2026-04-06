@@ -20,7 +20,7 @@ const ButtonBar = inject("store")(
         if (this.props.location.pathname.includes("/history")) {
           this.props.history.push(this.props.location.pathname.split("/history")[0]);
         } else {
-          this.props.history.push(`${this.props.location.pathname}history`);
+          this.props.history.push(`${this.props.location.pathname}history/`);
         }
       }
 

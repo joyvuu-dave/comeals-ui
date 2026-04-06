@@ -383,15 +383,11 @@ export const DataStore = types
     loadData(data) {
       self.preLoadData();
 
-      // Assign Meal Data
-      const dateArray = data.date.split("-");
-      const date = new Date(
-        dateArray[0],
-        Number(dateArray[1] - 1),
-        Number(dateArray[2])
-      );
-
-      self.meal.date = date;
+      // Assign Meal Data — construct a "fake local" Date with Pacific
+      // date components so that dayjs(meal.date) always reflects Pacific,
+      // consistent with getPacificNow() in calendar/show.jsx.
+      var d = dayjs.tz(data.date, "America/Los_Angeles");
+      self.meal.date = new Date(d.year(), d.month(), d.date());
       self.meal.description = data.description;
       self.meal.closed = data.closed;
       self.meal.closed_at = new Date(data.closed_at);
@@ -444,8 +440,7 @@ export const DataStore = types
       // Format amount for display
       bills = bills.map(bill => {
         const amt = Number(bill["amount"]);
-        bill["amount"] = amt === 0 ? "" : amt.toFixed(2);
-        return bill;
+        return Object.assign({}, bill, { amount: amt === 0 ? "" : amt.toFixed(2) });
       });
 
       // Determine # of blank bills needed
@@ -498,6 +493,9 @@ export const DataStore = types
 
       // Convert event start/end strings to native Date objects.
       // react-big-calendar requires native Dates for its date arithmetic.
+      // dayjs.tz handles both offset ("...Z", "...+HH:MM") and naive
+      // strings: offset strings are converted from their stated tz to
+      // Pacific; naive strings are interpreted as Pacific directly.
       function pushEvents(events) {
         events.forEach(function(event) {
           var converted = Object.assign({}, event);
