@@ -39,11 +39,9 @@ test.describe("Authentication", () => {
     await page.locator('input[aria-label="email"]').fill("jane@example.com");
     await page.locator('input[aria-label="password"]').fill("password123");
 
-    // Login triggers window.location.reload -- wait for navigation
-    await Promise.all([
-      page.waitForEvent("load"),
-      page.getByRole("button", { name: "Submit" }).click(),
-    ]);
+    // Login sets cookies and navigates via React Router
+    await page.getByRole("button", { name: "Submit" }).click();
+    await page.waitForURL("**/calendar/**");
 
     // API: POST to /residents/token with email and password
     expect(loginMethod).toBe("POST");

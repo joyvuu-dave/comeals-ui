@@ -1,0 +1,9 @@
+protected_branch="master"
+
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/$protected_branch" ]; then
+    echo "Pushing to $protected_branch — running full test suite..."
+    npm run lint && npm test && npm run test:e2e
+    exit $?
+  fi
+done
