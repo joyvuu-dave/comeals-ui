@@ -5,10 +5,6 @@ const styles = {
     gridArea: "a4",
     border: "1px solid"
   },
-  grid: {
-    display: "flex",
-    flexWrap: "no-wrap"
-  },
   select: {
     marginLeft: "1px",
     opacity: "1"

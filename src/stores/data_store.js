@@ -12,6 +12,10 @@ import EventSource from "./event_source";
 import Pusher from "pusher-js";
 import localforage from "localforage";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 import handleAxiosError from "../helpers/handle_axios_error";
 import toastStore from "./toast_store";
@@ -42,7 +46,7 @@ export const DataStore = types
     modalChangedData: false,
     showHistory: false,
     calendarEvents: types.optional(types.array(types.frozen()), []),
-    currentDate: types.optional(types.string, function() { return dayjs().format("YYYY-MM-DD"); }),
+    currentDate: types.optional(types.string, function() { return dayjs().tz("America/Los_Angeles").format("YYYY-MM-DD"); }),
     isOnline: false,
     authExpired: false
   })
@@ -104,7 +108,6 @@ export const DataStore = types
       if (!self.meal) return false;
       return (
         !self.meal.closed ||
-        (self.meal.closed && self.extras === "") ||
         (self.meal.closed &&
           typeof self.extras === "number" &&
           self.extras >= 1)
@@ -143,7 +146,10 @@ export const DataStore = types
 
       self.setIsOnline();
 
-      axios.interceptors.response.use(
+      if (typeof window.__comealsInterceptor !== "undefined") {
+        axios.interceptors.response.eject(window.__comealsInterceptor);
+      }
+      window.__comealsInterceptor = axios.interceptors.response.use(
         function(response) { return response; },
         function(error) {
           if (error.response && error.response.status === 401) {
@@ -427,11 +433,12 @@ export const DataStore = types
       // Assign Bills
       let bills = data.bills;
 
-      // Rename resident_id --> resident
+      // Rename resident_id --> resident (copy to avoid mutating cached data)
       bills = bills.map(bill => {
-        bill["resident"] = bill["resident_id"];
-        delete bill["resident_id"];
-        return bill;
+        var obj = Object.assign({}, bill);
+        obj["resident"] = obj["resident_id"];
+        delete obj["resident_id"];
+        return obj;
       });
 
       // Format amount for display
@@ -448,7 +455,7 @@ export const DataStore = types
       const array = Array(extra).fill();
 
       // Create blanks bills
-      array.forEach(() => bills.push([]));
+      array.forEach(() => bills.push({}));
 
       // Assign ids to bills (types.identifier requires strings)
       bills = bills.map(obj => {
@@ -494,8 +501,14 @@ export const DataStore = types
       function pushEvents(events) {
         events.forEach(function(event) {
           var converted = Object.assign({}, event);
-          if (converted.start) converted.start = new Date(converted.start);
-          if (converted.end) converted.end = new Date(converted.end);
+          if (converted.start) {
+            var s = dayjs.tz(converted.start, "America/Los_Angeles");
+            converted.start = new Date(s.year(), s.month(), s.date(), s.hour(), s.minute());
+          }
+          if (converted.end) {
+            var e = dayjs.tz(converted.end, "America/Los_Angeles");
+            converted.end = new Date(e.year(), e.month(), e.date(), e.hour(), e.minute());
+          }
           self.calendarEvents.push(converted);
         });
       }

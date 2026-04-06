@@ -59,9 +59,6 @@ class ResidentsPasswordNew extends Component {
       .catch(function(error) {
         self.setState({ loading: false });
         handleAxiosError(error);
-        if (error.request && !error.response) {
-          self.props.history.push("/");
-        }
       });
   }
 

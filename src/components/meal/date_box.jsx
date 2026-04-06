@@ -96,7 +96,7 @@ const DateBox = inject("store")(
             return "loading...";
           }
 
-          var today = dayjs().startOf("day");
+          var today = dayjs().tz("America/Los_Angeles").startOf("day");
           var days = dayjs(this.props.store.meal.date).diff(today, "day");
 
           if (days === 0) return "Today";

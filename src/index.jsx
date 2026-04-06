@@ -1,7 +1,11 @@
 import "./styles.css";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);
 
@@ -44,14 +48,6 @@ function TrailingSlash() {
     return <Navigate to={location.pathname + "/" + location.search} replace />;
   }
   return null;
-}
-
-function isAuthenticated() {
-  return (
-    typeof Cookie.get("token") !== "undefined" &&
-    Cookie.get("token") !== "undefined" &&
-    Cookie.get("token") !== undefined
-  );
 }
 
 function lazyRetry(importFn) {
@@ -118,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <Route
                 path="/calendar/:type/:date/:modal?/:view?/:id?"
                 element={
-                  <PrivateRoute auth={isAuthenticated()}>
+                  <PrivateRoute>
                     <Calendar />
                   </PrivateRoute>
                 }
@@ -126,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <Route
                 path="/meals/:id/edit/*"
                 element={
-                  <PrivateRoute auth={isAuthenticated()}>
+                  <PrivateRoute>
                     <MealsEdit />
                   </PrivateRoute>
                 }

@@ -20,11 +20,18 @@
 - Move auth tokens from URL query strings to Authorization header
 - Move Pusher API key to environment variable
 - Reduce cookie expiry from 7300 days to 7-30 days
+- Set Secure and SameSite attributes on auth cookies (login.jsx)
 
 ## Code Quality
 - Extract shared axios error handler; replace window.alert() with toast/notification UI
 - Decompose DataStore into focused sub-stores
 - Compute generateTimes() as module-level constant instead of inline in render
+
+## UX Enhancement
+- Add visual disabled state + user feedback for closed meals with no extras (no max set). When canAdd is false due to no cap, the add-guest button is disabled but there is no visible indication why. Consider a tooltip or message near the extras display.
+
+## Forms
+- Add client-side validation across all reservation/event forms (day required, time required, etc.) — currently offloaded entirely to the server
 
 ## Accessibility
 - Remove button:focus { outline: none; }

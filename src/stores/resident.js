@@ -182,6 +182,8 @@ const Resident = types
             handleAxiosError(error);
           });
       } else {
+        var previousLate = self.late;
+        self.late = false;
         self.form.form.meal.incrementExtras();
         axios({
           method: "delete",
@@ -196,13 +198,13 @@ const Resident = types
           .then(function(response) {
             if (!isAlive(self)) return;
             if (response.status === 200) {
-              self.setLate(false);
               self.setAttendingAt(null);
             }
           })
           .catch(function(error) {
             if (!isAlive(self)) return;
             self.setAttending(true);
+            self.setLate(previousLate);
             self.form.form.meal.decrementExtras();
 
             handleAxiosError(error);

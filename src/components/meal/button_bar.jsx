@@ -17,10 +17,10 @@ const ButtonBar = inject("store")(
       }
 
       toggleHistory() {
-        if (this.props.match.params.history === "history") {
-          this.props.history.push(this.props.match.url.split("/history")[0]);
+        if (this.props.location.pathname.includes("/history")) {
+          this.props.history.push(this.props.location.pathname.split("/history")[0]);
         } else {
-          this.props.history.push(`${this.props.match.url}history`);
+          this.props.history.push(`${this.props.location.pathname}history`);
         }
       }
 

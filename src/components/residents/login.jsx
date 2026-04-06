@@ -100,7 +100,7 @@ const ResidentsLogin = inject("store")(
                   expires: 7300
                 });
 
-                window.location.reload(true);
+                self.setState({ redirectToReferrer: true });
               }
             })
             .catch(function(error) {
@@ -111,7 +111,7 @@ const ResidentsLogin = inject("store")(
 
         render() {
           const { from } = this.props.location.state || {
-            from: { pathname: `/calendar/all/${dayjs().format("YYYY-MM-DD")}` }
+            from: { pathname: `/calendar/all/${dayjs().tz("America/Los_Angeles").format("YYYY-MM-DD")}` }
           };
           const { redirectToReferrer } = this.state;
 

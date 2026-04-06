@@ -5,7 +5,7 @@ vi.mock("axios", () => {
   const mockAxios = vi.fn(() => Promise.resolve({ status: 200 }));
   mockAxios.get = vi.fn(() => Promise.resolve({ status: 200, data: {} }));
   mockAxios.interceptors = {
-    response: { use: vi.fn() },
+    response: { use: vi.fn(), eject: vi.fn() },
     request: { use: vi.fn() },
   };
   return { default: mockAxios };
@@ -341,14 +341,14 @@ describe("DataStore", () => {
       expect(store.canAdd).toBe(true);
     });
 
-    it("returns true when meal is closed and extras is empty string (no max set)", () => {
+    it("returns false when meal is closed and no max set", () => {
       const store = createDataStore({
         mealProps: { closed: true, extras: null },
       });
 
       // extras view returns "" when closed and max is null
       expect(store.extras).toBe("");
-      expect(store.canAdd).toBe(true);
+      expect(store.canAdd).toBe(false);
     });
 
     it("returns true when meal is closed and extras >= 1", () => {

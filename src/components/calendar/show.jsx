@@ -26,11 +26,16 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 const localizer = dayjsLocalizer(dayjs);
 
+function getPacificNow() {
+  var now = dayjs().tz("America/Los_Angeles");
+  return new Date(now.year(), now.month(), now.date(), now.hour(), now.minute());
+}
+
 const styles = {
   main: {
     display: "flex",
     justifyContent: "space-between",
-    flexWrap: "noWrap"
+    flexWrap: "nowrap"
   },
   chevron: {
     backgroundColor: "#444",
@@ -208,14 +213,14 @@ const MainCalendar = inject("store")(
 
         handleClickLogout() {
           this.props.store.logout();
-          setTimeout(() => this.props.history.push("/"), 100);
+          this.props.history.push("/");
         }
 
         formatEvent(event) {
           var styles = { style: {} };
 
           const startString = dayjs(event.start).format();
-          const todayString = dayjs().format("YYYY-MM-DD");
+          const todayString = dayjs(getPacificNow()).format("YYYY-MM-DD");
 
           if (
             dayjs(startString).isBefore(todayString, "day") &&
@@ -232,7 +237,7 @@ const MainCalendar = inject("store")(
           return (
             <div className="offwhite">
               <header className="header flex space-between">
-                <h5 className="pad-xs">{dayjs().format("ddd MMM Do")}</h5>
+                <h5 className="pad-xs">{dayjs(getPacificNow()).format("ddd MMM Do")}</h5>
                 {this.props.store.isOnline ? (
                   <span className="online">ONLINE</span>
                 ) : (
@@ -256,7 +261,7 @@ const MainCalendar = inject("store")(
                 <div style={{ height: 2000, marginRight: 15 }}>
                   <Calendar
                     localizer={localizer}
-                    defaultDate={dayjs(this.props.match.params.date).toDate()}
+                    date={dayjs(this.props.match.params.date).toDate()}
                     defaultView="month"
                     eventPropGetter={this.formatEvent}
                     events={this.filterEvents()}
@@ -264,6 +269,7 @@ const MainCalendar = inject("store")(
                     onNavigate={this.handleNavigate}
                     onSelectEvent={this.handleSelectEvent}
                     views={["month"]}
+                    getNow={getPacificNow}
                     components={components}
                   />
                   <WebcalLinks />

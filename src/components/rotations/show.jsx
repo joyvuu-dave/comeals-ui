@@ -59,7 +59,7 @@ class RotationsShow extends Component {
             <br />
 
             <ul>
-              {this.state.rotation.residents
+              {[...this.state.rotation.residents]
                 .sort((a, b) => {
                   if (a.display_name < b.display_name) return -1;
                   if (a.display_name > b.display_name) return 1;
