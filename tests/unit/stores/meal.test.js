@@ -83,7 +83,7 @@ function createStore(mealProps = {}, residents = [], guests = []) {
 
 describe("Meal model", () => {
   beforeEach(() => {
-    window.Comeals = { socketId: "test", pusher: null, channel: null };
+    window.Comeals = { socketId: "test", pusher: null, mealChannel: null, calendarChannel: null };
   });
 
   // ── max computed view ──
@@ -269,6 +269,55 @@ describe("Meal model", () => {
       const store = createStore({ closed_at: null });
       const result = store.meal.resetClosedAt();
       expect(result).toBeNull();
+    });
+  });
+
+  // ── setExtras edge cases ──
+
+  describe("setExtras edge cases", () => {
+    it("empty string resolves to 0", () => {
+      // parseInt(Number(""), 10) = 0; clearing via null requires explicit null argument
+      const store = createStore({ extras: 5 });
+      store.meal.setExtras("");
+      expect(store.meal.extras).toBe(0);
+    });
+
+    it("truncates float strings to integer", () => {
+      // UI sends string values; floats should be handled gracefully
+      const store = createStore({ extras: null });
+      store.meal.setExtras("3.7");
+      expect(store.meal.extras).toBe(3);
+    });
+
+    it("handles string with whitespace", () => {
+      const store = createStore({ extras: null });
+      store.meal.setExtras(" 5 ");
+      expect(store.meal.extras).toBe(5);
+    });
+
+    it("rejects Infinity", () => {
+      const store = createStore({ extras: 5 });
+      store.meal.setExtras(Infinity);
+      // parseInt(Infinity, 10) = NaN, not an integer
+      expect(store.meal.extras).toBe(5);
+    });
+
+    it("rejects NaN", () => {
+      const store = createStore({ extras: 5 });
+      store.meal.setExtras(NaN);
+      expect(store.meal.extras).toBe(5);
+    });
+  });
+
+  // ── decrementExtras boundary ──
+
+  describe("decrementExtras boundary", () => {
+    it("can go negative (reflects overcapacity when attendees exceed max)", () => {
+      const store = createStore({ extras: 0 });
+      store.meal.decrementExtras();
+      expect(store.meal.extras).toBe(-1);
+      store.meal.decrementExtras();
+      expect(store.meal.extras).toBe(-2);
     });
   });
 

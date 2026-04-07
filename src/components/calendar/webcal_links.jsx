@@ -41,10 +41,14 @@ class WebcalLinks extends Component {
   }
 
   render() {
+    var apiHost = window.location.hostname === "localhost"
+      ? "localhost:3000"
+      : "api.comeals.com";
+
     return (
       <div className="flex space-between w-100">
         <a
-          href={`webcal://api.comeals.com/api/v1/communities/${Cookie.get(
+          href={`webcal://${apiHost}/api/v1/communities/${Cookie.get(
             "community_id"
           )}/ical.ics`}
         >
@@ -52,7 +56,7 @@ class WebcalLinks extends Component {
         </a>
         {this.state.ready && (
           <a
-            href={`webcal://api.comeals.com/api/v1/residents/${
+            href={`webcal://${apiHost}/api/v1/residents/${
               this.state.resident_id
             }/ical.ics`}
           >

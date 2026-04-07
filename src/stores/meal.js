@@ -50,7 +50,8 @@ const Meal = types
     setExtras(val) {
       const previousExtras = self.extras;
 
-      // Scenario #1: empty string
+      // Scenario #1: explicit null (clear extras)
+      // Note: empty string falls to Scenario #2 and resolves to 0
       if (val === null) {
         self.extras = null;
 
@@ -71,7 +72,7 @@ const Meal = types
         return;
       }
 
-      // Scenario #2: positive integer
+      // Scenario #2: non-negative integer
       const num = parseInt(Number(val), 10);
       if (Number.isInteger(num) && num >= 0) {
         self.extras = num;

@@ -14,11 +14,12 @@ import localforage from "localforage";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import handleAxiosError from "../helpers/handle_axios_error";
+import { TIMEZONE } from "../helpers/helpers";
+import toastStore from "./toast_store";
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
-import handleAxiosError from "../helpers/handle_axios_error";
-import toastStore from "./toast_store";
 
 export const DataStore = types
   .model("DataStore", {
@@ -46,7 +47,7 @@ export const DataStore = types
     modalChangedData: false,
     showHistory: false,
     calendarEvents: types.optional(types.array(types.frozen()), []),
-    currentDate: types.optional(types.string, function() { return dayjs().tz("America/Los_Angeles").format("YYYY-MM-DD"); }),
+    currentDate: types.optional(types.string, function() { return dayjs().tz(TIMEZONE).format("YYYY-MM-DD"); }),
     isOnline: false,
     authExpired: false
   })
@@ -88,7 +89,7 @@ export const DataStore = types
     },
     get lateCount() {
       return Array.from(self.residents.values()).filter(
-        resident => resident.late
+        resident => resident.attending && resident.late
       ).length;
     },
     get extras() {
@@ -119,7 +120,8 @@ export const DataStore = types
       window.Comeals = {
         pusher: null,
         socketId: null,
-        channel: null
+        mealChannel: null,
+        calendarChannel: null
       };
 
       window.Comeals.pusher = new Pusher("8affd7213bb4643ca7f1", {
@@ -386,7 +388,7 @@ export const DataStore = types
       // Assign Meal Data — construct a "fake local" Date with Pacific
       // date components so that dayjs(meal.date) always reflects Pacific,
       // consistent with getPacificNow() in calendar/show.jsx.
-      var d = dayjs.tz(data.date, "America/Los_Angeles");
+      var d = dayjs.tz(data.date, TIMEZONE);
       self.meal.date = new Date(d.year(), d.month(), d.date());
       self.meal.description = data.description;
       self.meal.closed = data.closed;
@@ -468,15 +470,15 @@ export const DataStore = types
       self.isLoading = false;
 
       // Unsubscribe from previous meal
-      if (window.Comeals.channel !== null) {
-        window.Comeals.pusher.unsubscribe(window.Comeals.channel.name);
+      if (window.Comeals.mealChannel !== null) {
+        window.Comeals.pusher.unsubscribe(window.Comeals.mealChannel.name);
       }
 
       // Subscribe to changes of this meal
-      window.Comeals.channel = window.Comeals.pusher.subscribe(
+      window.Comeals.mealChannel = window.Comeals.pusher.subscribe(
         `meal-${self.meal.id}`
       );
-      window.Comeals.channel.bind("update", function() {
+      window.Comeals.mealChannel.bind("update", function() {
         self.loadDataAsync();
       });
     },
@@ -500,11 +502,11 @@ export const DataStore = types
         events.forEach(function(event) {
           var converted = Object.assign({}, event);
           if (converted.start) {
-            var s = dayjs.tz(converted.start, "America/Los_Angeles");
+            var s = dayjs.tz(converted.start, TIMEZONE);
             converted.start = new Date(s.year(), s.month(), s.date(), s.hour(), s.minute());
           }
           if (converted.end) {
-            var e = dayjs.tz(converted.end, "America/Los_Angeles");
+            var e = dayjs.tz(converted.end, TIMEZONE);
             converted.end = new Date(e.year(), e.month(), e.date(), e.hour(), e.minute());
           }
           self.calendarEvents.push(converted);
@@ -523,8 +525,8 @@ export const DataStore = types
       self.isLoading = false;
 
       // Unsubscribe from previous month
-      if (window.Comeals.channel !== null) {
-        window.Comeals.pusher.unsubscribe(window.Comeals.channel.name);
+      if (window.Comeals.calendarChannel !== null) {
+        window.Comeals.pusher.unsubscribe(window.Comeals.calendarChannel.name);
       }
 
       // Subscribe to changes of this month
@@ -533,9 +535,9 @@ export const DataStore = types
       )}-calendar-${dayjs(self.currentDate).format("YYYY")}-${dayjs(
         self.currentDate
       ).format("M")}`;
-      window.Comeals.channel = window.Comeals.pusher.subscribe(subscribeString);
+      window.Comeals.calendarChannel = window.Comeals.pusher.subscribe(subscribeString);
 
-      window.Comeals.channel.bind("update", function() {
+      window.Comeals.calendarChannel.bind("update", function() {
         self.loadMonthAsync();
       });
     },

@@ -96,7 +96,7 @@ function createStore(opts = {}) {
 describe("Bill model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.Comeals = { socketId: "test", pusher: null, channel: null };
+    window.Comeals = { socketId: "test", pusher: null, mealChannel: null, calendarChannel: null };
   });
 
   // ── resident_id computed view ──
@@ -177,6 +177,37 @@ describe("Bill model", () => {
 
       const bill = store.billStore.bills.get("bill-1");
       expect(bill.amountIsValid).toBe(true);
+    });
+  });
+
+  // ── amountIsValid boundary cases ──
+
+  describe("amountIsValid boundary cases", () => {
+    it("accepts amounts exceeding the HTML max=999 attribute", () => {
+      // HTML input has max="999" but amountIsValid only checks >= 0
+      const store = createStore({ bills: [{ id: "bill-1", amount: "999999" }] });
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.amountIsValid).toBe(true);
+    });
+
+    it("accepts very small positive decimals", () => {
+      const store = createStore({ bills: [{ id: "bill-1", amount: "0.01" }] });
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.amountIsValid).toBe(true);
+    });
+
+    it("treats whitespace-only string as valid (Number coerces to 0)", () => {
+      // Edge case: "   " → Number("   ") === 0, which is >= 0
+      const store = createStore({ bills: [{ id: "bill-1", amount: "   " }] });
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.amountIsValid).toBe(true);
+    });
+
+    it("rejects amounts with non-numeric suffixes", () => {
+      // "25abc" → Number("25abc") = NaN
+      const store = createStore({ bills: [{ id: "bill-1", amount: "25abc" }] });
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.amountIsValid).toBe(false);
     });
   });
 

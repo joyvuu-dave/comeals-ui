@@ -48,12 +48,12 @@ const Header = inject("store")(
                 location={this.props.location}
                 match={this.props.match}
               />
-              <a
+              <button
                 className="button button-link text-secondary"
-                onClick={this.props.store.logout}
+                onClick={() => { this.props.store.logout(); this.props.history.push("/"); }}
               >
                 logout {Cookie.get("username")}
-              </a>
+              </button>
             </div>
           </header>
         );

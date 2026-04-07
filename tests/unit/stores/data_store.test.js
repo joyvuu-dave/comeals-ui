@@ -267,6 +267,28 @@ describe("DataStore", () => {
       const store = createDataStore();
       expect(store.lateCount).toBe(0);
     });
+
+    it("excludes non-attending residents with late:true", () => {
+      // lateCount filters by attending && late, matching the vegetarianCount pattern
+      const store = createDataStore({
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: false, late: true },
+          { id: 11, meal_id: 1, name: "Bob", attending: true, late: true },
+        ],
+      });
+      expect(store.lateCount).toBe(1);
+    });
+
+    it("matches vegetarianCount pattern for non-attending residents", () => {
+      // Both views filter by attending before checking their respective flag
+      const store = createDataStore({
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: false, late: true, vegetarian: true },
+        ],
+      });
+      expect(store.vegetarianCount).toBe(0);
+      expect(store.lateCount).toBe(0);
+    });
   });
 
   // ── extras ──
@@ -950,6 +972,36 @@ describe("DataStore", () => {
       expect(store.meal.description).toBe("Meal 2");
     });
 
+    it("loadMonth does not clobber meal Pusher subscription", async () => {
+      const store = createDataStore({ mealProps: { id: 1 } });
+
+      // Override subscribe to return identifiable channel objects
+      window.Comeals.pusher.subscribe = vi.fn((name) => ({
+        bind: vi.fn(),
+        name: name,
+      }));
+      window.Comeals.pusher.unsubscribe = vi.fn();
+
+      const mealData = {
+        id: 1, date: "2023-06-15", description: "Meal", closed: false,
+        closed_at: null, reconciled: false, max: null,
+        next_id: null, prev_id: null, residents: [], guests: [], bills: [],
+      };
+      store.loadData(mealData);
+      expect(window.Comeals.mealChannel.name).toBe("meal-1");
+
+      const calendarData = {
+        id: 1, year: 2023, month: 6,
+        meals: [], bills: [], rotations: [], birthdays: [],
+        common_house_reservations: [], guest_room_reservations: [], events: [],
+      };
+      store.loadMonth(calendarData);
+
+      // After loading calendar data, meal subscription must still be intact
+      expect(window.Comeals.mealChannel.name).toBe("meal-1");
+      expect(window.Comeals.calendarChannel.name).toMatch(/^community-/);
+    });
+
     it("switchMeals skips localforage callback if user already navigated away", async () => {
       const store = createDataStore({
         mealProps: { id: 1 },
@@ -983,6 +1035,56 @@ describe("DataStore", () => {
       expect(store.meal.id).toBe(3);
       expect(store.meal.description).toBe("Meal 3");
       expect(store.residents.get("10").late).toBe(true);
+    });
+  });
+
+  // ── extras view return types ──
+
+  describe("extras view type consistency", () => {
+    it("returns string 'n/a' when meal is open", () => {
+      const store = createDataStore({ mealProps: { closed: false, extras: 5 } });
+      expect(store.extras).toBe("n/a");
+      expect(typeof store.extras).toBe("string");
+    });
+
+    it("returns a number when meal is closed with max set", () => {
+      const store = createDataStore({ mealProps: { closed: true, extras: 3 } });
+      expect(typeof store.extras).toBe("number");
+    });
+
+    it("returns empty string when meal is closed with null max", () => {
+      const store = createDataStore({ mealProps: { closed: true, extras: null } });
+      expect(store.extras).toBe("");
+      expect(typeof store.extras).toBe("string");
+    });
+  });
+
+  // ── canAdd boundary conditions ──
+
+  describe("canAdd boundary conditions", () => {
+    it("returns true when closed and extras is exactly 1 (boundary)", () => {
+      // Boundary: extras=1 is the minimum value that allows adding
+      const store = createDataStore({ mealProps: { closed: true, extras: 1 } });
+      expect(store.canAdd).toBe(true);
+    });
+
+    it("returns false when closed and extras is exactly 0 (boundary)", () => {
+      const store = createDataStore({ mealProps: { closed: true, extras: 0 } });
+      expect(store.canAdd).toBe(false);
+    });
+
+    it("handles the transition from extras=1 to 0 after adding a resident", () => {
+      // After someone joins, extras decrements — canAdd should flip from true to false
+      const store = createDataStore({
+        mealProps: { closed: true, extras: 1 },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: false }],
+      });
+      expect(store.canAdd).toBe(true);
+
+      const alice = store.residentStore.residents.get("10");
+      alice.toggleAttending();
+      expect(store.meal.extras).toBe(0);
+      expect(store.canAdd).toBe(false);
     });
   });
 });

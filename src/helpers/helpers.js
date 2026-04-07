@@ -1,3 +1,5 @@
+export const TIMEZONE = "America/Los_Angeles";
+
 export function generateTimes() {
   var times = [];
   var ending = "AM";

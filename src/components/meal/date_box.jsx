@@ -3,6 +3,7 @@ import { inject, observer } from "mobx-react";
 import { Routes, Route } from "react-router-dom";
 import { withRouter } from "../../helpers/with_router";
 import dayjs from "dayjs";
+import { TIMEZONE } from "../../helpers/helpers";
 import Modal from "react-modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -96,7 +97,7 @@ const DateBox = inject("store")(
             return "loading...";
           }
 
-          var now = dayjs().tz("America/Los_Angeles");
+          var now = dayjs().tz(TIMEZONE);
           var today = new Date(now.year(), now.month(), now.date());
           var days = dayjs(this.props.store.meal.date).diff(dayjs(today), "day");
 

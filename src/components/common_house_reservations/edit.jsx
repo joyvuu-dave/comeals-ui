@@ -1,14 +1,19 @@
 import { Component } from "react";
 import DayPickerInputWrapper from "../common/day_picker_input";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
 import Cookie from "js-cookie";
-import { generateTimes } from "../../helpers/helpers";
+import { generateTimes, TIMEZONE } from "../../helpers/helpers";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import { inject } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../app/confirm_modal";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const CommonHouseReservationsEdit = inject("store")(
   class CommonHouseReservationsEdit extends Component {
@@ -48,18 +53,18 @@ const CommonHouseReservationsEdit = inject("store")(
               resident_id: evt.resident_id,
               title: evt.title,
               day: evt.start_date,
-              start_time: `${new Date(evt.start_date)
-                .getHours()
+              start_time: `${dayjs.tz(evt.start_date, TIMEZONE)
+                .hour()
                 .toString()
-                .padStart(2, "0")}:${new Date(evt.start_date)
-                .getMinutes()
+                .padStart(2, "0")}:${dayjs.tz(evt.start_date, TIMEZONE)
+                .minute()
                 .toString()
                 .padStart(2, "0")}`,
-              end_time: `${new Date(evt.end_date)
-                .getHours()
+              end_time: `${dayjs.tz(evt.end_date, TIMEZONE)
+                .hour()
                 .toString()
-                .padStart(2, "0")}:${new Date(evt.end_date)
-                .getMinutes()
+                .padStart(2, "0")}:${dayjs.tz(evt.end_date, TIMEZONE)
+                .minute()
                 .toString()
                 .padStart(2, "0")}`
             });

@@ -2,13 +2,18 @@ import { Component } from "react";
 import axios from "axios";
 import Cookie from "js-cookie";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import DayPickerInputWrapper from "../common/day_picker_input";
-import { generateTimes } from "../../helpers/helpers";
+import { generateTimes, TIMEZONE } from "../../helpers/helpers";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import { inject } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../app/confirm_modal";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const EventsEdit = inject("store")(
   class EventsEdit extends Component {
@@ -45,19 +50,19 @@ const EventsEdit = inject("store")(
               title: evt.title,
               description: evt.description,
               day: evt.start_date,
-              start_time: `${new Date(evt.start_date)
-                .getHours()
+              start_time: `${dayjs.tz(evt.start_date, TIMEZONE)
+                .hour()
                 .toString()
-                .padStart(2, "0")}:${new Date(evt.start_date)
-                .getMinutes()
+                .padStart(2, "0")}:${dayjs.tz(evt.start_date, TIMEZONE)
+                .minute()
                 .toString()
                 .padStart(2, "0")}`,
               end_time: evt.end_date
-                ? `${new Date(evt.end_date)
-                    .getHours()
+                ? `${dayjs.tz(evt.end_date, TIMEZONE)
+                    .hour()
                     .toString()
-                    .padStart(2, "0")}:${new Date(evt.end_date)
-                    .getMinutes()
+                    .padStart(2, "0")}:${dayjs.tz(evt.end_date, TIMEZONE)
+                    .minute()
                     .toString()
                     .padStart(2, "0")}`
                 : "",

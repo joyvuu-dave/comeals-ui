@@ -2,6 +2,7 @@ import { Component } from "react";
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
 import { withRouter } from "../../helpers/with_router";
+import { TIMEZONE } from "../../helpers/helpers";
 import SideBar from "./side_bar";
 
 import Cookie from "js-cookie";
@@ -27,7 +28,7 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 const localizer = dayjsLocalizer(dayjs);
 
 function getPacificNow() {
-  var now = dayjs().tz("America/Los_Angeles");
+  var now = dayjs().tz(TIMEZONE);
   return new Date(now.year(), now.month(), now.date(), now.hour(), now.minute());
 }
 
@@ -124,6 +125,7 @@ const MainCalendar = inject("store")(
           // NEW RESOURCE
           if (this.props.match.params.view === "new") {
             switch (this.props.match.params.modal) {
+              case "guest_room_reservations":
               case "guest-room-reservations":
                 return (
                   <GuestRoomReservationsNew
@@ -132,6 +134,7 @@ const MainCalendar = inject("store")(
                   />
                 );
 
+              case "common_house_reservations":
               case "common-house-reservations":
                 return (
                   <CommonHouseReservationsNew
@@ -156,6 +159,7 @@ const MainCalendar = inject("store")(
           // EDIT RESOURCE
           if (this.props.match.params.view === "edit") {
             switch (this.props.match.params.modal) {
+              case "guest_room_reservations":
               case "guest-room-reservations":
                 return (
                   <GuestRoomReservationsEdit
@@ -164,6 +168,7 @@ const MainCalendar = inject("store")(
                   />
                 );
 
+              case "common_house_reservations":
               case "common-house-reservations":
                 return (
                   <CommonHouseReservationsEdit

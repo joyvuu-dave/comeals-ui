@@ -23,12 +23,15 @@
     <script type="module" src="/src/index.jsx"></script>
     <script>
       function idleTimer() {
+        if (window._idleTimerInitialized) return;
+        window._idleTimerInitialized = true;
         var t;
         window.onmousemove = resetTimer;
-        window.onmousedown = resetTimer; 
-        window.onclick = resetTimer;     
-        window.onscroll = resetTimer;    
-        window.onkeypress = resetTimer;
+        window.onmousedown = resetTimer;
+        window.onclick = resetTimer;
+        window.onscroll = resetTimer;
+        window.onkeydown = function(e) { if (['Shift','Control','Alt','Meta'].includes(e.key)) return; resetTimer(); };
+        window.addEventListener('touchstart', resetTimer, { passive: true });
 
         function navHome() {
           window.location.href = window.location.host === "localhost:3001" ? "http://localhost:3001" : "https://comeals.com";

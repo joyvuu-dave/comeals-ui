@@ -92,7 +92,7 @@ function createStore(opts = {}) {
 describe("Resident model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.Comeals = { socketId: "test", pusher: null, channel: null };
+    window.Comeals = { socketId: "test", pusher: null, mealChannel: null, calendarChannel: null };
   });
 
   // ── guests view ──
@@ -523,6 +523,61 @@ describe("Resident model", () => {
           url: expect.stringContaining("/api/v1/meals/1/residents/10"),
         })
       );
+    });
+  });
+
+  // ── toggleAttending edge cases ──
+
+  describe("toggleAttending edge cases", () => {
+    it("clears late flag when removing attendance", () => {
+      // When a resident removes themselves, late should reset to false
+      const store = createStore({
+        mealProps: { closed: false },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true, late: true }],
+      });
+      const alice = store.residentStore.residents.get("10");
+      alice.toggleAttending();
+      expect(alice.attending).toBe(false);
+      expect(alice.late).toBe(false);
+    });
+
+    it("boundary: adding at extras=1 decrements to 0", () => {
+      // Boundary: after this add, no more people can join
+      const store = createStore({
+        mealProps: { closed: true, extras: 1 },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: false }],
+      });
+      const alice = store.residentStore.residents.get("10");
+      alice.toggleAttending();
+      expect(alice.attending).toBe(true);
+      expect(store.meal.extras).toBe(0);
+    });
+
+    it("removing from open meal increments extras even when extras is null", () => {
+      // incrementExtras is a no-op when extras is null
+      const store = createStore({
+        mealProps: { closed: false, extras: null },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
+      });
+      const alice = store.residentStore.residents.get("10");
+      alice.toggleAttending();
+      expect(alice.attending).toBe(false);
+      expect(store.meal.extras).toBeNull(); // increment was a no-op
+    });
+  });
+
+  // ── addGuest boundary ──
+
+  describe("addGuest boundary", () => {
+    it("decrements extras when adding a guest to a closed meal", () => {
+      // Guest additions also consume an extras slot
+      const store = createStore({
+        mealProps: { closed: true, extras: 1 },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
+      });
+      const alice = store.residentStore.residents.get("10");
+      alice.addGuest({ vegetarian: false });
+      expect(store.meal.extras).toBe(0);
     });
   });
 

@@ -4,7 +4,6 @@ const {
   authenticateContext,
   stubPusher,
   disableIdleTimer,
-  mockApi,
 } = require("../helpers/setup");
 
 test.describe("Session Expiry", () => {

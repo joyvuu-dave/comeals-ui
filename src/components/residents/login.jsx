@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import Modal from "react-modal";
 
 import handleAxiosError from "../../helpers/handle_axios_error";
+import { TIMEZONE } from "../../helpers/helpers";
 import ResidentsPasswordReset from "./password_reset";
 import ResidentsPasswordNew from "./password_new";
 
@@ -111,7 +112,7 @@ const ResidentsLogin = inject("store")(
 
         render() {
           const { from } = this.props.location.state || {
-            from: { pathname: `/calendar/all/${dayjs().tz("America/Los_Angeles").format("YYYY-MM-DD")}` }
+            from: { pathname: `/calendar/all/${dayjs().tz(TIMEZONE).format("YYYY-MM-DD")}` }
           };
           const { redirectToReferrer } = this.state;
 
