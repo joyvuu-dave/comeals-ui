@@ -1209,6 +1209,7 @@ describe("DataStore", () => {
 
   describe("loadMonth missing arrays", () => {
     it("handles missing event arrays without crashing (Regression test for BUG-4)", () => {
+      const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const store = createDataStore();
 
       const data = {
@@ -1222,15 +1223,18 @@ describe("DataStore", () => {
       expect(() => store.loadMonth(data)).not.toThrow();
       expect(store.calendarEvents.length).toBe(1);
       expect(store.isLoading).toBe(false);
+      spy.mockRestore();
     });
 
     it("handles all arrays missing", () => {
+      const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const store = createDataStore();
 
       const data = { id: 1, year: 2023, month: 6 };
 
       expect(() => store.loadMonth(data)).not.toThrow();
       expect(store.calendarEvents.length).toBe(0);
+      spy.mockRestore();
     });
   });
 
@@ -1238,6 +1242,7 @@ describe("DataStore", () => {
 
   describe("loadData bill reference integrity", () => {
     it("does not crash when bill references non-existent resident (Regression test for BUG-6)", () => {
+      const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const store = createDataStore();
 
       const data = {
@@ -1270,6 +1275,7 @@ describe("DataStore", () => {
       const validBill = bills.find((b) => b.resident !== null && b.resident.id === 10);
       expect(validBill).toBeTruthy();
       expect(validBill.amount).toBe("15.00");
+      spy.mockRestore();
     });
   });
 
@@ -1410,10 +1416,12 @@ describe("DataStore", () => {
     });
 
     it("rejects string data (error response from API)", () => {
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {});
       const store = createDataStore();
       var result = store.loadMonth("error: unauthorized");
       expect(result).toBe(true);
       expect(store.isLoading).toBe(false);
+      spy.mockRestore();
     });
 
     it("converts event dates to fake-local Dates in Pacific timezone", () => {
