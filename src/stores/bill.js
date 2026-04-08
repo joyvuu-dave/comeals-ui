@@ -36,6 +36,9 @@ const Bill = types
     },
     setAmount(val) {
       self.amount = val;
+      if (Number(val) > 0) {
+        self.no_cost = false;
+      }
       self.form.form.toggleEditBillsMode();
       self.form.form.toggleEditBillsMode();
       return val;
@@ -43,6 +46,9 @@ const Bill = types
     toggleNoCost() {
       const val = !self.no_cost;
       self.no_cost = val;
+      if (val) {
+        self.amount = "";
+      }
       self.form.form.toggleEditBillsMode();
       self.form.form.toggleEditBillsMode();
       return val;

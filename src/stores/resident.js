@@ -39,6 +39,7 @@ const Resident = types
       if (
         self.guestsCount > 0 &&
         self.form.form.meal.closed &&
+        self.form.form.meal.closed_at !== null &&
         self.guests.filter(
           guest => guest.created_at > self.form.form.meal.closed_at
         ).length > 0
@@ -50,6 +51,7 @@ const Resident = types
       if (
         self.guestsCount > 0 &&
         self.form.form.meal.closed &&
+        self.form.form.meal.closed_at !== null &&
         Array.from(self.guests).filter(
           guest => guest.created_at <= self.form.form.meal.closed_at
         ).length > 0
@@ -74,6 +76,8 @@ const Resident = types
       if (
         self.attending &&
         self.form.form.meal.closed &&
+        self.attending_at !== null &&
+        self.form.form.meal.closed_at !== null &&
         self.attending_at > self.form.form.meal.closed_at
       ) {
         return true;
@@ -83,6 +87,8 @@ const Resident = types
       if (
         self.guestsCount > 0 &&
         self.form.form.meal.closed &&
+        self.attending_at !== null &&
+        self.form.form.meal.closed_at !== null &&
         self.attending_at <= self.form.form.meal.closed_at
       ) {
         return false;

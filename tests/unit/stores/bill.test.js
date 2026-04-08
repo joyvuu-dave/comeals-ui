@@ -343,4 +343,70 @@ describe("Bill model", () => {
       expect(store.editBillsMode).toBe(true);
     });
   });
+
+  // ── BUG-7: no_cost / amount contradictory state ──
+
+  describe("no_cost auto-clear", () => {
+    it("clears no_cost when a positive amount is entered (Regression test for BUG-7)", () => {
+      const store = createStore({
+        residents: [{ id: 10, meal_id: 1, name: "Alice" }],
+        bills: [{ id: "bill-1", resident: 10, no_cost: true, amount: "" }],
+      });
+
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.no_cost).toBe(true);
+
+      bill.setAmount("25.00");
+      expect(bill.no_cost).toBe(false);
+    });
+
+    it("preserves no_cost when amount is cleared to empty", () => {
+      const store = createStore({
+        bills: [{ id: "bill-1", no_cost: true, amount: "" }],
+      });
+
+      const bill = store.billStore.bills.get("bill-1");
+      bill.setAmount("");
+      expect(bill.no_cost).toBe(true);
+    });
+
+    it("preserves no_cost when amount is set to zero", () => {
+      const store = createStore({
+        bills: [{ id: "bill-1", no_cost: true, amount: "" }],
+      });
+
+      const bill = store.billStore.bills.get("bill-1");
+      bill.setAmount("0");
+      expect(bill.no_cost).toBe(true);
+    });
+
+    it("clears amount when no_cost is toggled on", () => {
+      const store = createStore({
+        residents: [{ id: 10, meal_id: 1, name: "Alice" }],
+        bills: [{ id: "bill-1", resident: 10, no_cost: false, amount: "25.00" }],
+      });
+
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.amount).toBe("25.00");
+
+      bill.toggleNoCost();
+      expect(bill.no_cost).toBe(true);
+      expect(bill.amount).toBe("");
+    });
+
+    it("does not clear amount when no_cost is toggled off", () => {
+      const store = createStore({
+        residents: [{ id: 10, meal_id: 1, name: "Alice" }],
+        bills: [{ id: "bill-1", resident: 10, no_cost: true, amount: "" }],
+      });
+
+      const bill = store.billStore.bills.get("bill-1");
+      expect(bill.no_cost).toBe(true);
+
+      // Toggle off: no_cost true -> false, should not touch amount
+      bill.toggleNoCost();
+      expect(bill.no_cost).toBe(false);
+      expect(bill.amount).toBe("");
+    });
+  });
 });

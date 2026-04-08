@@ -51,6 +51,7 @@ import { runInAction } from "mobx";
 import { DataStore } from "../../../src/stores/data_store.js";
 import localforage from "localforage";
 import axios from "axios";
+import toastStore from "../../../src/stores/toast_store.js";
 
 function createDataStore(opts = {}) {
   const {
@@ -1085,6 +1086,350 @@ describe("DataStore", () => {
       alice.toggleAttending();
       expect(store.meal.extras).toBe(0);
       expect(store.canAdd).toBe(false);
+    });
+  });
+
+  // ── BUG-1: closed_at null handling ──
+
+  describe("closed_at null handling", () => {
+    it("preserves null closed_at instead of creating epoch Date (Regression test for BUG-1)", () => {
+      const store = createDataStore();
+
+      const data = {
+        id: 1,
+        date: "2023-06-15",
+        description: "",
+        closed: true,
+        closed_at: null,
+        reconciled: false,
+        max: null,
+        next_id: null,
+        prev_id: null,
+        residents: [],
+        guests: [],
+        bills: [],
+      };
+
+      store.loadData(data);
+      expect(store.meal.closed_at).toBeNull();
+    });
+
+    it("preserves a valid closed_at Date", () => {
+      const store = createDataStore();
+
+      const data = {
+        id: 1,
+        date: "2023-06-15",
+        description: "",
+        closed: true,
+        closed_at: "2023-06-15T18:00:00Z",
+        reconciled: false,
+        max: null,
+        next_id: null,
+        prev_id: null,
+        residents: [],
+        guests: [],
+        bills: [],
+      };
+
+      store.loadData(data);
+      expect(store.meal.closed_at).toBeInstanceOf(Date);
+      expect(store.meal.closed_at.getTime()).toBe(new Date("2023-06-15T18:00:00Z").getTime());
+    });
+  });
+
+  // ── BUG-2: setIsOnline parameter handling ──
+
+  describe("setIsOnline", () => {
+    it("uses provided value instead of navigator.onLine (Regression test for BUG-2)", () => {
+      // navigator.onLine is true from beforeEach
+      const store = createDataStore();
+      expect(store.isOnline).toBe(true);
+
+      store.setIsOnline(false);
+      expect(store.isOnline).toBe(false);
+
+      store.setIsOnline(true);
+      expect(store.isOnline).toBe(true);
+    });
+  });
+
+  // ── BUG-3: submitBills toast behavior on warning ──
+
+  describe("submitBills warning toast", () => {
+    it("shows single info toast instead of warning+success (Regression test for BUG-3)", async () => {
+      const store = createDataStore({
+        mealProps: { closed: false },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", can_cook: true }],
+        bills: [{ id: "bill-1", resident: 10, amount: "25.00" }],
+      });
+
+      toastStore.clearAll();
+
+      // Mock axios to reject with a warning response
+      axios.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            message: "Warning: third cooks should not be added.",
+            type: "warning",
+          },
+        },
+      });
+
+      // Mock the loadDataAsync axios.get call with valid meal data
+      axios.get.mockResolvedValueOnce({
+        status: 200,
+        data: {
+          id: 1, date: "2023-06-15", description: "", closed: false,
+          closed_at: null, reconciled: false, max: null,
+          next_id: null, prev_id: null,
+          residents: [
+            { id: 10, meal_id: 1, name: "Alice", attending: false,
+              attending_at: null, late: false, vegetarian: false,
+              can_cook: true, active: true },
+          ],
+          guests: [],
+          bills: [{ id: "bill-1", resident_id: 10, amount: "25.00", no_cost: false }],
+        },
+      });
+
+      store.submitBills();
+
+      // Wait for the catch handler to fire and verify final toast state
+      await vi.waitFor(() => {
+        expect(toastStore.toasts).toHaveLength(1);
+        expect(toastStore.toasts[0].type).toBe("info");
+        expect(toastStore.toasts[0].message).toContain("Cooks saved.");
+      });
+    });
+  });
+
+  // ── BUG-4: loadMonth with missing event arrays ──
+
+  describe("loadMonth missing arrays", () => {
+    it("handles missing event arrays without crashing (Regression test for BUG-4)", () => {
+      const store = createDataStore();
+
+      const data = {
+        id: 1,
+        year: 2023,
+        month: 6,
+        meals: [{ title: "Test", start: "2023-06-15T18:00:00", end: "2023-06-15T19:00:00" }],
+        // All other arrays omitted
+      };
+
+      expect(() => store.loadMonth(data)).not.toThrow();
+      expect(store.calendarEvents.length).toBe(1);
+      expect(store.isLoading).toBe(false);
+    });
+
+    it("handles all arrays missing", () => {
+      const store = createDataStore();
+
+      const data = { id: 1, year: 2023, month: 6 };
+
+      expect(() => store.loadMonth(data)).not.toThrow();
+      expect(store.calendarEvents.length).toBe(0);
+    });
+  });
+
+  // ── BUG-6: dangling bill reference ──
+
+  describe("loadData bill reference integrity", () => {
+    it("does not crash when bill references non-existent resident (Regression test for BUG-6)", () => {
+      const store = createDataStore();
+
+      const data = {
+        id: 1,
+        date: "2023-06-15",
+        description: "",
+        closed: false,
+        closed_at: null,
+        reconciled: false,
+        max: null,
+        next_id: null,
+        prev_id: null,
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: false,
+            attending_at: null, late: false, vegetarian: false,
+            can_cook: true, active: true },
+        ],
+        guests: [],
+        bills: [
+          { id: "b1", resident_id: 10, amount: "15", no_cost: false },
+          { id: "b2", resident_id: 999, amount: "20", no_cost: false },
+        ],
+      };
+
+      // loadData should not throw
+      expect(() => store.loadData(data)).not.toThrow();
+
+      // Valid bill with resident 10 should be loadable and accessible
+      const bills = Array.from(store.bills.values());
+      const validBill = bills.find((b) => b.resident !== null && b.resident.id === 10);
+      expect(validBill).toBeTruthy();
+      expect(validBill.amount).toBe("15.00");
+    });
+  });
+
+  // ── Hardening: critical path edge cases ──
+
+  describe("loadData edge cases", () => {
+    it("handles completely empty data (no residents, guests, or bills)", () => {
+      const store = createDataStore();
+      const data = {
+        id: 1, date: "2023-06-15", description: "", closed: false,
+        closed_at: null, reconciled: false, max: null,
+        next_id: null, prev_id: null,
+        residents: [], guests: [], bills: [],
+      };
+
+      store.loadData(data);
+      expect(store.residents.size).toBe(0);
+      expect(store.guests.size).toBe(0);
+      expect(store.bills.size).toBe(3); // 3 blank bills created
+      expect(store.attendeesCount).toBe(0);
+      expect(store.meal.extras).toBeNull();
+    });
+
+    it("handles max=0 (capacity set to exactly the current attendees)", () => {
+      const store = createDataStore();
+      const data = {
+        id: 1, date: "2023-06-15", description: "", closed: true,
+        closed_at: "2023-06-15T18:00:00Z", reconciled: false, max: 2,
+        next_id: null, prev_id: null,
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: true,
+            attending_at: null, late: false, vegetarian: false,
+            can_cook: true, active: true },
+          { id: 11, meal_id: 1, name: "Bob", attending: true,
+            attending_at: null, late: false, vegetarian: false,
+            can_cook: true, active: true },
+        ],
+        guests: [], bills: [],
+      };
+
+      store.loadData(data);
+      expect(store.meal.extras).toBe(0); // max=2, attendees=2
+      expect(store.canAdd).toBe(false);
+    });
+
+    it("handles bill with amount zero correctly (displays as empty string)", () => {
+      const store = createDataStore({
+        residents: [{ id: 10, meal_id: 1, name: "Alice" }],
+      });
+      const data = {
+        id: 1, date: "2023-06-15", description: "", closed: false,
+        closed_at: null, reconciled: false, max: null,
+        next_id: null, prev_id: null,
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: false,
+            attending_at: null, late: false, vegetarian: false,
+            can_cook: true, active: true },
+        ],
+        guests: [],
+        bills: [{ id: "b1", resident_id: 10, amount: "0", no_cost: false }],
+      };
+
+      store.loadData(data);
+      const bill = Array.from(store.bills.values()).find((b) => b.resident !== null);
+      expect(bill.amount).toBe("");
+    });
+  });
+
+  describe("toggleClosed validation", () => {
+    it("blocks closing when a cook has no cost and no no_cost flag", () => {
+      const store = createDataStore({
+        mealProps: { closed: false },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", can_cook: true }],
+        bills: [{ id: "bill-1", resident: 10, amount: "", no_cost: false }],
+      });
+
+      toastStore.clearAll();
+      store.toggleClosed();
+
+      // Meal should stay open
+      expect(store.meal.closed).toBe(false);
+      expect(toastStore.toasts.length).toBe(1);
+      expect(toastStore.toasts[0].type).toBe("warning");
+    });
+
+    it("allows closing when cook has no_cost flag set", () => {
+      const store = createDataStore({
+        mealProps: { closed: false },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", can_cook: true }],
+        bills: [{ id: "bill-1", resident: 10, amount: "", no_cost: true }],
+      });
+
+      toastStore.clearAll();
+      store.toggleClosed();
+
+      // Meal should close (optimistic update)
+      expect(store.meal.closed).toBe(true);
+    });
+
+    it("allows closing when cook has amount filled in", () => {
+      const store = createDataStore({
+        mealProps: { closed: false },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", can_cook: true }],
+        bills: [{ id: "bill-1", resident: 10, amount: "25.00", no_cost: false }],
+      });
+
+      toastStore.clearAll();
+      store.toggleClosed();
+
+      expect(store.meal.closed).toBe(true);
+    });
+
+    it("allows closing when no cooks are assigned (blank bills)", () => {
+      const store = createDataStore({
+        mealProps: { closed: false },
+        bills: [{ id: "bill-1", amount: "", no_cost: false }],
+      });
+
+      toastStore.clearAll();
+      store.toggleClosed();
+
+      expect(store.meal.closed).toBe(true);
+    });
+  });
+
+  describe("loadMonth edge cases", () => {
+    it("handles empty arrays (valid but no events)", () => {
+      const store = createDataStore();
+      const data = {
+        id: 1, year: 2023, month: 6,
+        meals: [], bills: [], rotations: [], birthdays: [],
+        common_house_reservations: [], guest_room_reservations: [], events: [],
+      };
+
+      store.loadMonth(data);
+      expect(store.calendarEvents.length).toBe(0);
+      expect(store.isLoading).toBe(false);
+    });
+
+    it("rejects string data (error response from API)", () => {
+      const store = createDataStore();
+      var result = store.loadMonth("error: unauthorized");
+      expect(result).toBe(true);
+      expect(store.isLoading).toBe(false);
+    });
+
+    it("converts event dates to fake-local Dates in Pacific timezone", () => {
+      const store = createDataStore();
+      const data = {
+        id: 1, year: 2023, month: 6,
+        meals: [{ title: "Dinner", start: "2023-06-15T18:30:00", end: "2023-06-15T19:30:00" }],
+        bills: [], rotations: [], birthdays: [],
+        common_house_reservations: [], guest_room_reservations: [], events: [],
+      };
+
+      store.loadMonth(data);
+      var event = store.calendarEvents[0];
+      expect(event.start).toBeInstanceOf(Date);
+      expect(event.end).toBeInstanceOf(Date);
+      expect(event.title).toBe("Dinner");
     });
   });
 });

@@ -732,4 +732,112 @@ describe("Resident model", () => {
       );
     });
   });
+
+  // ── Hardening: canRemove / canRemoveGuest boundary conditions ──
+
+  describe("canRemove boundary: attending_at exactly equals closed_at", () => {
+    it("returns false (not strictly after close)", () => {
+      const sameTime = new Date(2023, 0, 1, 12, 0, 0);
+      const store = createStore({
+        mealProps: { closed: true, closed_at: sameTime.getTime() },
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: true,
+            attending_at: sameTime.getTime() },
+        ],
+      });
+
+      const alice = store.residentStore.residents.get("10");
+      // attending_at === closed_at, not >, so scenario 3 doesn't match
+      expect(alice.canRemove).toBe(false);
+    });
+  });
+
+  describe("canRemoveGuest boundary: mixed pre- and post-close guests", () => {
+    it("returns true when at least one guest was added after close", () => {
+      const closedTime = new Date(2023, 0, 1, 12, 0, 0);
+      const beforeClose = new Date(2023, 0, 1, 11, 0, 0);
+      const afterClose = new Date(2023, 0, 1, 13, 0, 0);
+
+      const store = createStore({
+        mealProps: { closed: true, closed_at: closedTime.getTime() },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
+        guests: [
+          { id: 100, meal_id: 1, resident_id: 10, created_at: beforeClose.getTime() },
+          { id: 101, meal_id: 1, resident_id: 10, created_at: afterClose.getTime() },
+        ],
+      });
+
+      const alice = store.residentStore.residents.get("10");
+      // Scenario 3: at least one guest after close
+      expect(alice.canRemoveGuest).toBe(true);
+    });
+  });
+
+  describe("canRemove with null timestamps", () => {
+    it("returns false when attending_at is null and meal is closed", () => {
+      const closedTime = new Date(2023, 0, 1, 12, 0, 0);
+      const store = createStore({
+        mealProps: { closed: true, closed_at: closedTime.getTime(), extras: 5 },
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: true, attending_at: null },
+        ],
+      });
+
+      const alice = store.residentStore.residents.get("10");
+      expect(alice.canRemove).toBe(false);
+    });
+
+    it("returns false when closed_at is null and meal is closed (BUG-1 regression guard)", () => {
+      const store = createStore({
+        mealProps: { closed: true, closed_at: null, extras: 5 },
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: true,
+            attending_at: Date.now() },
+        ],
+      });
+
+      const alice = store.residentStore.residents.get("10");
+      expect(alice.canRemove).toBe(false);
+    });
+  });
+
+  describe("canRemoveGuest with null closed_at", () => {
+    it("returns false when closed_at is null and meal is closed", () => {
+      const store = createStore({
+        mealProps: { closed: true, closed_at: null },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
+        guests: [
+          { id: 100, meal_id: 1, resident_id: 10, created_at: Date.now() },
+        ],
+      });
+
+      const alice = store.residentStore.residents.get("10");
+      expect(alice.canRemoveGuest).toBe(false);
+    });
+  });
+
+  describe("removeGuest removes newest guest first", () => {
+    it("removes the most recently created guest", () => {
+      const store = createStore({
+        mealProps: { closed: false },
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
+        guests: [
+          { id: 100, meal_id: 1, resident_id: 10, created_at: new Date(2023, 0, 1).getTime() },
+          { id: 101, meal_id: 1, resident_id: 10, created_at: new Date(2023, 0, 2).getTime() },
+        ],
+      });
+
+      const alice = store.residentStore.residents.get("10");
+      expect(alice.guestsCount).toBe(2);
+
+      // removeGuest sends DELETE for the newest guest (id 101)
+      alice.removeGuest();
+      expect(axios).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: "delete",
+          url: expect.stringContaining("/guests/101"),
+        })
+      );
+    });
+  });
 });

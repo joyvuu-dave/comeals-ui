@@ -40,12 +40,6 @@ export const DataStore = types
     calendarName: types.optional(types.string, ""),
     userName: types.optional(types.string, ""),
     eventSources: types.optional(types.array(EventSource), []),
-    modalActive: false,
-    modalName: types.maybeNull(types.string),
-    modalId: types.maybeNull(types.number),
-    modalIsChanging: false,
-    modalChangedData: false,
-    showHistory: false,
     calendarEvents: types.optional(types.array(types.frozen()), []),
     currentDate: types.optional(types.string, function() { return dayjs().tz(TIMEZONE).format("YYYY-MM-DD"); }),
     isOnline: false,
@@ -146,7 +140,7 @@ export const DataStore = types
         }
       });
 
-      self.setIsOnline();
+      self.setIsOnline(navigator.onLine);
 
       if (typeof window.__comealsInterceptor !== "undefined") {
         axios.interceptors.response.eject(window.__comealsInterceptor);
@@ -232,9 +226,6 @@ export const DataStore = types
       Cookie.remove("resident_id", { path: "/" });
       Cookie.remove("username", { path: "/" });
     },
-    toggleHistory() {
-      self.showHistory = !self.showHistory;
-    },
     submitDescription() {
       let obj = {
         id: self.meal.id,
@@ -293,9 +284,12 @@ export const DataStore = types
         data: obj,
         withCredentials: true
       }).catch(function(error) {
-        var type = handleAxiosError(error);
-        if (type === "warning") {
-          toastStore.addToast("Cooks updated.", "success");
+        var isWarning = error.response && error.response.data && error.response.data.type === "warning";
+        if (isWarning) {
+          var msg = error.response.data.message || "";
+          toastStore.replaceAll("Cooks saved." + (msg ? " " + msg : ""), "info");
+        } else {
+          handleAxiosError(error);
         }
 
         self.loadDataAsync();
@@ -392,7 +386,7 @@ export const DataStore = types
       self.meal.date = new Date(d.year(), d.month(), d.date());
       self.meal.description = data.description;
       self.meal.closed = data.closed;
-      self.meal.closed_at = new Date(data.closed_at);
+      self.meal.closed_at = data.closed_at ? new Date(data.closed_at) : null;
       self.meal.reconciled = data.reconciled;
       self.meal.nextId = data.next_id;
       self.meal.prevId = data.prev_id;
@@ -461,8 +455,12 @@ export const DataStore = types
         return bill;
       });
 
-      // Put bills into BillStore
+      // Put bills into BillStore, skipping any with dangling resident references
       bills.forEach(bill => {
+        if (bill.resident != null && !self.residentStore.residents.has(String(bill.resident))) {
+          console.warn("Skipping bill with unknown resident reference:", bill.resident);
+          return;
+        }
         self.billStore.bills.put(bill);
       });
 
@@ -513,13 +511,19 @@ export const DataStore = types
         });
       }
 
-      pushEvents(data.meals);           // #1 Meals
-      pushEvents(data.bills);           // #2 Bills
-      pushEvents(data.rotations);       // #3 Rotations
-      pushEvents(data.birthdays);       // #4 Birthdays
-      pushEvents(data.common_house_reservations); // #5 Common House Reservations
-      pushEvents(data.guest_room_reservations);   // #6 Guest Room Reservations
-      pushEvents(data.events);          // #7 Events
+      var expectedKeys = ["meals", "bills", "rotations", "birthdays", "common_house_reservations", "guest_room_reservations", "events"];
+      var missing = expectedKeys.filter(function(k) { return !Array.isArray(data[k]); });
+      if (missing.length > 0) {
+        console.warn("loadMonth: missing event arrays from API:", missing.join(", "));
+      }
+
+      pushEvents(data.meals || []);           // #1 Meals
+      pushEvents(data.bills || []);           // #2 Bills
+      pushEvents(data.rotations || []);       // #3 Rotations
+      pushEvents(data.birthdays || []);       // #4 Birthdays
+      pushEvents(data.common_house_reservations || []); // #5 Common House Reservations
+      pushEvents(data.guest_room_reservations || []);   // #6 Guest Room Reservations
+      pushEvents(data.events || []);          // #7 Events
 
       // Change loading state
       self.isLoading = false;
@@ -610,20 +614,8 @@ export const DataStore = types
       self.isLoading = true;
       self.switchMonths(date);
     },
-    setCalendarInfo(name, array) {
-      self.modalIsChanging = false;
-      self.calendarName = name;
-      self.eventSources.clear();
-      self.eventSources = array;
-    },
-    openModal(name, id) {
-      self.modalIsChanging = true;
-      self.modalName = name;
-      self.modalId = id;
-      self.modalActive = true;
-    },
-    setIsOnline() {
-      self.isOnline = navigator.onLine;
+    setIsOnline(val) {
+      self.isOnline = !!val;
     },
     setAuthExpired(value) {
       self.authExpired = value;
