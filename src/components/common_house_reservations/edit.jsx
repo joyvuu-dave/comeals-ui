@@ -5,7 +5,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
 import Cookie from "js-cookie";
-import { generateTimes, TIMEZONE, toPacificDayjs } from "../../helpers/helpers";
+import { generateTimes, toPacificDayjs } from "../../helpers/helpers";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import { inject } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
