@@ -1,0 +1,43 @@
+version: "2"
+
+plugins:
+  # Disabled: CodeClimate's bundled ESLint 8 engine can't parse the flat
+  # config format (eslint.config.js). Every file gets a false-positive
+  # "The keyword 'const' is reserved" parse error. Use `npm run lint` instead.
+  eslint:
+    enabled: false
+  duplication:
+    enabled: true
+    config:
+      languages:
+        javascript:
+          mass_threshold: 50
+  fixme:
+    enabled: true
+
+checks:
+  # JSX render methods are templates, not logic — 25 lines is too low
+  method-lines:
+    config:
+      threshold: 80
+  method-complexity:
+    config:
+      threshold: 10
+  file-lines:
+    config:
+      threshold: 400
+
+exclude_patterns:
+  - "node_modules/"
+  - "build/"
+  - "dist/"
+  - "coverage/"
+  - "tests/"
+  - "public/"
+  - "*.md"
+  # Config files — not application code
+  - "eslint.config.js"
+  - "vite.config.js"
+  - "vitest.config.js"
+  - "playwright.config.js"
+  - "server.js"
