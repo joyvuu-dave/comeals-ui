@@ -1,11 +1,12 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import Cookie from "js-cookie";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const TIMEZONE = "America/Los_Angeles";
+export const TIMEZONE = Cookie.get("timezone") || "America/Los_Angeles";
 
 // dayjs.tz(string, tz) interprets naive strings (no offset) as the
 // target timezone — correct.  But for strings with offset info it

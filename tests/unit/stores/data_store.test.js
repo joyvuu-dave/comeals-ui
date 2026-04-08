@@ -13,7 +13,10 @@ vi.mock("axios", () => {
 
 vi.mock("js-cookie", () => ({
   default: {
-    get: vi.fn(() => "test-token"),
+    get: vi.fn((name) => {
+      const cookies = { token: "test-token", community_id: "test-community-id" };
+      return cookies[name];
+    }),
     remove: vi.fn(),
   },
 }));

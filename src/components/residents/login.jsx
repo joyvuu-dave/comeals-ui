@@ -100,8 +100,17 @@ const ResidentsLogin = inject("store")(
                 Cookie.set("username", response.data.username, {
                   expires: 7300
                 });
+                if (response.data.timezone) {
+                  Cookie.set("timezone", response.data.timezone, {
+                    expires: 7300
+                  });
+                }
 
-                self.setState({ redirectToReferrer: true });
+                var tz = response.data.timezone || "America/Los_Angeles";
+                var { from } = self.props.location.state || {
+                  from: { pathname: "/calendar/all/" + dayjs().tz(tz).format("YYYY-MM-DD") }
+                };
+                window.location.href = from.pathname || from;
               }
             })
             .catch(function(error) {
