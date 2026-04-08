@@ -5,7 +5,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import axios from "axios";
 import Cookie from "js-cookie";
-import { generateTimes, TIMEZONE } from "../../helpers/helpers";
+import { generateTimes, TIMEZONE, toPacificDayjs } from "../../helpers/helpers";
 import handleAxiosError from "../../helpers/handle_axios_error";
 import { inject } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -46,24 +46,25 @@ const CommonHouseReservationsEdit = inject("store")(
         .then(function(response) {
           if (response.status === 200) {
             var evt = response.data.event;
+            var sd = toPacificDayjs(evt.start_date);
             self.setState({
               event: evt,
               residents: response.data.residents,
               ready: true,
               resident_id: evt.resident_id,
               title: evt.title,
-              day: evt.start_date,
-              start_time: `${dayjs.tz(evt.start_date, TIMEZONE)
+              day: new Date(sd.year(), sd.month(), sd.date()),
+              start_time: `${toPacificDayjs(evt.start_date)
                 .hour()
                 .toString()
-                .padStart(2, "0")}:${dayjs.tz(evt.start_date, TIMEZONE)
+                .padStart(2, "0")}:${toPacificDayjs(evt.start_date)
                 .minute()
                 .toString()
                 .padStart(2, "0")}`,
-              end_time: `${dayjs.tz(evt.end_date, TIMEZONE)
+              end_time: `${toPacificDayjs(evt.end_date)
                 .hour()
                 .toString()
-                .padStart(2, "0")}:${dayjs.tz(evt.end_date, TIMEZONE)
+                .padStart(2, "0")}:${toPacificDayjs(evt.end_date)
                 .minute()
                 .toString()
                 .padStart(2, "0")}`

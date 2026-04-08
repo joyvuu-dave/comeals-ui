@@ -1439,5 +1439,51 @@ describe("DataStore", () => {
       expect(event.end).toBeInstanceOf(Date);
       expect(event.title).toBe("Dinner");
     });
+
+    it("converts offset date strings to correct Pacific dates", () => {
+      const store = createDataStore();
+      // 4 PM Pacific (-07:00) to 6 PM Pacific (-07:00) on June 15
+      const data = {
+        id: 1, year: 2023, month: 6,
+        meals: [],
+        bills: [], rotations: [], birthdays: [],
+        common_house_reservations: [{
+          title: "Reservation",
+          start: "2023-06-15T16:00:00.000-07:00",
+          end: "2023-06-15T18:00:00.000-07:00",
+        }],
+        guest_room_reservations: [], events: [],
+      };
+
+      store.loadMonth(data);
+      var event = store.calendarEvents[0];
+      expect(event.start.getDate()).toBe(15);
+      expect(event.start.getHours()).toBe(16);
+      expect(event.end.getDate()).toBe(15);
+      expect(event.end.getHours()).toBe(18);
+    });
+
+    it("converts UTC (Z) date strings to correct Pacific dates", () => {
+      const store = createDataStore();
+      // 2023-06-16T01:00:00Z = June 15 6 PM Pacific (PDT)
+      // 2023-06-16T03:00:00Z = June 15 8 PM Pacific (PDT)
+      const data = {
+        id: 1, year: 2023, month: 6,
+        meals: [{
+          title: "Late Dinner",
+          start: "2023-06-16T01:00:00Z",
+          end: "2023-06-16T03:00:00Z",
+        }],
+        bills: [], rotations: [], birthdays: [],
+        common_house_reservations: [], guest_room_reservations: [], events: [],
+      };
+
+      store.loadMonth(data);
+      var event = store.calendarEvents[0];
+      expect(event.start.getDate()).toBe(15);
+      expect(event.start.getHours()).toBe(18);
+      expect(event.end.getDate()).toBe(15);
+      expect(event.end.getHours()).toBe(20);
+    });
   });
 });

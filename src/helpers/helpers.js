@@ -1,4 +1,22 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export const TIMEZONE = "America/Los_Angeles";
+
+// dayjs.tz(string, tz) interprets naive strings (no offset) as the
+// target timezone — correct.  But for strings with offset info it
+// stamps the UTC value as the target timezone instead of converting.
+// For those we need dayjs(string).tz(tz).
+export function toPacificDayjs(dateString) {
+  if (/Z|[+-]\d{2}:?\d{2}\s*$/.test(dateString)) {
+    return dayjs(dateString).tz(TIMEZONE);
+  }
+  return dayjs.tz(dateString, TIMEZONE);
+}
 
 export function generateTimes() {
   var times = [];

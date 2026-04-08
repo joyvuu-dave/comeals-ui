@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateTimes } from "../../../src/helpers/helpers.js";
+import { generateTimes, toPacificDayjs } from "../../../src/helpers/helpers.js";
 
 describe("generateTimes", () => {
   // generateTimes produces time picker options for reservation/event forms
@@ -58,5 +58,48 @@ describe("generateTimes", () => {
     const times = generateTimes();
     const eight = times.find((t) => t.display === "8:00 AM");
     expect(eight.value).toBe("08:00");
+  });
+});
+
+describe("toPacificDayjs", () => {
+  it("converts offset string (-07:00) to Pacific time", () => {
+    // 4 PM Pacific expressed with offset
+    const d = toPacificDayjs("2026-05-11T16:00:00.000-07:00");
+    expect(d.hour()).toBe(16);
+    expect(d.date()).toBe(11);
+    expect(d.month()).toBe(4); // May, 0-indexed
+  });
+
+  it("converts UTC string (Z) to Pacific time", () => {
+    // 2026-05-11T23:00:00Z = 4 PM Pacific (PDT is UTC-7)
+    const d = toPacificDayjs("2026-05-11T23:00:00Z");
+    expect(d.hour()).toBe(16);
+    expect(d.date()).toBe(11);
+  });
+
+  it("converts offset string that crosses date boundary", () => {
+    // 10 PM Pacific = next day 05:00 UTC
+    const d = toPacificDayjs("2026-05-12T05:00:00.000Z");
+    expect(d.hour()).toBe(22);
+    expect(d.date()).toBe(11);
+  });
+
+  it("interprets naive string as Pacific (no conversion)", () => {
+    const d = toPacificDayjs("2026-05-11T16:00:00");
+    expect(d.hour()).toBe(16);
+    expect(d.date()).toBe(11);
+  });
+
+  it("handles +00:00 offset", () => {
+    // Midnight UTC = 5 PM previous day Pacific (PDT)
+    const d = toPacificDayjs("2026-05-12T00:00:00+00:00");
+    expect(d.hour()).toBe(17);
+    expect(d.date()).toBe(11);
+  });
+
+  it("handles compact offset without colon (+0000)", () => {
+    const d = toPacificDayjs("2026-05-12T00:00:00+0000");
+    expect(d.hour()).toBe(17);
+    expect(d.date()).toBe(11);
   });
 });

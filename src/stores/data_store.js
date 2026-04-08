@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import handleAxiosError from "../helpers/handle_axios_error";
-import { TIMEZONE } from "../helpers/helpers";
+import { TIMEZONE, toPacificDayjs } from "../helpers/helpers";
 import toastStore from "./toast_store";
 
 dayjs.extend(utc);
@@ -382,7 +382,7 @@ export const DataStore = types
       // Assign Meal Data — construct a "fake local" Date with Pacific
       // date components so that dayjs(meal.date) always reflects Pacific,
       // consistent with getPacificNow() in calendar/show.jsx.
-      var d = dayjs.tz(data.date, TIMEZONE);
+      var d = toPacificDayjs(data.date);
       self.meal.date = new Date(d.year(), d.month(), d.date());
       self.meal.description = data.description;
       self.meal.closed = data.closed;
@@ -493,18 +493,16 @@ export const DataStore = types
 
       // Convert event start/end strings to native Date objects.
       // react-big-calendar requires native Dates for its date arithmetic.
-      // dayjs.tz handles both offset ("...Z", "...+HH:MM") and naive
-      // strings: offset strings are converted from their stated tz to
-      // Pacific; naive strings are interpreted as Pacific directly.
+      // toPacificDayjs handles both offset and naive strings correctly.
       function pushEvents(events) {
         events.forEach(function(event) {
           var converted = Object.assign({}, event);
           if (converted.start) {
-            var s = dayjs.tz(converted.start, TIMEZONE);
+            var s = toPacificDayjs(converted.start);
             converted.start = new Date(s.year(), s.month(), s.date(), s.hour(), s.minute());
           }
           if (converted.end) {
-            var e = dayjs.tz(converted.end, TIMEZONE);
+            var e = toPacificDayjs(converted.end);
             converted.end = new Date(e.year(), e.month(), e.date(), e.hour(), e.minute());
           }
           self.calendarEvents.push(converted);
