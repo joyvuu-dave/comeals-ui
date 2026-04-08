@@ -118,8 +118,10 @@ export const DataStore = types
         calendarChannel: null
       };
 
-      window.Comeals.pusher = new Pusher("8affd7213bb4643ca7f1", {
-        cluster: "us2",
+      // Pusher public key + cluster from env vars (VITE_PUSHER_KEY, VITE_PUSHER_CLUSTER).
+      // Local dev: .env file (committed defaults). Override via .env.local if needed.
+      window.Comeals.pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
+        cluster: import.meta.env.VITE_PUSHER_CLUSTER,
         encrypted: true
       });
 
