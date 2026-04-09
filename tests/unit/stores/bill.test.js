@@ -41,7 +41,7 @@ import GuestStore from "../../../src/stores/guest_store.js";
 // Build a minimal DataStore-like parent to satisfy the getParent chains.
 // Bill.form -> getParent(self, 2) = BillStore
 // Bill.form.form -> DataStore
-// Bill actions call self.form.form.toggleEditBillsMode()
+// Bill actions call self.form.form.saveBills()
 const TestDataStore = types
   .model("TestDataStore", {
     meals: types.optional(types.array(Meal), []),
@@ -49,7 +49,7 @@ const TestDataStore = types
     residentStore: types.optional(ResidentStore, { residents: {} }),
     billStore: types.optional(BillStore, { bills: {} }),
     guestStore: types.optional(GuestStore, { guests: {} }),
-    editBillsMode: true,
+    saveBillsCalled: types.optional(types.number, 0),
   })
   .views((self) => ({
     get attendeesCount() {
@@ -60,8 +60,8 @@ const TestDataStore = types
     },
   }))
   .actions((self) => ({
-    toggleEditBillsMode() {
-      self.editBillsMode = !self.editBillsMode;
+    saveBills() {
+      self.saveBillsCalled += 1;
     },
     addResident(r) {
       self.residentStore.residents.put(r);
@@ -255,19 +255,15 @@ describe("Bill model", () => {
       expect(clearResult).toBeNull();
     });
 
-    it("triggers toggleEditBillsMode twice (save cycle)", () => {
+    it("triggers saveBills", () => {
       const store = createStore({
         residents: [{ id: 10, meal_id: 1, name: "Alice" }],
         bills: [{ id: "bill-1" }],
       });
 
       const bill = store.billStore.bills.get("bill-1");
-      // editBillsMode starts as true
-      expect(store.editBillsMode).toBe(true);
-
       bill.setResident(10);
-      // After two toggles, it should be back to true
-      expect(store.editBillsMode).toBe(true);
+      expect(store.saveBillsCalled).toBe(1);
     });
   });
 
@@ -295,15 +291,14 @@ describe("Bill model", () => {
       expect(bill.amount).toBe("");
     });
 
-    it("triggers toggleEditBillsMode twice", () => {
+    it("triggers saveBills", () => {
       const store = createStore({
         bills: [{ id: "bill-1", amount: "" }],
       });
 
       const bill = store.billStore.bills.get("bill-1");
-      expect(store.editBillsMode).toBe(true);
       bill.setAmount("10.00");
-      expect(store.editBillsMode).toBe(true);
+      expect(store.saveBillsCalled).toBe(1);
     });
   });
 
@@ -332,15 +327,14 @@ describe("Bill model", () => {
       expect(bill.no_cost).toBe(false);
     });
 
-    it("triggers toggleEditBillsMode twice", () => {
+    it("triggers saveBills", () => {
       const store = createStore({
         bills: [{ id: "bill-1", no_cost: false }],
       });
 
       const bill = store.billStore.bills.get("bill-1");
-      expect(store.editBillsMode).toBe(true);
       bill.toggleNoCost();
-      expect(store.editBillsMode).toBe(true);
+      expect(store.saveBillsCalled).toBe(1);
     });
   });
 

@@ -173,10 +173,15 @@ export const DataStore = types
         self.submitBills();
       }
     },
+    saveDescription() {
+      self.submitDescription();
+    },
+    saveBills() {
+      self.submitBills();
+    },
     setDescription(val) {
       self.meal.description = val;
-      self.toggleEditDescriptionMode();
-      self.toggleEditDescriptionMode();
+      self.saveDescription();
       return self.meal.description;
     },
     toggleClosed() {

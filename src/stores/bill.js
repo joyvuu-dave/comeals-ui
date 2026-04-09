@@ -24,13 +24,11 @@ const Bill = types
     setResident(val) {
       if (val === "") {
         self.resident = null;
-        self.form.form.toggleEditBillsMode();
-        self.form.form.toggleEditBillsMode();
+        self.form.form.saveBills();
         return null;
       } else {
         self.resident = val;
-        self.form.form.toggleEditBillsMode();
-        self.form.form.toggleEditBillsMode();
+        self.form.form.saveBills();
         return self.resident;
       }
     },
@@ -39,8 +37,7 @@ const Bill = types
       if (Number(val) > 0) {
         self.no_cost = false;
       }
-      self.form.form.toggleEditBillsMode();
-      self.form.form.toggleEditBillsMode();
+      self.form.form.saveBills();
       return val;
     },
     toggleNoCost() {
@@ -49,8 +46,7 @@ const Bill = types
       if (val) {
         self.amount = "";
       }
-      self.form.form.toggleEditBillsMode();
-      self.form.form.toggleEditBillsMode();
+      self.form.form.saveBills();
       return val;
     }
   }));
