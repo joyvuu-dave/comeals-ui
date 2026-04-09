@@ -22,6 +22,7 @@
     "mobx": "^6.13.7",
     "mobx-react": "^9.2.1",
     "mobx-state-tree": "^6.0.1",
+    "normalize.css": "^8.0.1",
     "pretty-checkbox": "3.0.3",
     "pusher-js": "^8.4.3",
     "react": "^19.2.4",

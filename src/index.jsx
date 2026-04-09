@@ -35,6 +35,7 @@ import {
 } from "react-router-dom";
 
 import { DataStore } from "./stores/data_store";
+import localforage from "localforage";
 
 import ResidentsLogin from "./components/residents/login";
 import PrivateRoute from "./components/app/private_route";
@@ -77,6 +78,15 @@ const MealsEdit = React.lazy(
 );
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Bump this version to force-clear all cached calendar/meal data on next visit.
+  // localforage.clear() is async but completes well before any user navigation
+  // triggers a data load, so no race condition in practice.
+  const CACHE_VERSION = "2";
+  if (localStorage.getItem("cacheVersion") !== CACHE_VERSION) {
+    localforage.clear();
+    localStorage.setItem("cacheVersion", CACHE_VERSION);
+  }
+
   const store = DataStore.create();
 
   window.addEventListener("load", function() {

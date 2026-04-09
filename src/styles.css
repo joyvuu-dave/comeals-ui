@@ -1,6 +1,7 @@
 @import "pretty-checkbox/dist/pretty-checkbox.css";
 @import "react-day-picker/style.css";
-@import "./shoelace.css";
+@import "normalize.css/normalize.css";
+@import "./components.css";
 @import "react-big-calendar/lib/css/react-big-calendar.css";
 
 :root {
@@ -42,7 +43,7 @@
 }
 
 .text-primary {
-  color: var(--state-primary);
+  color: var(--state-primary) !important;
 }
 
 .pointer {
@@ -212,10 +213,6 @@ button:focus {
   margin-bottom: 0;
 }
 
-.is-hidden {
-  visibility: hidden;
-}
-
 /* GRID SYSTEM */
 .flex {
   display: flex;
@@ -226,35 +223,14 @@ button:focus {
   flex-wrap: nowrap;
 }
 
-.flex.top {
-  align-items: flex-start;
-}
 .flex.middle {
   align-items: center;
-}
-.flex.bottom {
-  align-items: flex-end;
-}
-.flex.stretch {
-  align-items: stretch;
-}
-.flex.baseline {
-  align-items: baseline;
-}
-.flex.left {
-  justify-content: flex-start;
 }
 .flex.center {
   justify-content: center;
 }
-.flex.right {
-  justify-content: flex-end;
-}
 .flex.space-between {
   justify-content: space-between;
-}
-.flex.space-around {
-  justify-content: space-around;
 }
 
 .cell {
