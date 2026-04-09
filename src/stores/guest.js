@@ -6,7 +6,6 @@ const Guest = types
     created_at: types.Date,
     meal_id: types.number,
     resident_id: types.number,
-    name: types.maybeNull(types.string),
     vegetarian: false
   })
   .views(self => ({

@@ -287,7 +287,6 @@ const Resident = types
           if (!isAlive(self)) return;
           if (response.status === 200) {
             const guest = response.data;
-            guest.name = null;
             guest.created_at = new Date(guest.created_at);
             self.form.form.appendGuest(guest);
           }

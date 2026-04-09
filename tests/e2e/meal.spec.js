@@ -269,7 +269,7 @@ test.describe("Meal Editing", () => {
         contentType: "application/json",
         body: JSON.stringify({
           id: 999, meal_id: 42, resident_id: 1,
-          name: null, vegetarian: false, created_at: new Date().toISOString(),
+          vegetarian: false, created_at: new Date().toISOString(),
         }),
       });
     });
