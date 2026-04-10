@@ -31,6 +31,18 @@ app.get("/.vite/manifest.json", (req, res) => {
   });
 });
 
+// Return the current Heroku release version of this Node server so you can
+// hit a URL and see what's deployed. Mirrors comeals-backend's /api/v1/version
+// response shape. HEROKU_RELEASE_VERSION is set per-dyno by Heroku's Dyno
+// Metadata feature (e.g. "v42"). Falls back to 1 if we can't parse a real
+// release (env var absent or malformed) — sentinel, not an actual release.
+app.get("/version", (req, res) => {
+  res.set("Cache-Control", "no-cache");
+  const raw = process.env.HEROKU_RELEASE_VERSION || "";
+  const version = parseInt(raw.replace(/^v/, ""), 10) || 1;
+  res.json({ version });
+});
+
 // Hashed assets under /assets — cache forever (filenames change on each build).
 app.use(
   "/assets",
