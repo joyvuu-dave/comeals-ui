@@ -20,7 +20,7 @@ const GuestRoomReservationsNew = inject("store")(
         ready: false,
         resident_id: "",
         day: null,
-        loading: false
+        loading: false,
       };
     }
 
@@ -30,17 +30,17 @@ const GuestRoomReservationsNew = inject("store")(
         .get(
           `/api/v1/communities/${
             self.state.communityId
-          }/hosts?token=${Cookie.get("token")}`
+          }/hosts?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             self.setState({
               hosts: response.data,
-              ready: true
+              ready: true,
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     }
@@ -56,16 +56,18 @@ const GuestRoomReservationsNew = inject("store")(
           }&token=${Cookie.get("token")}`,
           {
             resident_id: self.state.resident_id,
-            date: self.state.day ? dayjs(self.state.day).format("YYYY-MM-DD") : null
-          }
+            date: self.state.day
+              ? dayjs(self.state.day).format("YYYY-MM-DD")
+              : null,
+          },
         )
-        .then(function(response) {
+        .then(function (response) {
           self.setState({ loading: false });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.setState({ loading: false });
           handleAxiosError(error);
         });
@@ -91,18 +93,18 @@ const GuestRoomReservationsNew = inject("store")(
               </div>
               <fieldset>
                 <legend>New</legend>
-                <form onSubmit={e => this.handleSubmit(e)}>
+                <form onSubmit={(e) => this.handleSubmit(e)}>
                   <label>Host</label>
                   <select
                     id="local.resident_id"
                     value={this.state.resident_id}
-                    onChange={e =>
+                    onChange={(e) =>
                       this.setState({ resident_id: e.target.value })
                     }
                     disabled={this.state.loading}
                   >
                     <option />
-                    {this.state.hosts.map(host => (
+                    {this.state.hosts.map((host) => (
                       <option key={host[0]} value={host[0]}>
                         {host[2]} - {host[1]}
                       </option>
@@ -112,16 +114,28 @@ const GuestRoomReservationsNew = inject("store")(
 
                   <label>Day</label>
                   <br />
-                  <div style={this.state.loading ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                  <div
+                    style={
+                      this.state.loading
+                        ? { pointerEvents: "none", opacity: 0.5 }
+                        : undefined
+                    }
+                  >
                     <DayPickerInputWrapper
                       value={this.state.day}
                       placeholder=""
                       onDayChange={this.handleDayChange}
                       inputDisabled={this.state.loading}
-                      defaultMonth={dayjs(this.props.match.params.date).toDate()}
-                      disabledDays={[{
-                        after: dayjs(this.props.match.params.date).add(6, "month").toDate()
-                      }]}
+                      defaultMonth={dayjs(
+                        this.props.match.params.date,
+                      ).toDate()}
+                      disabledDays={[
+                        {
+                          after: dayjs(this.props.match.params.date)
+                            .add(6, "month")
+                            .toDate(),
+                        },
+                      ]}
                     />
                   </div>
                   <br />
@@ -129,7 +143,11 @@ const GuestRoomReservationsNew = inject("store")(
 
                   <button
                     type="submit"
-                    className={this.state.loading ? "button-dark button-loader" : "button-dark"}
+                    className={
+                      this.state.loading
+                        ? "button-dark button-loader"
+                        : "button-dark"
+                    }
                     disabled={this.state.loading}
                   >
                     Create
@@ -142,7 +160,7 @@ const GuestRoomReservationsNew = inject("store")(
         </div>
       );
     }
-  }
+  },
 );
 
 export default GuestRoomReservationsNew;

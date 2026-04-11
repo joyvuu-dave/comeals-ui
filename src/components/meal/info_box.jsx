@@ -5,8 +5,8 @@ import CloseButton from "./close_button";
 const styles = {
   main: {
     border: "1px solid",
-    gridArea: "a2"
-  }
+    gridArea: "a2",
+  },
 };
 
 const InfoBox = inject("store")(
@@ -34,7 +34,7 @@ const InfoBox = inject("store")(
         <Extras />
       </div>
     </div>
-  ))
+  )),
 );
 
 export default InfoBox;

@@ -1,9 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const {
-  stubPusher,
-  disableIdleTimer,
-  mockApi,
-} = require("../helpers/setup");
+const { stubPusher, disableIdleTimer, mockApi } = require("../helpers/setup");
 
 test.describe("Password Reset", () => {
   test.beforeEach(async ({ page }) => {
@@ -44,16 +40,16 @@ test.describe("Password Reset", () => {
     await modal.getByRole("button", { name: "Reset" }).click();
 
     // API: POST with email
-    await expect
-      .poll(() => resetPayload, { timeout: 5000 })
-      .toBeTruthy();
+    await expect.poll(() => resetPayload, { timeout: 5000 }).toBeTruthy();
     expect(resetMethod).toBe("POST");
     expect(resetPayload.email).toBe("jane@example.com");
 
     // Success toast
     const toast = page.locator(".toast--success");
     await expect(toast).toBeVisible({ timeout: 5000 });
-    await expect(toast.locator(".toast__message")).toContainText("Password reset email sent");
+    await expect(toast.locator(".toast__message")).toContainText(
+      "Password reset email sent",
+    );
   });
 
   test("set new password sends POST with password", async ({ page }) => {
@@ -89,9 +85,7 @@ test.describe("Password Reset", () => {
     await modal.getByRole("button", { name: "Submit" }).click();
 
     // API: POST to /residents/password-reset/{token} with password
-    await expect
-      .poll(() => passwordPayload, { timeout: 5000 })
-      .toBeTruthy();
+    await expect.poll(() => passwordPayload, { timeout: 5000 }).toBeTruthy();
     expect(passwordMethod).toBe("POST");
     expect(passwordPayload.password).toBe("newpassword123");
     expect(passwordUrl).toContain("test-reset-token");
@@ -99,6 +93,8 @@ test.describe("Password Reset", () => {
     // Success toast
     const toast = page.locator(".toast--success");
     await expect(toast).toBeVisible({ timeout: 5000 });
-    await expect(toast.locator(".toast__message")).toContainText("Password updated");
+    await expect(toast.locator(".toast__message")).toContainText(
+      "Password updated",
+    );
   });
 });

@@ -31,7 +31,7 @@ const EventsEdit = inject("store")(
         end_time: "",
         all_day: false,
         loadingAction: null,
-        confirmDeleteOpen: false
+        confirmDeleteOpen: false,
       };
     }
 
@@ -39,9 +39,9 @@ const EventsEdit = inject("store")(
       var self = this;
       axios
         .get(
-          `/api/v1/events/${self.props.eventId}?token=${Cookie.get("token")}`
+          `/api/v1/events/${self.props.eventId}?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             var evt = response.data;
             var sd = toPacificDayjs(evt.start_date);
@@ -67,11 +67,11 @@ const EventsEdit = inject("store")(
                     .toString()
                     .padStart(2, "0")}`
                 : "",
-              all_day: evt.allday
+              all_day: evt.allday,
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     }
@@ -84,7 +84,7 @@ const EventsEdit = inject("store")(
       axios
         .patch(
           `/api/v1/events/${self.props.eventId}/update?token=${Cookie.get(
-            "token"
+            "token",
           )}`,
           {
             title: s.title,
@@ -96,16 +96,16 @@ const EventsEdit = inject("store")(
             start_minutes: s.start_time && s.start_time.split(":")[1],
             end_hours: s.end_time && s.end_time.split(":")[0],
             end_minutes: s.end_time && s.end_time.split(":")[1],
-            all_day: s.all_day
-          }
+            all_day: s.all_day,
+          },
         )
-        .then(function(response) {
+        .then(function (response) {
           self.setState({ loadingAction: null });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.setState({ loadingAction: null });
           handleAxiosError(error);
         });
@@ -122,16 +122,16 @@ const EventsEdit = inject("store")(
       axios
         .delete(
           `/api/v1/events/${self.state.event.id}/delete?token=${Cookie.get(
-            "token"
-          )}`
+            "token",
+          )}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           self.setState({ loadingAction: null });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.setState({ loadingAction: null });
           handleAxiosError(error);
         });
@@ -155,7 +155,11 @@ const EventsEdit = inject("store")(
                 <button
                   onClick={this.handleDeleteClick.bind(this)}
                   type="button"
-                  className={this.state.loadingAction === "delete" ? "mar-l-md button-warning button-loader" : "mar-l-md button-warning"}
+                  className={
+                    this.state.loadingAction === "delete"
+                      ? "mar-l-md button-warning button-loader"
+                      : "mar-l-md button-warning"
+                  }
                   disabled={this.state.loadingAction !== null}
                 >
                   Delete
@@ -169,12 +173,12 @@ const EventsEdit = inject("store")(
               </div>
               <fieldset>
                 <legend>Edit</legend>
-                <form onSubmit={e => this.handleSubmit(e)}>
+                <form onSubmit={(e) => this.handleSubmit(e)}>
                   <label>Title</label>
                   <input
                     type="text"
                     value={this.state.title}
-                    onChange={e => this.setState({ title: e.target.value })}
+                    onChange={(e) => this.setState({ title: e.target.value })}
                     disabled={this.state.loadingAction !== null}
                   />
                   <br />
@@ -182,7 +186,7 @@ const EventsEdit = inject("store")(
                   <textarea
                     placeholder="optional"
                     value={this.state.description}
-                    onChange={e =>
+                    onChange={(e) =>
                       this.setState({ description: e.target.value })
                     }
                     disabled={this.state.loadingAction !== null}
@@ -190,14 +194,24 @@ const EventsEdit = inject("store")(
                   <br />
                   <label>Day</label>
                   <br />
-                  <div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                  <div
+                    style={
+                      this.state.loadingAction !== null
+                        ? { pointerEvents: "none", opacity: 0.5 }
+                        : undefined
+                    }
+                  >
                     <DayPickerInputWrapper
                       value={this.state.day}
                       onDayChange={this.handleDayChange}
                       inputDisabled={this.state.loadingAction !== null}
-                      disabledDays={[{
-                        after: dayjs(this.state.event.start_date).add(6, "month").toDate()
-                      }]}
+                      disabledDays={[
+                        {
+                          after: dayjs(this.state.event.start_date)
+                            .add(6, "month")
+                            .toDate(),
+                        },
+                      ]}
                     />
                   </div>
                   <br />
@@ -206,13 +220,13 @@ const EventsEdit = inject("store")(
                   <select
                     id="local.start_time"
                     value={this.state.start_time}
-                    onChange={e =>
+                    onChange={(e) =>
                       this.setState({ start_time: e.target.value })
                     }
                     disabled={this.state.loadingAction !== null}
                   >
                     <option />
-                    {generateTimes().map(time => (
+                    {generateTimes().map((time) => (
                       <option key={time.value} value={time.value}>
                         {time.display}
                       </option>
@@ -223,11 +237,13 @@ const EventsEdit = inject("store")(
                   <select
                     id="local.end_time"
                     value={this.state.end_time}
-                    onChange={e => this.setState({ end_time: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ end_time: e.target.value })
+                    }
                     disabled={this.state.loadingAction !== null}
                   >
                     <option />
-                    {generateTimes().map(time => (
+                    {generateTimes().map((time) => (
                       <option key={time.value} value={time.value}>
                         {time.display}
                       </option>
@@ -240,7 +256,7 @@ const EventsEdit = inject("store")(
                     type="checkbox"
                     id="local.all_day"
                     checked={this.state.all_day}
-                    onChange={e =>
+                    onChange={(e) =>
                       this.setState({ all_day: e.target.checked })
                     }
                     disabled={this.state.loadingAction !== null}
@@ -249,26 +265,30 @@ const EventsEdit = inject("store")(
                   <br />
                   <button
                     type="submit"
-                    className={this.state.loadingAction === "submit" ? "button-dark button-loader" : "button-dark"}
+                    className={
+                      this.state.loadingAction === "submit"
+                        ? "button-dark button-loader"
+                        : "button-dark"
+                    }
                     disabled={this.state.loadingAction !== null}
                   >
                     Update
                   </button>
                 </form>
               </fieldset>
-            <ConfirmModal
-              isOpen={this.state.confirmDeleteOpen}
-              message="Do you really want to delete this event?"
-              onConfirm={this.handleDeleteConfirm.bind(this)}
-              onCancel={this.handleDeleteCancel.bind(this)}
-            />
+              <ConfirmModal
+                isOpen={this.state.confirmDeleteOpen}
+                message="Do you really want to delete this event?"
+                onConfirm={this.handleDeleteConfirm.bind(this)}
+                onCancel={this.handleDeleteCancel.bind(this)}
+              />
             </div>
           )}
           {!this.state.ready && <h3>Loading...</h3>}
         </div>
       );
     }
-  }
+  },
 );
 
 export default EventsEdit;

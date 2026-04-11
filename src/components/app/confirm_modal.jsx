@@ -20,14 +20,20 @@ class ConfirmModal extends Component {
             marginRight: "-50%",
             transform: "translate(-50%, -50%)",
             maxWidth: "24rem",
-            padding: "1.5rem"
-          }
+            padding: "1.5rem",
+          },
         }}
       >
         <p style={{ marginTop: 0, marginBottom: "1.5rem", fontSize: "1rem" }}>
           {this.props.message}
         </p>
-        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "0.75rem",
+            justifyContent: "flex-end",
+          }}
+        >
           <button
             type="button"
             className="button-light"

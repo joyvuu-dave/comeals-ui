@@ -106,7 +106,11 @@ async function mockApi(page, options = {}) {
   // Meal data (GET /api/v1/meals/*/cooks*)
   await page.route("**/api/v1/meals/*/cooks*", (route) => {
     if (route.request().method() === "GET") {
-      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(meal) });
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(meal),
+      });
     } else {
       route.fulfill({ status: 200, body: "{}" });
     }
@@ -123,12 +127,20 @@ async function mockApi(page, options = {}) {
 
   // Calendar data (GET /api/v1/communities/*/calendar/*)
   await page.route("**/api/v1/communities/*/calendar/*", (route) => {
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(calendar) });
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(calendar),
+    });
   });
 
   // Meal history (GET /api/v1/meals/*/history*)
   await page.route("**/api/v1/meals/*/history*", (route) => {
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(history) });
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(history),
+    });
   });
 
   // Resident attendance toggle (POST/DELETE /api/v1/meals/*/residents/*)

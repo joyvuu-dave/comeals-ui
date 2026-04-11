@@ -8,7 +8,9 @@ test.describe("Authentication", () => {
     await mockApi(page);
   });
 
-  test("login page renders with email and password fields", async ({ page }) => {
+  test("login page renders with email and password fields", async ({
+    page,
+  }) => {
     await page.goto("/");
     await expect(page.locator('input[aria-label="email"]')).toBeVisible();
     await expect(page.locator('input[aria-label="password"]')).toBeVisible();
@@ -70,7 +72,9 @@ test.describe("Authentication", () => {
     // Wait for the error toast
     const toast = page.locator(".toast--error");
     await expect(toast).toBeVisible({ timeout: 5000 });
-    await expect(toast.locator(".toast__message")).toContainText("Invalid email or password");
+    await expect(toast.locator(".toast__message")).toContainText(
+      "Invalid email or password",
+    );
   });
 
   test("logout clears cookies and redirects to login", async ({

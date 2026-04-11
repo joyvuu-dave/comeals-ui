@@ -31,7 +31,7 @@ import {
   Routes,
   Route,
   Navigate,
-  useLocation
+  useLocation,
 } from "react-router-dom";
 
 import { DataStore } from "./stores/data_store";
@@ -68,13 +68,13 @@ function lazyRetry(importFn) {
 const Calendar = React.lazy(
   lazyRetry(function () {
     return import("./components/calendar/show");
-  })
+  }),
 );
 
 const MealsEdit = React.lazy(
   lazyRetry(function () {
     return import("./components/meals/edit");
-  })
+  }),
 );
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const store = DataStore.create();
 
-  window.addEventListener("load", function() {
+  window.addEventListener("load", function () {
     function updateOnlineStatus() {
       if (navigator.onLine) {
         console.warn(`back online at ${new Date().toLocaleTimeString()}`);
@@ -111,39 +111,39 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   createRoot(document.getElementById("root")).render(
-      <Provider store={store}>
-        <ToastContainer />
-        <SessionExpiredBanner store={store} />
-        <Router>
-          <VersionBanner />
-          <TrailingSlash />
-          <ScrollToTop>
-            <Suspense fallback={<h3>Loading...</h3>}>
+    <Provider store={store}>
+      <ToastContainer />
+      <SessionExpiredBanner store={store} />
+      <Router>
+        <VersionBanner />
+        <TrailingSlash />
+        <ScrollToTop>
+          <Suspense fallback={<h3>Loading...</h3>}>
             <ErrorBoundary>
-            <Routes>
-              <Route
-                path="/calendar/:type/:date/:modal?/:view?/:id?"
-                element={
-                  <PrivateRoute>
-                    <Calendar />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/meals/:id/edit/*"
-                element={
-                  <PrivateRoute>
-                    <MealsEdit />
-                  </PrivateRoute>
-                }
-              />
-              <Route path="/:modal?/:token?" element={<ResidentsLogin />} />
-            </Routes>
+              <Routes>
+                <Route
+                  path="/calendar/:type/:date/:modal?/:view?/:id?"
+                  element={
+                    <PrivateRoute>
+                      <Calendar />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/meals/:id/edit/*"
+                  element={
+                    <PrivateRoute>
+                      <MealsEdit />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="/:modal?/:token?" element={<ResidentsLogin />} />
+              </Routes>
             </ErrorBoundary>
-            </Suspense>
-          </ScrollToTop>
-        </Router>
-      </Provider>
+          </Suspense>
+        </ScrollToTop>
+      </Router>
+    </Provider>,
   );
   // Unregister any leftover service worker from previous deploys.
   if ("serviceWorker" in navigator) {

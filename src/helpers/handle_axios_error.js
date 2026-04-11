@@ -20,7 +20,10 @@ export default function handleAxiosError(error, options) {
     if (silent) {
       console.error("Error: no response received from server.");
     } else {
-      toastStore.replaceAll("Error: no response received from server.", "error");
+      toastStore.replaceAll(
+        "Error: no response received from server.",
+        "error",
+      );
     }
     return "error";
   } else {

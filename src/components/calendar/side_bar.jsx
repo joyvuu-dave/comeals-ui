@@ -8,11 +8,11 @@ const styles = {
   sideBar: {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "flex-start"
+    justifyContent: "flex-start",
   },
   button: {
-    maxWidth: "95vw"
-  }
+    maxWidth: "95vw",
+  },
 };
 
 const SideBar = inject("store")(
@@ -23,13 +23,13 @@ const SideBar = inject("store")(
 
     openNewGuestRoomReservation() {
       this.props.history.push(
-        `${this.props.location.pathname}guest-room-reservations/new`
+        `${this.props.location.pathname}guest-room-reservations/new`,
       );
     }
 
     openNewCommonHouseReservation() {
       this.props.history.push(
-        `${this.props.location.pathname}common-house-reservations/new`
+        `${this.props.location.pathname}common-house-reservations/new`,
       );
     }
 
@@ -42,12 +42,12 @@ const SideBar = inject("store")(
 
       axios
         .get(`/api/v1/meals/next?token=${Cookie.get("token")}`)
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             myHistory.push(`/meals/${response.data.meal_id}/edit`);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     }
@@ -91,7 +91,7 @@ const SideBar = inject("store")(
         </div>
       );
     }
-  }
+  },
 );
 
 export default SideBar;

@@ -6,12 +6,12 @@ const Guest = types
     created_at: types.Date,
     meal_id: types.number,
     resident_id: types.number,
-    vegetarian: false
+    vegetarian: false,
   })
-  .views(self => ({
+  .views((self) => ({
     get form() {
       return getParent(self, 2);
-    }
+    },
   }));
 
 export default Guest;

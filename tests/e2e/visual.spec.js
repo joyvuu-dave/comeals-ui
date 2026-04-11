@@ -71,7 +71,7 @@ test.describe("Visual Baselines", () => {
 
     // Wait for residents to render in attendee table
     await expect(
-      page.getByRole("cell", { name: "Jane Smith", exact: true })
+      page.getByRole("cell", { name: "Jane Smith", exact: true }),
     ).toBeVisible({ timeout: 10000 });
     await page.waitForTimeout(500);
 
@@ -95,9 +95,9 @@ test.describe("Visual Baselines", () => {
     await expect(eventButton).toBeVisible({ timeout: 5000 });
     await eventButton.click();
 
-    await expect(
-      page.locator(".ReactModal__Content--after-open")
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator(".ReactModal__Content--after-open")).toBeVisible({
+      timeout: 5000,
+    });
     await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot("event-form.png", {

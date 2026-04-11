@@ -3,15 +3,15 @@ import { inject, observer } from "mobx-react";
 const styles = {
   main: {
     padding: "1rem 0 0 1rem",
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   open: {
-    visibility: "hidden"
+    visibility: "hidden",
   },
   closed: {},
   title: {
-    textDecoration: "underline"
-  }
+    textDecoration: "underline",
+  },
 };
 
 const Extras = inject("store")(
@@ -21,7 +21,7 @@ const Extras = inject("store")(
       <div
         style={store.meal && store.meal.closed ? styles.closed : styles.open}
       >
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(val => {
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((val) => {
           return (
             <div key={val} className="pretty p-default p-round p-fill">
               <input
@@ -29,7 +29,7 @@ const Extras = inject("store")(
                 type="checkbox"
                 value={val}
                 checked={store.meal ? store.meal.extras === val : false}
-                onChange={e => store.meal.setExtras(e.target.value)}
+                onChange={(e) => store.meal.setExtras(e.target.value)}
                 disabled={store.meal ? store.meal.reconciled : false}
                 aria-label={`Set Extras to ${val}`}
               />
@@ -41,7 +41,7 @@ const Extras = inject("store")(
         })}
       </div>
     </div>
-  ))
+  )),
 );
 
 export default Extras;

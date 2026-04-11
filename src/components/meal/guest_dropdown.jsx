@@ -4,8 +4,8 @@ import Carrot from "../../images/carrot.png";
 
 const styles = {
   topButton: {
-    marginBottom: "1px"
-  }
+    marginBottom: "1px",
+  },
 };
 
 class GuestDropdown extends Component {
@@ -16,7 +16,7 @@ class GuestDropdown extends Component {
     this.wrapperRef = React.createRef();
 
     this.state = {
-      open: false
+      open: false,
     };
   }
 
@@ -29,7 +29,10 @@ class GuestDropdown extends Component {
   }
 
   handleClickOutside(event) {
-    if (this.wrapperRef.current && !this.wrapperRef.current.contains(event.target)) {
+    if (
+      this.wrapperRef.current &&
+      !this.wrapperRef.current.contains(event.target)
+    ) {
       this.setState({ open: false });
     }
   }
@@ -63,7 +66,9 @@ class GuestDropdown extends Component {
           />
         </button>
         <div className="dropdown-menu">
-          <a onClick={() => this.props.resident.addGuest({ vegetarian: false })}>
+          <a
+            onClick={() => this.props.resident.addGuest({ vegetarian: false })}
+          >
             <img src={Cow} className="pointer" alt="cow-icon" />
           </a>
           <a onClick={() => this.props.resident.addGuest({ vegetarian: true })}>

@@ -11,8 +11,8 @@ const styles = {
   header: {
     display: "flex",
     justifyContent: "space-between",
-    height: "2.25rem"
-  }
+    height: "2.25rem",
+  },
 };
 
 const Header = inject("store")(
@@ -27,8 +27,8 @@ const Header = inject("store")(
                   `/calendar/all/${dayjs(
                     this.props.store.isLoading
                       ? new Date()
-                      : this.props.store.meal.date
-                  ).format("YYYY-MM-DD")}`
+                      : this.props.store.meal.date,
+                  ).format("YYYY-MM-DD")}`,
                 )
               }
               className="text-black button-link"
@@ -50,7 +50,10 @@ const Header = inject("store")(
               />
               <button
                 className="button button-link text-secondary"
-                onClick={() => { this.props.store.logout(); this.props.history.push("/"); }}
+                onClick={() => {
+                  this.props.store.logout();
+                  this.props.history.push("/");
+                }}
               >
                 logout {Cookie.get("username")}
               </button>
@@ -58,8 +61,8 @@ const Header = inject("store")(
           </header>
         );
       }
-    }
-  )
+    },
+  ),
 );
 
 export default Header;

@@ -4,8 +4,8 @@ import { inject, observer } from "mobx-react";
 const styles = {
   main: {
     display: "flex",
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 };
 
 const ButtonBar = inject("store")(
@@ -18,7 +18,9 @@ const ButtonBar = inject("store")(
 
       toggleHistory() {
         if (this.props.location.pathname.includes("/history")) {
-          this.props.history.push(this.props.location.pathname.split("/history")[0]);
+          this.props.history.push(
+            this.props.location.pathname.split("/history")[0],
+          );
         } else {
           this.props.history.push(`${this.props.location.pathname}history/`);
         }
@@ -36,8 +38,8 @@ const ButtonBar = inject("store")(
           </div>
         );
       }
-    }
-  )
+    },
+  ),
 );
 
 export default ButtonBar;

@@ -12,9 +12,9 @@ test.describe("Navigation", () => {
 
     // Should show navigation arrows
     // The next arrow should be visible since next_id is 43
-    const nextArrow = page.locator('[data-testid="next-meal"]').or(
-      page.locator("svg.fa-chevron-right").first()
-    );
+    const nextArrow = page
+      .locator('[data-testid="next-meal"]')
+      .or(page.locator("svg.fa-chevron-right").first());
 
     if (await nextArrow.isVisible({ timeout: 5000 })) {
       await nextArrow.click();
@@ -23,9 +23,7 @@ test.describe("Navigation", () => {
     }
   });
 
-  test("meal history modal opens and shows audit entries", async ({
-    page,
-  }) => {
+  test("meal history modal opens and shows audit entries", async ({ page }) => {
     await page.goto("/meals/42/edit/");
     await page.waitForLoadState("networkidle");
 
@@ -35,13 +33,13 @@ test.describe("Navigation", () => {
     await historyLink.click();
 
     // History modal should open with audit entries
-    await expect(
-      page.locator(".ReactModal__Content--after-open")
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator(".ReactModal__Content--after-open")).toBeVisible({
+      timeout: 5000,
+    });
 
     // Should show history items from fixture -- use exact cell match
     await expect(
-      page.getByRole("cell", { name: "signed up", exact: true })
+      page.getByRole("cell", { name: "signed up", exact: true }),
     ).toBeVisible({ timeout: 5000 });
   });
 

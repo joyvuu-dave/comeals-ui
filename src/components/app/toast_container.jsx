@@ -7,7 +7,7 @@ var AUTO_DISMISS_MS = {
   success: 5000,
   info: 5000,
   warning: 8000,
-  error: 15000
+  error: 15000,
 };
 
 var ToastContainer = observer(
@@ -27,10 +27,10 @@ var ToastContainer = observer(
 
     _setupTimers() {
       var self = this;
-      toastStore.toasts.forEach(function(toast) {
+      toastStore.toasts.forEach(function (toast) {
         if (!self._timers[toast.id]) {
           var delay = AUTO_DISMISS_MS[toast.type] || 5000;
-          self._timers[toast.id] = setTimeout(function() {
+          self._timers[toast.id] = setTimeout(function () {
             toastStore.removeToast(toast.id);
             delete self._timers[toast.id];
           }, delay);
@@ -40,7 +40,7 @@ var ToastContainer = observer(
 
     componentWillUnmount() {
       var self = this;
-      Object.keys(self._timers).forEach(function(id) {
+      Object.keys(self._timers).forEach(function (id) {
         clearTimeout(self._timers[id]);
       });
     }
@@ -61,7 +61,7 @@ var ToastContainer = observer(
       var self = this;
       return (
         <div className="toast-container" aria-relevant="additions">
-          {toastStore.toasts.map(function(toast) {
+          {toastStore.toasts.map(function (toast) {
             return (
               <div
                 key={toast.id}
@@ -72,7 +72,9 @@ var ToastContainer = observer(
                 <span className="toast__message">{toast.message}</span>
                 <button
                   className="toast__dismiss"
-                  onClick={function() { self.handleDismiss(toast.id); }}
+                  onClick={function () {
+                    self.handleDismiss(toast.id);
+                  }}
                   aria-label="Dismiss"
                 >
                   ✕
@@ -83,7 +85,7 @@ var ToastContainer = observer(
         </div>
       );
     }
-  }
+  },
 );
 
 export default ToastContainer;

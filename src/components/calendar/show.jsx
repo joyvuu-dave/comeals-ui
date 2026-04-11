@@ -29,22 +29,28 @@ const localizer = dayjsLocalizer(dayjs);
 
 function getPacificNow() {
   var now = dayjs().tz(TIMEZONE);
-  return new Date(now.year(), now.month(), now.date(), now.hour(), now.minute());
+  return new Date(
+    now.year(),
+    now.month(),
+    now.date(),
+    now.hour(),
+    now.minute(),
+  );
 }
 
 const styles = {
   main: {
     display: "flex",
     justifyContent: "space-between",
-    flexWrap: "nowrap"
+    flexWrap: "nowrap",
   },
   chevron: {
     backgroundColor: "#444",
     border: "1px solid black",
     opacity: "0.75",
     width: "4rem",
-    marginTop: "1rem"
-  }
+    marginTop: "1rem",
+  },
 };
 
 class MyToolbar extends Component {
@@ -78,13 +84,13 @@ class MyToolbar extends Component {
     );
   }
 
-  navigate = action => {
+  navigate = (action) => {
     this.props.onNavigate(action);
   };
 }
 
 let components = {
-  toolbar: MyToolbar
+  toolbar: MyToolbar,
 };
 
 Modal.setAppElement("#root");
@@ -212,7 +218,7 @@ const MainCalendar = inject("store")(
           this.props.history.push(
             `/calendar/${this.props.match.params.type}/${
               this.props.match.params.date
-            }`
+            }`,
           );
         }
 
@@ -242,7 +248,9 @@ const MainCalendar = inject("store")(
           return (
             <div className="offwhite">
               <header className="header flex space-between">
-                <h5 className="pad-xs">{dayjs(getPacificNow()).format("ddd MMM Do")}</h5>
+                <h5 className="pad-xs">
+                  {dayjs(getPacificNow()).format("ddd MMM Do")}
+                </h5>
                 {this.props.store.isOnline ? (
                   <span className="online">ONLINE</span>
                 ) : (
@@ -286,8 +294,8 @@ const MainCalendar = inject("store")(
                 onRequestClose={this.handleCloseModal}
                 style={{
                   content: {
-                    backgroundColor: "#CCDEEA"
-                  }
+                    backgroundColor: "#CCDEEA",
+                  },
                 }}
               >
                 {this.renderModal()}
@@ -299,8 +307,8 @@ const MainCalendar = inject("store")(
         handleNavigate(event) {
           this.props.history.push(
             `/calendar/${this.props.match.params.type}/${dayjs(event).format(
-              "YYYY-MM-DD"
-            )}`
+              "YYYY-MM-DD",
+            )}`,
           );
         }
 
@@ -321,9 +329,9 @@ const MainCalendar = inject("store")(
               return [];
           }
         }
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 export default MainCalendar;

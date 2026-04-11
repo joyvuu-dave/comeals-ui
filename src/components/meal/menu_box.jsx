@@ -6,7 +6,7 @@ const styles = {
     gridArea: "a3",
     display: "grid",
     gridTemplateRows: "1fr 4fr",
-    border: "1px solid"
+    border: "1px solid",
   },
   text: {
     height: "100%",
@@ -14,8 +14,8 @@ const styles = {
     opacity: "1",
     visibility: "visible",
     fontSize: "1.25rem",
-    whiteSpace: "pre-wrap"
-  }
+    whiteSpace: "pre-wrap",
+  },
 };
 
 class DebouncedTextarea extends Component {
@@ -26,7 +26,10 @@ class DebouncedTextarea extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.value !== this.props.value && this.props.value !== this.state.value) {
+    if (
+      prevProps.value !== this.props.value &&
+      this.props.value !== this.state.value
+    ) {
       this.setState({ value: this.props.value || "" });
     }
   }
@@ -70,13 +73,15 @@ const MenuBox = inject("store")(
           className={store.editDescriptionMode ? "" : "offwhite"}
           style={styles.text}
           value={store.meal && store.meal.description}
-          onChange={val => store.setDescription(val)}
-          disabled={!store.editDescriptionMode || (store.meal && store.meal.closed)}
+          onChange={(val) => store.setDescription(val)}
+          disabled={
+            !store.editDescriptionMode || (store.meal && store.meal.closed)
+          }
           aria-label="Enter meal description"
         />
       </div>
     </div>
-  ))
+  )),
 );
 
 export default MenuBox;

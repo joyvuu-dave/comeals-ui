@@ -17,6 +17,7 @@
 The app uses a custom-built toast system (no external library).
 
 **Key files:**
+
 - `src/stores/toast_store.js` — MobX store, holds toast array
 - `src/components/app/toast_container.jsx` — renders toasts, manages auto-dismiss timers
 - `src/toast.css` — styling
@@ -41,17 +42,20 @@ The app uses a custom-built toast system (no external library).
 Three resource types can be created from the calendar sidebar, each opening a `react-modal`:
 
 #### Guest Room Reservation (`src/components/guest_room_reservations/new.jsx`)
+
 - Fields: Host (dropdown), Day (date picker)
 - No client-side validation
 - On submit, POST to API; on error, red toast via `handleAxiosError`
 - On success, modal closes
 
 #### Common House Reservation (`src/components/common_house_reservations/new.jsx`)
+
 - Fields: Resident (dropdown), Title (text, optional), Day (date picker), Start Time (dropdown), End Time (dropdown)
 - No client-side validation
 - Same error pattern: red toast on API error
 
 #### Event (`src/components/events/new.jsx`)
+
 - Fields: Title (text), Description (textarea, optional), Day (date picker), Start Time (dropdown), End Time (dropdown), All Day (checkbox)
 - No client-side validation
 - Same error pattern: red toast on API error
@@ -59,6 +63,7 @@ Three resource types can be created from the calendar sidebar, each opening a `r
 **All three forms share identical error handling:** submit to API, catch error, call `handleAxiosError(error)` which shows a red toast with the server's error message (e.g., "Title is required").
 
 **Modal setup** (in `src/components/calendar/show.jsx`, lines 270-281):
+
 - `react-modal` with `onRequestClose` bound to `handleCloseModal`
 - `handleCloseModal` navigates away via `history.push`, which unmounts the form component
 - Modal overlay has z-index 10000; toast container has z-index 10002
@@ -66,6 +71,7 @@ Three resource types can be created from the calendar sidebar, each opening a `r
 ### 1.3 Meal Edit Page — Cook Warnings
 
 **Client-side warning** (`src/stores/data_store.js`, lines 164-174):
+
 - When closing a meal, if any assigned cook has no cost set and no `no_cost` flag, shows:
   - `"All cook costs must be set before closing."` — yellow warning toast
   - **Blocks the action** (returns early, meal stays open)
@@ -73,12 +79,12 @@ Three resource types can be created from the calendar sidebar, each opening a `r
 **Server-side warnings** (`comeals-backend/app/controllers/api/v1/meals_controller.rb`):
 These come from the PATCH `/api/v1/meals/:meal_id/bills` endpoint:
 
-| Scenario | Message | HTTP Status | Blocks action? |
-|----------|---------|-------------|----------------|
-| Adding 3rd cook when rotation has meals with < 2 cooks | "Warning: third cooks should not be added until all meals in the rotation have at least two cooks." | 400 | **NO** — cooks are assigned despite the response |
-| Switching 3rd cook when rotation has meals with < 2 cooks | "Warning: third cook should not be switched when there are other meals in the rotation without at least two cooks." | 400 | **NO** — switch goes through |
-| Changing cost on reconciled meal | "Cost change not permitted. Meal has already been reconciled." | 400 | **YES** |
-| Invalid bill amount | "Invalid amount: {value}" | 400 | **YES** |
+| Scenario                                                  | Message                                                                                                             | HTTP Status | Blocks action?                                   |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------ |
+| Adding 3rd cook when rotation has meals with < 2 cooks    | "Warning: third cooks should not be added until all meals in the rotation have at least two cooks."                 | 400         | **NO** — cooks are assigned despite the response |
+| Switching 3rd cook when rotation has meals with < 2 cooks | "Warning: third cook should not be switched when there are other meals in the rotation without at least two cooks." | 400         | **NO** — switch goes through                     |
+| Changing cost on reconciled meal                          | "Cost change not permitted. Meal has already been reconciled."                                                      | 400         | **YES**                                          |
+| Invalid bill amount                                       | "Invalid amount: {value}"                                                                                           | 400         | **YES**                                          |
 
 ---
 
@@ -91,6 +97,7 @@ The backend's third-cook warnings return HTTP 400. The frontend's `handleAxiosEr
 > [RED] "Warning: third cooks should not be added until all meals in the rotation have at least two cooks."
 
 This is deeply confusing because:
+
 - **The action succeeded** — the cook was assigned
 - **It looks like it failed** — red = error = something went wrong
 - **The message says "Warning"** but the visual treatment says "Error"
@@ -103,6 +110,7 @@ This is exactly the issue described: "it sort of looks like the user is being to
 ### Issue 2.2: Toast notifications persist after modal closes
 
 When a user submits a form in the calendar modal and gets an error:
+
 1. Red toast appears in top-right corner
 2. User closes the modal (X button, ESC, or overlay click)
 3. Toast remains visible for up to 15 seconds
@@ -113,6 +121,7 @@ The user is now looking at the calendar with a floating red error about a form t
 ### Issue 2.3: No client-side validation anywhere
 
 All three calendar forms submit directly to the server with no validation. For example:
+
 - Guest room reservation: can submit with no host selected and no date
 - Common house reservation: can submit with no resident, no date, no times
 - Event: can submit with no title and no date
@@ -126,6 +135,7 @@ None of the forms mark which fields are required. Users must guess, submit, and 
 ### Issue 2.5: Error toast positioning on mobile
 
 The toast container uses `position: fixed; top: 1rem; right: 1rem;` with `max-width: min(24rem, calc(100vw - 2rem))`. On an iPhone in the installed PWA mode:
+
 - The modal is full-screen (no browser chrome since `manifest.json` uses `"display": "fullscreen"`)
 - The toast appears over the top-right of the modal content
 - On smaller screens, the toast can cover form fields or the close button
@@ -141,6 +151,7 @@ Toasts slide in with a `translateX(100%)` to `translateX(0)` animation, but disa
 ### 3.1 Error display location: Toast vs. Inline
 
 **Best practice for form validation errors:** Inline, adjacent to the relevant field or at the top of the form. This is well-established guidance from:
+
 - Nielsen Norman Group: errors should appear next to the field, be visible without scrolling
 - WCAG 2.1 (3.3.1 Error Identification): errors must identify the field in error
 - Material Design, Apple HIG, and most design systems
@@ -148,20 +159,23 @@ Toasts slide in with a `translateX(100%)` to `translateX(0)` animation, but disa
 **Best practice for system-level errors** (network failures, server errors): Toast or banner is appropriate. These are not tied to a specific field.
 
 **When toasts are appropriate for forms:**
+
 - Success confirmation after form submission ("Event created")
 - Transient status updates ("Saving...")
 - Errors that occur outside the form's context (network failure)
 
 **When toasts are NOT ideal for forms:**
+
 - Field validation ("Title is required") — should be inline
 - Constraint violations ("End time must be after start time") — should be near the fields
 
 ### 3.2 Warning vs. Error distinction
 
 When an action succeeds but with a caveat (like the third-cook scenario), best practice is:
+
 - Use a distinct visual treatment: yellow/amber, not red
 - Use language like "Note:" or "Warning:" — not the same pattern as errors
-- Consider whether the warning should be shown *before* the action (as a confirmation dialog) or *after* (as a notice)
+- Consider whether the warning should be shown _before_ the action (as a confirmation dialog) or _after_ (as a notice)
 - If shown after, make it clear the action succeeded
 
 ### 3.3 Dismissing errors with context
@@ -193,6 +207,7 @@ System-level errors (like "no response from server") can reasonably persist sinc
 #### 4.2 Distinguish warnings from errors in the backend response
 
 **Option A (backend change):** Have the third-cook endpoints return a different HTTP status or include a `type: "warning"` field in the response JSON alongside the message. For example:
+
 ```json
 { "message": "Third cooks should not be added until...", "type": "warning" }
 ```
@@ -206,6 +221,7 @@ Option A is cleaner. Option B is quicker.
 #### 4.3 Show a success toast alongside warnings
 
 When the third-cook warning fires, the action actually succeeded. Consider showing both:
+
 - A green success toast: "Cooks updated"
 - A yellow warning toast: "Note: some meals in this rotation still have fewer than two cooks."
 
@@ -218,10 +234,12 @@ This makes it unambiguous that the action went through.
 Before submitting to the server, check required fields and show inline errors. For each form:
 
 **Guest Room Reservation:**
+
 - Host must be selected
 - Day must be chosen
 
 **Common House Reservation:**
+
 - Resident must be selected
 - Day must be chosen
 - Start time must be selected
@@ -229,6 +247,7 @@ Before submitting to the server, check required fields and show inline errors. F
 - End time must be after start time
 
 **Event:**
+
 - Title must not be empty
 - Day must be chosen
 
@@ -251,6 +270,7 @@ Alternatively, position toasts at the bottom of the viewport on mobile, which is
 #### 4.7 Inline form errors for all validation
 
 Replace toast-based form validation entirely with inline errors. When a server returns a field-specific error:
+
 - Show the error text below the field in red
 - Scroll to the first error if it's off-screen
 - Clear the error when the user modifies the field
@@ -258,6 +278,7 @@ Replace toast-based form validation entirely with inline errors. When a server r
 This requires the backend to return structured errors (field -> message mapping) rather than a single string. Currently the backend returns `{ "message": "Title is required" }` — no field association.
 
 **Backend change needed:** Return errors like:
+
 ```json
 { "errors": { "title": ["can't be blank"], "date": ["is required"] } }
 ```
@@ -267,7 +288,8 @@ This is a significant backend change and would need to be coordinated.
 #### 4.8 Pre-action confirmation for warnings
 
 For the third-cook scenario, instead of allowing the action and then showing a warning after:
-1. When the user selects a 3rd cook and there are under-staffed meals in the rotation, show a confirmation dialog *before* saving
+
+1. When the user selects a 3rd cook and there are under-staffed meals in the rotation, show a confirmation dialog _before_ saving
 2. "This rotation has meals with fewer than 2 cooks. Add a 3rd cook anyway?"
 3. User confirms or cancels
 
@@ -282,6 +304,7 @@ These are things I noticed during the review that are outside the immediate scop
 ### 5.1 manifest.json display and orientation settings
 
 `manifest.json` has `"display": "fullscreen"` and `"orientation": "landscape"`. For an app that is "heavily used as an installed iPhone app":
+
 - `"fullscreen"` hides the status bar (time, battery, signal) — `"standalone"` is almost certainly more appropriate and is what most web apps use
 - `"orientation": "landscape"` is unusual for a calendar/form-based app primarily used on phones — most users hold phones in portrait. This setting can cause the app to force landscape on some devices/browsers
 
@@ -322,20 +345,20 @@ There's an idle timer that reloads the page after inactivity. If a toast is disp
 _Track decisions made as we work through this plan._
 
 | Date | Decision | Rationale |
-|------|----------|-----------|
-| | | |
+| ---- | -------- | --------- |
+|      |          |           |
 
 ---
 
 ## Implementation Tracker
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 4.1 Clear toasts on modal close | Not started | |
-| 4.2 Distinguish warnings from errors | Not started | Need to decide Option A vs B |
-| 4.3 Success toast alongside warnings | Not started | |
-| 4.4 Client-side validation | Not started | |
-| 4.5 Required field indicators | Not started | |
-| 4.6 Mobile toast positioning | Not started | |
-| 4.7 Inline form errors | Not started | Needs backend changes |
-| 4.8 Pre-action confirmation | Not started | Needs backend or frontend rotation awareness |
+| Item                                 | Status      | Notes                                        |
+| ------------------------------------ | ----------- | -------------------------------------------- |
+| 4.1 Clear toasts on modal close      | Not started |                                              |
+| 4.2 Distinguish warnings from errors | Not started | Need to decide Option A vs B                 |
+| 4.3 Success toast alongside warnings | Not started |                                              |
+| 4.4 Client-side validation           | Not started |                                              |
+| 4.5 Required field indicators        | Not started |                                              |
+| 4.6 Mobile toast positioning         | Not started |                                              |
+| 4.7 Inline form errors               | Not started | Needs backend changes                        |
+| 4.8 Pre-action confirmation          | Not started | Needs backend or frontend rotation awareness |

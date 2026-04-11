@@ -13,9 +13,9 @@ const Meal = types
     date: types.maybeNull(types.Date),
     reconciled: false,
     nextId: types.maybeNull(types.number),
-    prevId: types.maybeNull(types.number)
+    prevId: types.maybeNull(types.number),
   })
-  .views(self => ({
+  .views((self) => ({
     get max() {
       if (self.extras === null) {
         return null;
@@ -25,9 +25,9 @@ const Meal = types
     },
     get form() {
       return getParent(self, 2);
-    }
+    },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     // This isn't the "real" toggleClosed. It's the backup
     // for un-doing the UI change if the API request fails
     toggleClosed() {
@@ -60,10 +60,10 @@ const Meal = types
           url: `/api/v1/meals/${self.id}/max?token=${Cookie.get("token")}`,
           data: {
             max: null,
-            socket_id: window.Comeals.socketId
+            socket_id: window.Comeals.socketId,
           },
-          withCredentials: true
-        }).catch(function(error) {
+          withCredentials: true,
+        }).catch(function (error) {
           self.extras = previousExtras;
           handleAxiosError(error);
           return previousExtras;
@@ -82,10 +82,10 @@ const Meal = types
           url: `/api/v1/meals/${self.id}/max?token=${Cookie.get("token")}`,
           data: {
             max: self.max,
-            socket_id: window.Comeals.socketId
+            socket_id: window.Comeals.socketId,
           },
-          withCredentials: true
-        }).catch(function(error) {
+          withCredentials: true,
+        }).catch(function (error) {
           self.extras = previousExtras;
           handleAxiosError(error);
           return previousExtras;
@@ -113,7 +113,7 @@ const Meal = types
         const temp = num - 1;
         self.extras = temp;
       }
-    }
+    },
   }));
 
 export default Meal;

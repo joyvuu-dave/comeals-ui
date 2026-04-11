@@ -52,7 +52,7 @@ const TestDataStore = types
   .views((self) => ({
     get attendeesCount() {
       const residentsAttending = Array.from(
-        self.residentStore.residents.values()
+        self.residentStore.residents.values(),
       ).filter((r) => r.attending).length;
       return self.guestStore.guests.size + residentsAttending;
     },
@@ -83,7 +83,12 @@ function createStore(mealProps = {}, residents = [], guests = []) {
 
 describe("Meal model", () => {
   beforeEach(() => {
-    window.Comeals = { socketId: "test", pusher: null, mealChannel: null, calendarChannel: null };
+    window.Comeals = {
+      socketId: "test",
+      pusher: null,
+      mealChannel: null,
+      calendarChannel: null,
+    };
   });
 
   // ── max computed view ──
@@ -95,13 +100,10 @@ describe("Meal model", () => {
     });
 
     it("returns extras + attendeesCount when extras is a number", () => {
-      const store = createStore(
-        { extras: 5 },
-        [
-          { id: 10, meal_id: 1, name: "Alice", attending: true },
-          { id: 11, meal_id: 1, name: "Bob", attending: false },
-        ]
-      );
+      const store = createStore({ extras: 5 }, [
+        { id: 10, meal_id: 1, name: "Alice", attending: true },
+        { id: 11, meal_id: 1, name: "Bob", attending: false },
+      ]);
       // attendeesCount = 1 resident attending + 0 guests = 1
       expect(store.meal.max).toBe(6);
     });
@@ -110,7 +112,7 @@ describe("Meal model", () => {
       const store = createStore(
         { extras: 3 },
         [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
-        [{ id: 100, meal_id: 1, resident_id: 10, created_at: Date.now() }]
+        [{ id: 100, meal_id: 1, resident_id: 10, created_at: Date.now() }],
       );
       // attendeesCount = 1 resident + 1 guest = 2
       expect(store.meal.max).toBe(5);
@@ -340,9 +342,7 @@ describe("Meal model", () => {
       const oldTime = new Date(2020, 0, 1);
       const store = createStore({ closed_at: oldTime.getTime() });
       store.meal.setClosedAt();
-      expect(store.meal.closed_at.getTime()).toBeGreaterThan(
-        oldTime.getTime()
-      );
+      expect(store.meal.closed_at.getTime()).toBeGreaterThan(oldTime.getTime());
     });
   });
 });

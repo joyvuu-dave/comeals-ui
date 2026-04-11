@@ -3,10 +3,10 @@ import Resident from "./resident";
 
 const ResidentStore = types
   .model("ResidentStore", { residents: types.map(Resident) })
-  .views(self => ({
+  .views((self) => ({
     get form() {
       return getParent(self);
-    }
+    },
   }));
 
 export default ResidentStore;

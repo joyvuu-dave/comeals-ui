@@ -8,19 +8,19 @@ import GuestDropdown from "./guest_dropdown";
 const styles = {
   main: {
     margin: "1em 0 1em 0",
-    gridArea: "a5"
+    gridArea: "a5",
   },
   icon: {
-    maxHeight: "1rem"
+    maxHeight: "1rem",
   },
   disabled: {
     cursor: "not-allowed",
     opacity: "0.5",
-    pointerEvents: "none"
+    pointerEvents: "none",
   },
   monospace: {
-    fontFamily: "Menlo, Consolas, 'DejaVu Sans Mono', monospace"
-  }
+    fontFamily: "Menlo, Consolas, 'DejaVu Sans Mono', monospace",
+  },
 };
 
 const AttendeeComponent = inject("store")(
@@ -30,10 +30,11 @@ const AttendeeComponent = inject("store")(
         const resident = this.props.resident;
         if (!isAlive(resident)) return null;
         const guests = resident.guests;
-        const vegGuestsCount = guests.filter(guest => guest.vegetarian === true)
-          .length;
+        const vegGuestsCount = guests.filter(
+          (guest) => guest.vegetarian === true,
+        ).length;
         const meatGuestsCount = guests.filter(
-          guest => guest.vegetarian === false
+          (guest) => guest.vegetarian === false,
         ).length;
 
         return (
@@ -48,7 +49,7 @@ const AttendeeComponent = inject("store")(
               style={Object.assign(
                 {},
                 resident.attending && !resident.canRemove && styles.disabled,
-                this.props.store.meal.reconciled && styles.disabled
+                this.props.store.meal.reconciled && styles.disabled,
               )}
             >
               {resident.name}
@@ -130,8 +131,8 @@ const AttendeeComponent = inject("store")(
           </tr>
         );
       }
-    }
-  )
+    },
+  ),
 );
 
 const AttendeesBox = inject("store")(
@@ -157,17 +158,17 @@ const AttendeesBox = inject("store")(
               </thead>
               <tbody>
                 {Array.from(this.props.store.residents.values()).map(
-                  resident => (
+                  (resident) => (
                     <AttendeeComponent key={resident.id} resident={resident} />
-                  )
+                  ),
                 )}
               </tbody>
             </table>
           </div>
         );
       }
-    }
-  )
+    },
+  ),
 );
 
 export default AttendeesBox;

@@ -5,10 +5,7 @@ export default function PrivateRoute({ children }) {
   var location = useLocation();
 
   var token = Cookie.get("token");
-  var isAuthenticated = (
-    typeof token !== "undefined" &&
-    token !== "undefined"
-  );
+  var isAuthenticated = typeof token !== "undefined" && token !== "undefined";
 
   if (!isAuthenticated) {
     return <Navigate to="/" state={{ from: location }} replace />;

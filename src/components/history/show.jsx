@@ -11,7 +11,7 @@ class MealHistoryShow extends Component {
     this.state = {
       date: "loading...",
       items: [],
-      ready: false
+      ready: false,
     };
   }
 
@@ -19,18 +19,18 @@ class MealHistoryShow extends Component {
     var self = this;
     axios
       .get(
-        `/api/v1/meals/${self.props.id}/history?token=${Cookie.get("token")}`
+        `/api/v1/meals/${self.props.id}/history?token=${Cookie.get("token")}`,
       )
-      .then(function(response) {
+      .then(function (response) {
         if (response.status === 200) {
           self.setState({
             items: response.data.items,
             date: dayjs(response.data.date).format("ddd, MMM Do"),
-            ready: true
+            ready: true,
           });
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         handleAxiosError(error, { silent: true });
       });
   }
@@ -53,7 +53,7 @@ class MealHistoryShow extends Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.items.map(audit => {
+                {this.state.items.map((audit) => {
                   return (
                     <tr key={audit.id}>
                       <td>{audit.id}</td>

@@ -69,8 +69,8 @@ test.describe("Calendar", () => {
     await expect(page).toHaveURL(/events\/edit\/70/);
 
     // Modal should be visible with event data
-    await expect(
-      page.locator(".ReactModal__Content--after-open")
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator(".ReactModal__Content--after-open")).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

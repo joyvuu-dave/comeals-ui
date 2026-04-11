@@ -54,7 +54,7 @@ const TestDataStore = types
   .views((self) => ({
     get attendeesCount() {
       const residentsAttending = Array.from(
-        self.residentStore.residents.values()
+        self.residentStore.residents.values(),
       ).filter((r) => r.attending).length;
       return self.guestStore.guests.size + residentsAttending;
     },
@@ -72,11 +72,7 @@ const TestDataStore = types
   }));
 
 function createStore(opts = {}) {
-  const {
-    mealProps = {},
-    residents = [],
-    bills = [],
-  } = opts;
+  const { mealProps = {}, residents = [], bills = [] } = opts;
 
   const mealDefaults = { id: 1, ...mealProps };
   const store = TestDataStore.create({
@@ -96,7 +92,12 @@ function createStore(opts = {}) {
 describe("Bill model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.Comeals = { socketId: "test", pusher: null, mealChannel: null, calendarChannel: null };
+    window.Comeals = {
+      socketId: "test",
+      pusher: null,
+      mealChannel: null,
+      calendarChannel: null,
+    };
   });
 
   // ── resident_id computed view ──
@@ -185,7 +186,9 @@ describe("Bill model", () => {
   describe("amountIsValid boundary cases", () => {
     it("accepts amounts exceeding the HTML max=999 attribute", () => {
       // HTML input has max="999" but amountIsValid only checks >= 0
-      const store = createStore({ bills: [{ id: "bill-1", amount: "999999" }] });
+      const store = createStore({
+        bills: [{ id: "bill-1", amount: "999999" }],
+      });
       const bill = store.billStore.bills.get("bill-1");
       expect(bill.amountIsValid).toBe(true);
     });
@@ -377,7 +380,9 @@ describe("Bill model", () => {
     it("clears amount when no_cost is toggled on", () => {
       const store = createStore({
         residents: [{ id: 10, meal_id: 1, name: "Alice" }],
-        bills: [{ id: "bill-1", resident: 10, no_cost: false, amount: "25.00" }],
+        bills: [
+          { id: "bill-1", resident: 10, no_cost: false, amount: "25.00" },
+        ],
       });
 
       const bill = store.billStore.bills.get("bill-1");

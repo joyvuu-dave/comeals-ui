@@ -5,8 +5,8 @@ import Cookie from "js-cookie";
 
 const styles = {
   main: {
-    backgroundColor: "#ebebe4"
-  }
+    backgroundColor: "#ebebe4",
+  },
 };
 
 class RotationsShow extends Component {
@@ -17,9 +17,9 @@ class RotationsShow extends Component {
       rotation: {
         id: null,
         description: "",
-        residents: []
+        residents: [],
       },
-      ready: false
+      ready: false,
     };
   }
 
@@ -27,15 +27,15 @@ class RotationsShow extends Component {
     var self = this;
     axios
       .get(`/api/v1/rotations/${self.props.id}?token=${Cookie.get("token")}`)
-      .then(function(response) {
+      .then(function (response) {
         if (response.status === 200) {
           self.setState({
             rotation: response.data,
-            ready: true
+            ready: true,
           });
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         handleAxiosError(error, { silent: true });
       });
   }
@@ -65,7 +65,7 @@ class RotationsShow extends Component {
                   if (a.display_name > b.display_name) return 1;
                   return 0;
                 })
-                .map(resident => {
+                .map((resident) => {
                   return (
                     <div key={resident.id}>
                       {resident.signed_up && (

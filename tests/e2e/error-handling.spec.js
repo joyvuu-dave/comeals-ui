@@ -42,7 +42,9 @@ test.describe("Error Handling & Edge Cases", () => {
       // Should show error toast
       const toast = page.locator(".toast--error");
       await expect(toast).toBeVisible({ timeout: 5000 });
-      await expect(toast.locator(".toast__message")).toContainText("Server error");
+      await expect(toast.locator(".toast__message")).toContainText(
+        "Server error",
+      );
 
       // Background should revert to NOT green (state rolled back)
       await expect(bobCell).not.toHaveClass(/background-green/, {
@@ -77,7 +79,9 @@ test.describe("Error Handling & Edge Cases", () => {
       await page.locator("text=Open / Close Meal").click();
 
       // Should show error toast
-      await expect(page.locator(".toast--error")).toBeVisible({ timeout: 5000 });
+      await expect(page.locator(".toast--error")).toBeVisible({
+        timeout: 5000,
+      });
 
       // Status should revert to OPEN
       await expect(page.locator("h1", { hasText: "OPEN" })).toBeVisible({
@@ -116,7 +120,9 @@ test.describe("Error Handling & Edge Cases", () => {
       // Should show validation error toast
       const toast = page.locator(".toast--error");
       await expect(toast).toBeVisible({ timeout: 5000 });
-      await expect(toast.locator(".toast__message")).toContainText("Title is required");
+      await expect(toast.locator(".toast__message")).toContainText(
+        "Title is required",
+      );
     });
 
     test("error toast clears when calendar modal is closed", async ({
@@ -147,13 +153,17 @@ test.describe("Error Handling & Edge Cases", () => {
       await modal.locator("button:has-text('Create')").click();
 
       // Error toast should appear
-      await expect(page.locator(".toast--error")).toBeVisible({ timeout: 5000 });
+      await expect(page.locator(".toast--error")).toBeVisible({
+        timeout: 5000,
+      });
 
       // Close the modal via X button
       await modal.locator(".close-button").click();
 
       // Toast should be cleared
-      await expect(page.locator(".toast--error")).not.toBeVisible({ timeout: 3000 });
+      await expect(page.locator(".toast--error")).not.toBeVisible({
+        timeout: 3000,
+      });
     });
 
     test("warning response shows yellow toast, not red", async ({
@@ -187,7 +197,9 @@ test.describe("Error Handling & Edge Cases", () => {
       await modal.locator("button:has-text('Create')").click();
 
       // Should show warning toast (yellow), not error toast (red)
-      await expect(page.locator(".toast--warning")).toBeVisible({ timeout: 5000 });
+      await expect(page.locator(".toast--warning")).toBeVisible({
+        timeout: 5000,
+      });
       await expect(page.locator(".toast--error")).not.toBeVisible();
     });
 
@@ -215,7 +227,9 @@ test.describe("Error Handling & Edge Cases", () => {
       await bobCell.click();
 
       // Should show a generic error toast about no response
-      await expect(page.locator(".toast--error")).toBeVisible({ timeout: 5000 });
+      await expect(page.locator(".toast--error")).toBeVisible({
+        timeout: 5000,
+      });
     });
   });
 
@@ -276,7 +290,7 @@ test.describe("Error Handling & Edge Cases", () => {
       await page.goto("/meals/42/edit/");
       await page.waitForLoadState("networkidle");
       await expect(
-        page.getByRole("cell", { name: "Jane Smith", exact: true })
+        page.getByRole("cell", { name: "Jane Smith", exact: true }),
       ).toBeVisible({ timeout: 10000 });
 
       // Previous arrow should work (prev_id: 41)
@@ -301,7 +315,7 @@ test.describe("Error Handling & Edge Cases", () => {
       await page.goto("/meals/42/edit/");
       await page.waitForLoadState("networkidle");
       await expect(
-        page.getByRole("cell", { name: "Jane Smith", exact: true })
+        page.getByRole("cell", { name: "Jane Smith", exact: true }),
       ).toBeVisible({ timeout: 10000 });
 
       // Next arrow should work (next_id: 43)

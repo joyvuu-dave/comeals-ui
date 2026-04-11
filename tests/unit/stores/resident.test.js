@@ -51,7 +51,7 @@ const TestDataStore = types
   .views((self) => ({
     get attendeesCount() {
       const residentsAttending = Array.from(
-        self.residentStore.residents.values()
+        self.residentStore.residents.values(),
       ).filter((r) => r.attending).length;
       return self.guestStore.guests.size + residentsAttending;
     },
@@ -69,11 +69,7 @@ const TestDataStore = types
   }));
 
 function createStore(opts = {}) {
-  const {
-    mealProps = {},
-    residents = [],
-    guests = [],
-  } = opts;
+  const { mealProps = {}, residents = [], guests = [] } = opts;
 
   const mealDefaults = { id: 1, ...mealProps };
   const store = TestDataStore.create({
@@ -92,7 +88,12 @@ function createStore(opts = {}) {
 describe("Resident model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.Comeals = { socketId: "test", pusher: null, mealChannel: null, calendarChannel: null };
+    window.Comeals = {
+      socketId: "test",
+      pusher: null,
+      mealChannel: null,
+      calendarChannel: null,
+    };
   });
 
   // ── guests view ──
@@ -114,7 +115,7 @@ describe("Resident model", () => {
       const alice = store.residentStore.residents.get("10");
       expect(alice.guests).toHaveLength(2);
       expect(alice.guests.map((g) => g.id)).toEqual(
-        expect.arrayContaining([100, 101])
+        expect.arrayContaining([100, 101]),
       );
     });
 
@@ -504,7 +505,7 @@ describe("Resident model", () => {
         expect.objectContaining({
           method: "post",
           url: expect.stringContaining("/api/v1/meals/1/residents/10"),
-        })
+        }),
       );
     });
 
@@ -521,7 +522,7 @@ describe("Resident model", () => {
         expect.objectContaining({
           method: "delete",
           url: expect.stringContaining("/api/v1/meals/1/residents/10"),
-        })
+        }),
       );
     });
   });
@@ -533,7 +534,9 @@ describe("Resident model", () => {
       // When a resident removes themselves, late should reset to false
       const store = createStore({
         mealProps: { closed: false },
-        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true, late: true }],
+        residents: [
+          { id: 10, meal_id: 1, name: "Alice", attending: true, late: true },
+        ],
       });
       const alice = store.residentStore.residents.get("10");
       alice.toggleAttending();
@@ -640,7 +643,7 @@ describe("Resident model", () => {
         expect.objectContaining({
           method: "patch",
           data: expect.objectContaining({ late: true }),
-        })
+        }),
       );
     });
   });
@@ -728,7 +731,7 @@ describe("Resident model", () => {
         expect.objectContaining({
           method: "patch",
           data: expect.objectContaining({ vegetarian: true }),
-        })
+        }),
       );
     });
   });
@@ -741,8 +744,13 @@ describe("Resident model", () => {
       const store = createStore({
         mealProps: { closed: true, closed_at: sameTime.getTime() },
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true,
-            attending_at: sameTime.getTime() },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: true,
+            attending_at: sameTime.getTime(),
+          },
         ],
       });
 
@@ -762,8 +770,18 @@ describe("Resident model", () => {
         mealProps: { closed: true, closed_at: closedTime.getTime() },
         residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
         guests: [
-          { id: 100, meal_id: 1, resident_id: 10, created_at: beforeClose.getTime() },
-          { id: 101, meal_id: 1, resident_id: 10, created_at: afterClose.getTime() },
+          {
+            id: 100,
+            meal_id: 1,
+            resident_id: 10,
+            created_at: beforeClose.getTime(),
+          },
+          {
+            id: 101,
+            meal_id: 1,
+            resident_id: 10,
+            created_at: afterClose.getTime(),
+          },
         ],
       });
 
@@ -779,7 +797,13 @@ describe("Resident model", () => {
       const store = createStore({
         mealProps: { closed: true, closed_at: closedTime.getTime(), extras: 5 },
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true, attending_at: null },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: true,
+            attending_at: null,
+          },
         ],
       });
 
@@ -791,8 +815,13 @@ describe("Resident model", () => {
       const store = createStore({
         mealProps: { closed: true, closed_at: null, extras: 5 },
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true,
-            attending_at: Date.now() },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: true,
+            attending_at: Date.now(),
+          },
         ],
       });
 
@@ -822,8 +851,18 @@ describe("Resident model", () => {
         mealProps: { closed: false },
         residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
         guests: [
-          { id: 100, meal_id: 1, resident_id: 10, created_at: new Date(2023, 0, 1).getTime() },
-          { id: 101, meal_id: 1, resident_id: 10, created_at: new Date(2023, 0, 2).getTime() },
+          {
+            id: 100,
+            meal_id: 1,
+            resident_id: 10,
+            created_at: new Date(2023, 0, 1).getTime(),
+          },
+          {
+            id: 101,
+            meal_id: 1,
+            resident_id: 10,
+            created_at: new Date(2023, 0, 2).getTime(),
+          },
         ],
       });
 
@@ -836,7 +875,7 @@ describe("Resident model", () => {
         expect.objectContaining({
           method: "delete",
           url: expect.stringContaining("/guests/101"),
-        })
+        }),
       );
     });
   });

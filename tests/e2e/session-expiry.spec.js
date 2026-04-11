@@ -21,7 +21,8 @@ test.describe("Session Expiry", () => {
         status: 401,
         contentType: "application/json",
         body: JSON.stringify({
-          message: "You are not authenticated. Please try signing in and then try again.",
+          message:
+            "You are not authenticated. Please try signing in and then try again.",
         }),
       });
     });
@@ -60,7 +61,7 @@ test.describe("Session Expiry", () => {
 
     // No session-expired banner
     await expect(
-      page.locator("text=Heads up — you've been signed out")
+      page.locator("text=Heads up — you've been signed out"),
     ).not.toBeVisible();
   });
 
@@ -88,7 +89,7 @@ test.describe("Session Expiry", () => {
 
     // No session-expired banner (this is a network error, not auth)
     await expect(
-      page.locator("text=Heads up — you've been signed out")
+      page.locator("text=Heads up — you've been signed out"),
     ).not.toBeVisible();
   });
 
@@ -126,10 +127,7 @@ test.describe("Session Expiry", () => {
     await expect(loginButton).toBeVisible({ timeout: 10000 });
 
     // Click "Log in" — should navigate to login page
-    await Promise.all([
-      page.waitForEvent("load"),
-      loginButton.click(),
-    ]);
+    await Promise.all([page.waitForEvent("load"), loginButton.click()]);
 
     // Should be on the login page with email/password fields
     await expect(page.locator('input[aria-label="email"]')).toBeVisible({
@@ -169,7 +167,7 @@ test.describe("Session Expiry", () => {
 
     // Session-expired banner should appear
     await expect(
-      page.locator("text=Heads up — you've been signed out")
+      page.locator("text=Heads up — you've been signed out"),
     ).toBeVisible({ timeout: 10000 });
   });
 });

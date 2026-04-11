@@ -11,15 +11,15 @@ import AttendeesBox from "../meal/attendees_box";
 
 const styles = {
   section: {
-    margin: "1em 0 1em 0"
+    margin: "1em 0 1em 0",
   },
   container: {
     marginRight: "auto",
     marginLeft: "auto",
     paddingRight: 0,
     paddingLeft: 0,
-    width: "100%"
-  }
+    width: "100%",
+  },
 };
 
 const MealsEdit = inject("store")(
@@ -48,9 +48,9 @@ const MealsEdit = inject("store")(
             </div>
           );
         }
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 export default MealsEdit;

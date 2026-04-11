@@ -29,23 +29,25 @@ export const DataStore = types
     meal: types.maybeNull(types.reference(Meal)),
     meals: types.optional(types.array(Meal), []),
     residentStore: types.optional(ResidentStore, {
-      residents: {}
+      residents: {},
     }),
     billStore: types.optional(BillStore, {
-      bills: {}
+      bills: {},
     }),
     guestStore: types.optional(GuestStore, {
-      guests: {}
+      guests: {},
     }),
     calendarName: types.optional(types.string, ""),
     userName: types.optional(types.string, ""),
     eventSources: types.optional(types.array(EventSource), []),
     calendarEvents: types.optional(types.array(types.frozen()), []),
-    currentDate: types.optional(types.string, function() { return dayjs().tz(TIMEZONE).format("YYYY-MM-DD"); }),
+    currentDate: types.optional(types.string, function () {
+      return dayjs().tz(TIMEZONE).format("YYYY-MM-DD");
+    }),
     isOnline: false,
-    authExpired: false
+    authExpired: false,
   })
-  .views(self => ({
+  .views((self) => ({
     get description() {
       if (!self.meal) return "";
       return self.meal.description;
@@ -64,7 +66,7 @@ export const DataStore = types
     },
     get mealResidentsCount() {
       return Array.from(self.residents.values()).filter(
-        resident => resident.attending
+        (resident) => resident.attending,
       ).length;
     },
     get attendeesCount() {
@@ -72,18 +74,18 @@ export const DataStore = types
     },
     get vegetarianCount() {
       const vegResidents = Array.from(self.residents.values()).filter(
-        resident => resident.attending && resident.vegetarian
+        (resident) => resident.attending && resident.vegetarian,
       ).length;
 
       const vegGuests = Array.from(self.guests.values()).filter(
-        guest => guest.vegetarian
+        (guest) => guest.vegetarian,
       ).length;
 
       return vegResidents + vegGuests;
     },
     get lateCount() {
       return Array.from(self.residents.values()).filter(
-        resident => resident.attending && resident.late
+        (resident) => resident.attending && resident.late,
       ).length;
     },
     get extras() {
@@ -107,29 +109,29 @@ export const DataStore = types
           typeof self.extras === "number" &&
           self.extras >= 1)
       );
-    }
+    },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     afterCreate() {
       window.Comeals = {
         pusher: null,
         socketId: null,
         mealChannel: null,
-        calendarChannel: null
+        calendarChannel: null,
       };
 
       // Pusher public key + cluster from env vars (VITE_PUSHER_KEY, VITE_PUSHER_CLUSTER).
       // Local dev: .env file (committed defaults). Override via .env.local if needed.
       window.Comeals.pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
         cluster: import.meta.env.VITE_PUSHER_CLUSTER,
-        encrypted: true
+        encrypted: true,
       });
 
-      window.Comeals.pusher.connection.bind("connected", function() {
+      window.Comeals.pusher.connection.bind("connected", function () {
         window.Comeals.socketId = window.Comeals.pusher.connection.socket_id;
       });
 
-      window.Comeals.pusher.connection.bind("state_change", function(states) {
+      window.Comeals.pusher.connection.bind("state_change", function (states) {
         // states = {previous: 'oldState', current: 'newState'}
         if (
           states.previous === "unavailable" &&
@@ -148,13 +150,15 @@ export const DataStore = types
         axios.interceptors.response.eject(window.__comealsInterceptor);
       }
       window.__comealsInterceptor = axios.interceptors.response.use(
-        function(response) { return response; },
-        function(error) {
+        function (response) {
+          return response;
+        },
+        function (error) {
           if (error.response && error.response.status === 401) {
             self.setAuthExpired(true);
           }
           return Promise.reject(error);
-        }
+        },
       );
     },
     toggleEditDescriptionMode() {
@@ -185,14 +189,20 @@ export const DataStore = types
       return self.meal.description;
     },
     toggleClosed() {
-      if(!self.meal.closed) {
+      if (!self.meal.closed) {
         // There is a cook who hasn't filled in their cost
         const cookNeedsToFillInCost = Array.from(self.bills.values()).some(
-          bill => bill.resident_id !== "" && bill.amount === "" && bill.no_cost === false
+          (bill) =>
+            bill.resident_id !== "" &&
+            bill.amount === "" &&
+            bill.no_cost === false,
         );
 
         if (cookNeedsToFillInCost) {
-          toastStore.addToast("All cook costs must be set before closing.", "warning");
+          toastStore.addToast(
+            "All cook costs must be set before closing.",
+            "warning",
+          );
           return;
         }
       }
@@ -203,15 +213,15 @@ export const DataStore = types
       axios({
         method: "patch",
         url: `/api/v1/meals/${self.meal.id}/closed?token=${Cookie.get(
-          "token"
+          "token",
         )}`,
         withCredentials: true,
         data: {
           closed: val,
-          socket_id: window.Comeals.socketId
-        }
+          socket_id: window.Comeals.socketId,
+        },
       })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             // If meal has been opened, re-set extras value
             if (val === false) {
@@ -222,7 +232,7 @@ export const DataStore = types
             }
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.meal.toggleClosed();
           handleAxiosError(error);
         });
@@ -238,17 +248,17 @@ export const DataStore = types
       let obj = {
         id: self.meal.id,
         description: self.meal.description,
-        socket_id: window.Comeals.socketId
+        socket_id: window.Comeals.socketId,
       };
 
       axios({
         method: "patch",
         url: `/api/v1/meals/${self.meal.id}/description?token=${Cookie.get(
-          "token"
+          "token",
         )}`,
         data: obj,
-        withCredentials: true
-      }).catch(function(error) {
+        withCredentials: true,
+      }).catch(function (error) {
         handleAxiosError(error);
       });
     },
@@ -256,7 +266,7 @@ export const DataStore = types
       // Check for errors with bills
       if (
         Array.from(self.bills.values()).some(
-          bill => bill.amountIsValid === false
+          (bill) => bill.amountIsValid === false,
         )
       ) {
         self.editBillsMode = true;
@@ -265,8 +275,8 @@ export const DataStore = types
 
       // Format Bills
       let bills = Array.from(self.bills.values())
-        .map(bill => bill.toJSON())
-        .map(bill => {
+        .map((bill) => bill.toJSON())
+        .map((bill) => {
           let obj = Object.assign({}, bill);
 
           // delete id
@@ -278,24 +288,30 @@ export const DataStore = types
 
           return obj;
         })
-        .filter(bill => bill.resident_id !== null);
+        .filter((bill) => bill.resident_id !== null);
 
       let obj = {
         id: self.meal.id,
         bills: bills,
-        socket_id: window.Comeals.socketId
+        socket_id: window.Comeals.socketId,
       };
 
       axios({
         method: "patch",
         url: `/api/v1/meals/${self.meal.id}/bills?token=${Cookie.get("token")}`,
         data: obj,
-        withCredentials: true
-      }).catch(function(error) {
-        var isWarning = error.response && error.response.data && error.response.data.type === "warning";
+        withCredentials: true,
+      }).catch(function (error) {
+        var isWarning =
+          error.response &&
+          error.response.data &&
+          error.response.data.type === "warning";
         if (isWarning) {
           var msg = error.response.data.message || "";
-          toastStore.replaceAll("Cooks saved." + (msg ? " " + msg : ""), "info");
+          toastStore.replaceAll(
+            "Cooks saved." + (msg ? " " + msg : ""),
+            "info",
+          );
         } else {
           handleAxiosError(error);
         }
@@ -306,11 +322,11 @@ export const DataStore = types
     loadDataAsync() {
       axios
         .get(`/api/v1/meals/${self.meal.id}/cooks?token=${Cookie.get("token")}`)
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             localforage
               .setItem(response.data.id.toString(), response.data)
-              .then(function() {
+              .then(function () {
                 // Skip stale responses from a previous meal
                 if (self.meal && self.meal.id === response.data.id) {
                   self.loadData(response.data);
@@ -318,7 +334,7 @@ export const DataStore = types
               });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     },
@@ -327,49 +343,49 @@ export const DataStore = types
         .get(
           `/api/v1/communities/${Cookie.get("community_id")}/calendar/${
             self.currentDate
-          }?token=${Cookie.get("token")}`
+          }?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             localforage
               .setItem(
                 `community-${response.data.id}-calendar-${response.data.year}-${response.data.month}`,
-                response.data
+                response.data,
               )
-              .then(function() {
+              .then(function () {
                 self.loadMonth(response.data);
               });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     },
     loadNext() {
       axios
         .get(
-          `/api/v1/meals/${self.meal.nextId}/cooks?token=${Cookie.get("token")}`
+          `/api/v1/meals/${self.meal.nextId}/cooks?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             localforage.setItem(response.data.id.toString(), response.data);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     },
     loadPrev() {
       axios
         .get(
-          `/api/v1/meals/${self.meal.prevId}/cooks?token=${Cookie.get("token")}`
+          `/api/v1/meals/${self.meal.prevId}/cooks?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             localforage.setItem(response.data.id.toString(), response.data);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     },
@@ -403,7 +419,7 @@ export const DataStore = types
         self.meal.extras = null;
       } else {
         const residentsCount = data.residents.filter(
-          resident => resident.attending
+          (resident) => resident.attending,
         ).length;
 
         const guestsCount = data.guests.length;
@@ -417,7 +433,7 @@ export const DataStore = types
       });
 
       // Assign Residents
-      residents.forEach(resident => {
+      residents.forEach((resident) => {
         if (resident.attending_at !== null) {
           resident.attending_at = new Date(resident.attending_at);
         }
@@ -425,7 +441,7 @@ export const DataStore = types
       });
 
       // Assign Guests
-      data.guests.forEach(guest => {
+      data.guests.forEach((guest) => {
         guest.created_at = new Date(guest.created_at);
         self.guestStore.guests.put(guest);
       });
@@ -434,7 +450,7 @@ export const DataStore = types
       let bills = data.bills;
 
       // Rename resident_id --> resident (copy to avoid mutating cached data)
-      bills = bills.map(bill => {
+      bills = bills.map((bill) => {
         var obj = Object.assign({}, bill);
         obj["resident"] = obj["resident_id"];
         delete obj["resident_id"];
@@ -442,9 +458,11 @@ export const DataStore = types
       });
 
       // Format amount for display
-      bills = bills.map(bill => {
+      bills = bills.map((bill) => {
         const amt = Number(bill["amount"]);
-        return Object.assign({}, bill, { amount: amt === 0 ? "" : amt.toFixed(2) });
+        return Object.assign({}, bill, {
+          amount: amt === 0 ? "" : amt.toFixed(2),
+        });
       });
 
       // Determine # of blank bills needed
@@ -457,16 +475,22 @@ export const DataStore = types
       array.forEach(() => bills.push({}));
 
       // Assign ids to bills (types.identifier requires strings)
-      bills = bills.map(obj => {
+      bills = bills.map((obj) => {
         var bill = Object.assign({ id: v4() }, obj);
         bill.id = String(bill.id);
         return bill;
       });
 
       // Put bills into BillStore, skipping any with dangling resident references
-      bills.forEach(bill => {
-        if (bill.resident != null && !self.residentStore.residents.has(String(bill.resident))) {
-          console.warn("Skipping bill with unknown resident reference:", bill.resident);
+      bills.forEach((bill) => {
+        if (
+          bill.resident != null &&
+          !self.residentStore.residents.has(String(bill.resident))
+        ) {
+          console.warn(
+            "Skipping bill with unknown resident reference:",
+            bill.resident,
+          );
           return;
         }
         self.billStore.bills.put(bill);
@@ -482,9 +506,9 @@ export const DataStore = types
 
       // Subscribe to changes of this meal
       window.Comeals.mealChannel = window.Comeals.pusher.subscribe(
-        `meal-${self.meal.id}`
+        `meal-${self.meal.id}`,
       );
-      window.Comeals.mealChannel.bind("update", function() {
+      window.Comeals.mealChannel.bind("update", function () {
         self.loadDataAsync();
       });
     },
@@ -503,33 +527,58 @@ export const DataStore = types
       // react-big-calendar requires native Dates for its date arithmetic.
       // toPacificDayjs handles both offset and naive strings correctly.
       function pushEvents(events) {
-        events.forEach(function(event) {
+        events.forEach(function (event) {
           var converted = Object.assign({}, event);
           if (converted.start) {
             var s = toPacificDayjs(converted.start);
-            converted.start = new Date(s.year(), s.month(), s.date(), s.hour(), s.minute());
+            converted.start = new Date(
+              s.year(),
+              s.month(),
+              s.date(),
+              s.hour(),
+              s.minute(),
+            );
           }
           if (converted.end) {
             var e = toPacificDayjs(converted.end);
-            converted.end = new Date(e.year(), e.month(), e.date(), e.hour(), e.minute());
+            converted.end = new Date(
+              e.year(),
+              e.month(),
+              e.date(),
+              e.hour(),
+              e.minute(),
+            );
           }
           self.calendarEvents.push(converted);
         });
       }
 
-      var expectedKeys = ["meals", "bills", "rotations", "birthdays", "common_house_reservations", "guest_room_reservations", "events"];
-      var missing = expectedKeys.filter(function(k) { return !Array.isArray(data[k]); });
+      var expectedKeys = [
+        "meals",
+        "bills",
+        "rotations",
+        "birthdays",
+        "common_house_reservations",
+        "guest_room_reservations",
+        "events",
+      ];
+      var missing = expectedKeys.filter(function (k) {
+        return !Array.isArray(data[k]);
+      });
       if (missing.length > 0) {
-        console.warn("loadMonth: missing event arrays from API:", missing.join(", "));
+        console.warn(
+          "loadMonth: missing event arrays from API:",
+          missing.join(", "),
+        );
       }
 
-      pushEvents(data.meals || []);           // #1 Meals
-      pushEvents(data.bills || []);           // #2 Bills
-      pushEvents(data.rotations || []);       // #3 Rotations
-      pushEvents(data.birthdays || []);       // #4 Birthdays
+      pushEvents(data.meals || []); // #1 Meals
+      pushEvents(data.bills || []); // #2 Bills
+      pushEvents(data.rotations || []); // #3 Rotations
+      pushEvents(data.birthdays || []); // #4 Birthdays
       pushEvents(data.common_house_reservations || []); // #5 Common House Reservations
-      pushEvents(data.guest_room_reservations || []);   // #6 Guest Room Reservations
-      pushEvents(data.events || []);          // #7 Events
+      pushEvents(data.guest_room_reservations || []); // #6 Guest Room Reservations
+      pushEvents(data.events || []); // #7 Events
 
       // Change loading state
       self.isLoading = false;
@@ -541,13 +590,14 @@ export const DataStore = types
 
       // Subscribe to changes of this month
       var subscribeString = `community-${Cookie.get(
-        "community_id"
+        "community_id",
       )}-calendar-${dayjs(self.currentDate).format("YYYY")}-${dayjs(
-        self.currentDate
+        self.currentDate,
       ).format("M")}`;
-      window.Comeals.calendarChannel = window.Comeals.pusher.subscribe(subscribeString);
+      window.Comeals.calendarChannel =
+        window.Comeals.pusher.subscribe(subscribeString);
 
-      window.Comeals.calendarChannel.bind("update", function() {
+      window.Comeals.calendarChannel.bind("update", function () {
         self.loadMonthAsync();
       });
     },
@@ -570,40 +620,43 @@ export const DataStore = types
       self.meals.push(obj);
     },
     switchMeals(id) {
-      if (
-        typeof self.meals.find((item) => item.id === id) ===
-        "undefined"
-      ) {
+      if (typeof self.meals.find((item) => item.id === id) === "undefined") {
         self.addMeal({ id: Number.parseInt(id, 10) });
       }
 
       self.meal = id;
 
-      localforage.getItem(id.toString()).then(function(value) {
-        // Skip if user already navigated to a different meal
-        if (!self.meal || self.meal.id !== id) return;
+      localforage
+        .getItem(id.toString())
+        .then(function (value) {
+          // Skip if user already navigated to a different meal
+          if (!self.meal || self.meal.id !== id) return;
 
-        if (value === null) {
+          if (value === null) {
+            self.loadDataAsync();
+          } else {
+            self.loadData(value);
+            self.loadDataAsync();
+          }
+        })
+        .catch(function (error) {
+          console.error(
+            "Failed to load cached meal data, fetching from server:",
+            error,
+          );
+          localforage.removeItem(id.toString()).catch(function () {});
           self.loadDataAsync();
-        } else {
-          self.loadData(value);
-          self.loadDataAsync();
-        }
-      }).catch(function(error) {
-        console.error("Failed to load cached meal data, fetching from server:", error);
-        localforage.removeItem(id.toString()).catch(function() {});
-        self.loadDataAsync();
-      });
+        });
     },
     switchMonths(date) {
       self.currentDate = date;
 
       var myDate = dayjs(date);
       const key = `community-${Cookie.get(
-        "community_id"
+        "community_id",
       )}-calendar-${myDate.format("YYYY")}-${myDate.format("M")}`;
 
-      localforage.getItem(key).then(function(value) {
+      localforage.getItem(key).then(function (value) {
         if (value === null || typeof value === "undefined") {
           self.loadMonthAsync();
         } else {
@@ -625,5 +678,5 @@ export const DataStore = types
     },
     setAuthExpired(value) {
       self.authExpired = value;
-    }
+    },
   }));

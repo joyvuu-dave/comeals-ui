@@ -11,11 +11,17 @@ export function withRouter(Component) {
         navigate={navigate}
         params={params}
         location={location}
-        history={{ push: navigate, replace: function(to) { navigate(to, { replace: true }); } }}
+        history={{
+          push: navigate,
+          replace: function (to) {
+            navigate(to, { replace: true });
+          },
+        }}
         match={{ params: params, url: location.pathname }}
       />
     );
   }
-  ComponentWithRouter.displayName = "withRouter(" + (Component.displayName || Component.name) + ")";
+  ComponentWithRouter.displayName =
+    "withRouter(" + (Component.displayName || Component.name) + ")";
   return ComponentWithRouter;
 }

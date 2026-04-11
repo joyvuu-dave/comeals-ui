@@ -17,7 +17,7 @@ const styles = {
     alignItems: "center",
     flexDirection: "column",
     gridArea: "a1",
-    border: "0.5px solid"
+    border: "0.5px solid",
   },
   arrow: {
     height: "5rem",
@@ -25,11 +25,11 @@ const styles = {
     display: "flex",
     flexFlow: "column",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   topDate: {
-    width: "200px"
-  }
+    width: "200px",
+  },
 };
 
 const MealHistoryShow = React.lazy(() => import("../history/show"));
@@ -64,7 +64,7 @@ const DateBox = inject("store")(
 
         handleCloseModal() {
           this.props.history.push(
-            `${this.props.match.url.split("/history")[0]}`
+            `${this.props.match.url.split("/history")[0]}`,
           );
         }
 
@@ -74,7 +74,7 @@ const DateBox = inject("store")(
           }
 
           this.props.history.push(
-            `/meals/${this.props.store.meal.prevId}/edit`
+            `/meals/${this.props.store.meal.prevId}/edit`,
           );
         }
 
@@ -84,7 +84,7 @@ const DateBox = inject("store")(
           }
 
           this.props.history.push(
-            `/meals/${this.props.store.meal.nextId}/edit`
+            `/meals/${this.props.store.meal.nextId}/edit`,
           );
         }
 
@@ -99,7 +99,10 @@ const DateBox = inject("store")(
 
           var now = dayjs().tz(TIMEZONE);
           var today = new Date(now.year(), now.month(), now.date());
-          var days = dayjs(this.props.store.meal.date).diff(dayjs(today), "day");
+          var days = dayjs(this.props.store.meal.date).diff(
+            dayjs(today),
+            "day",
+          );
 
           if (days === 0) return "Today";
           if (days === -1) return "Yesterday";
@@ -171,8 +174,8 @@ const DateBox = inject("store")(
                         onRequestClose={this.handleCloseModal}
                         style={{
                           content: {
-                            backgroundColor: "#CCDEEA"
-                          }
+                            backgroundColor: "#CCDEEA",
+                          },
                         }}
                       >
                         <Suspense fallback={<h3>Loading...</h3>}>
@@ -186,9 +189,9 @@ const DateBox = inject("store")(
             </div>
           );
         }
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 export default DateBox;

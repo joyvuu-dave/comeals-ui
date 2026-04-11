@@ -31,7 +31,7 @@ const CommonHouseReservationsEdit = inject("store")(
         start_time: "",
         end_time: "",
         loadingAction: null,
-        confirmDeleteOpen: false
+        confirmDeleteOpen: false,
       };
     }
 
@@ -41,9 +41,9 @@ const CommonHouseReservationsEdit = inject("store")(
         .get(
           `/api/v1/common-house-reservations/${
             self.props.eventId
-          }?token=${Cookie.get("token")}`
+          }?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             var evt = response.data.event;
             var sd = toPacificDayjs(evt.start_date);
@@ -67,11 +67,11 @@ const CommonHouseReservationsEdit = inject("store")(
                 .padStart(2, "0")}:${toPacificDayjs(evt.end_date)
                 .minute()
                 .toString()
-                .padStart(2, "0")}`
+                .padStart(2, "0")}`,
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     }
@@ -95,16 +95,16 @@ const CommonHouseReservationsEdit = inject("store")(
             start_minutes: s.start_time && s.start_time.split(":")[1],
             end_hours: s.end_time && s.end_time.split(":")[0],
             end_minutes: s.end_time && s.end_time.split(":")[1],
-            title: s.title
-          }
+            title: s.title,
+          },
         )
-        .then(function(response) {
+        .then(function (response) {
           self.setState({ loadingAction: null });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.setState({ loadingAction: null });
           handleAxiosError(error);
         });
@@ -122,15 +122,15 @@ const CommonHouseReservationsEdit = inject("store")(
         .delete(
           `/api/v1/common-house-reservations/${
             self.props.eventId
-          }/delete?token=${Cookie.get("token")}`
+          }/delete?token=${Cookie.get("token")}`,
         )
-        .then(function(response) {
+        .then(function (response) {
           self.setState({ loadingAction: null });
           if (response.status === 200) {
             self.props.handleCloseModal();
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.setState({ loadingAction: null });
           handleAxiosError(error);
         });
@@ -154,7 +154,11 @@ const CommonHouseReservationsEdit = inject("store")(
                 <button
                   onClick={this.handleDeleteClick.bind(this)}
                   type="button"
-                  className={this.state.loadingAction === "delete" ? "mar-l-md button-warning button-loader" : "mar-l-md button-warning"}
+                  className={
+                    this.state.loadingAction === "delete"
+                      ? "mar-l-md button-warning button-loader"
+                      : "mar-l-md button-warning"
+                  }
                   disabled={this.state.loadingAction !== null}
                 >
                   Delete
@@ -168,17 +172,17 @@ const CommonHouseReservationsEdit = inject("store")(
               </div>
               <fieldset>
                 <legend>Edit</legend>
-                <form onSubmit={e => this.handleSubmit(e)}>
+                <form onSubmit={(e) => this.handleSubmit(e)}>
                   <label>Resident</label>
                   <select
                     id="local.resident_id"
                     value={this.state.resident_id}
-                    onChange={e =>
+                    onChange={(e) =>
                       this.setState({ resident_id: e.target.value })
                     }
                     disabled={this.state.loadingAction !== null}
                   >
-                    {this.state.residents.map(resident => (
+                    {this.state.residents.map((resident) => (
                       <option key={resident[0]} value={resident[0]}>
                         {resident[2]} - {resident[1]}
                       </option>
@@ -193,7 +197,7 @@ const CommonHouseReservationsEdit = inject("store")(
                     id="local.title"
                     placeholder="optional"
                     value={this.state.title}
-                    onChange={e => this.setState({ title: e.target.value })}
+                    onChange={(e) => this.setState({ title: e.target.value })}
                     disabled={this.state.loadingAction !== null}
                   />
                   <br />
@@ -201,14 +205,24 @@ const CommonHouseReservationsEdit = inject("store")(
 
                   <label>Day</label>
                   <br />
-                  <div style={this.state.loadingAction !== null ? { pointerEvents: "none", opacity: 0.5 } : undefined}>
+                  <div
+                    style={
+                      this.state.loadingAction !== null
+                        ? { pointerEvents: "none", opacity: 0.5 }
+                        : undefined
+                    }
+                  >
                     <DayPickerInputWrapper
                       value={this.state.day}
                       onDayChange={this.handleDayChange}
                       inputDisabled={this.state.loadingAction !== null}
-                      disabledDays={[{
-                        after: dayjs(this.state.event.start_date).add(6, "month").toDate()
-                      }]}
+                      disabledDays={[
+                        {
+                          after: dayjs(this.state.event.start_date)
+                            .add(6, "month")
+                            .toDate(),
+                        },
+                      ]}
                     />
                   </div>
                   <br />
@@ -218,13 +232,13 @@ const CommonHouseReservationsEdit = inject("store")(
                   <select
                     id="local.start_time"
                     value={this.state.start_time}
-                    onChange={e =>
+                    onChange={(e) =>
                       this.setState({ start_time: e.target.value })
                     }
                     disabled={this.state.loadingAction !== null}
                   >
                     <option />
-                    {generateTimes().map(time => (
+                    {generateTimes().map((time) => (
                       <option key={time.value} value={time.value}>
                         {time.display}
                       </option>
@@ -236,11 +250,13 @@ const CommonHouseReservationsEdit = inject("store")(
                   <select
                     id="local.end_time"
                     value={this.state.end_time}
-                    onChange={e => this.setState({ end_time: e.target.value })}
+                    onChange={(e) =>
+                      this.setState({ end_time: e.target.value })
+                    }
                     disabled={this.state.loadingAction !== null}
                   >
                     <option />
-                    {generateTimes().map(time => (
+                    {generateTimes().map((time) => (
                       <option key={time.value} value={time.value}>
                         {time.display}
                       </option>
@@ -250,26 +266,30 @@ const CommonHouseReservationsEdit = inject("store")(
 
                   <button
                     type="submit"
-                    className={this.state.loadingAction === "submit" ? "button-dark button-loader" : "button-dark"}
+                    className={
+                      this.state.loadingAction === "submit"
+                        ? "button-dark button-loader"
+                        : "button-dark"
+                    }
                     disabled={this.state.loadingAction !== null}
                   >
                     Update
                   </button>
                 </form>
               </fieldset>
-            <ConfirmModal
-              isOpen={this.state.confirmDeleteOpen}
-              message="Do you really want to delete this reservation?"
-              onConfirm={this.handleDeleteConfirm.bind(this)}
-              onCancel={this.handleDeleteCancel.bind(this)}
-            />
+              <ConfirmModal
+                isOpen={this.state.confirmDeleteOpen}
+                message="Do you really want to delete this reservation?"
+                onConfirm={this.handleDeleteConfirm.bind(this)}
+                onCancel={this.handleDeleteCancel.bind(this)}
+              />
             </div>
           )}
           {!this.state.ready && <h3>Loading...</h3>}
         </div>
       );
     }
-  }
+  },
 );
 
 export default CommonHouseReservationsEdit;

@@ -14,7 +14,10 @@ vi.mock("axios", () => {
 vi.mock("js-cookie", () => ({
   default: {
     get: vi.fn((name) => {
-      const cookies = { token: "test-token", community_id: "test-community-id" };
+      const cookies = {
+        token: "test-token",
+        community_id: "test-community-id",
+      };
       return cookies[name];
     }),
     remove: vi.fn(),
@@ -57,12 +60,7 @@ import axios from "axios";
 import toastStore from "../../../src/stores/toast_store.js";
 
 function createDataStore(opts = {}) {
-  const {
-    mealProps = {},
-    residents = [],
-    guests = [],
-    bills = [],
-  } = opts;
+  const { mealProps = {}, residents = [], guests = [], bills = [] } = opts;
 
   const mealDefaults = { id: 1, ...mealProps };
 
@@ -120,9 +118,7 @@ describe("DataStore", () => {
 
     it("returns 0 when no one is attending and no guests", () => {
       const store = createDataStore({
-        residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: false },
-        ],
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: false }],
       });
 
       expect(store.attendeesCount).toBe(0);
@@ -130,9 +126,7 @@ describe("DataStore", () => {
 
     it("counts only guests when no residents are attending", () => {
       const store = createDataStore({
-        residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: false },
-        ],
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: false }],
         guests: [
           { id: 100, meal_id: 1, resident_id: 10, created_at: Date.now() },
         ],
@@ -287,7 +281,14 @@ describe("DataStore", () => {
       // Both views filter by attending before checking their respective flag
       const store = createDataStore({
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: false, late: true, vegetarian: true },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: false,
+            late: true,
+            vegetarian: true,
+          },
         ],
       });
       expect(store.vegetarianCount).toBe(0);
@@ -309,9 +310,7 @@ describe("DataStore", () => {
     it("returns numeric difference when meal is closed and max is a number", () => {
       const store = createDataStore({
         mealProps: { closed: true, extras: 5 },
-        residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true },
-        ],
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
       });
 
       // max = extras + attendeesCount = 5 + 1 = 6
@@ -330,9 +329,7 @@ describe("DataStore", () => {
     it("returns 0 when closed and all spots taken", () => {
       const store = createDataStore({
         mealProps: { closed: true, extras: 0 },
-        residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true },
-        ],
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
         guests: [
           { id: 100, meal_id: 1, resident_id: 10, created_at: Date.now() },
         ],
@@ -346,9 +343,7 @@ describe("DataStore", () => {
       // This can happen if extras was set before people were added
       const store = createDataStore({
         mealProps: { closed: true, extras: -1 },
-        residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true },
-        ],
+        residents: [{ id: 10, meal_id: 1, name: "Alice", attending: true }],
       });
 
       // max = -1 + 1 = 0, extras = 0 - 1 = -1
@@ -410,9 +405,7 @@ describe("DataStore", () => {
     it("formats bill amounts correctly (0 becomes empty string, others get 2 decimals)", () => {
       const store = createDataStore({
         mealProps: { closed: false },
-        residents: [
-          { id: 10, meal_id: 1, name: "Alice" },
-        ],
+        residents: [{ id: 10, meal_id: 1, name: "Alice" }],
       });
 
       const data = {
@@ -457,7 +450,7 @@ describe("DataStore", () => {
 
       // Bill with amount 0 should have empty string
       const billWithZero = bills.find(
-        (b) => b.amount === "" && b.resident === null
+        (b) => b.amount === "" && b.resident === null,
       );
       expect(billWithZero).toBeTruthy();
     });
@@ -955,7 +948,9 @@ describe("DataStore", () => {
       localforage.setItem.mockResolvedValueOnce();
 
       // Switch to meal 2 and load its data
-      runInAction(() => { store.meal = 2; });
+      runInAction(() => {
+        store.meal = 2;
+      });
       store.loadData(makeMealData(2, { attending: false }));
       expect(store.meal.id).toBe(2);
       expect(store.meal.description).toBe("Meal 2");
@@ -987,17 +982,33 @@ describe("DataStore", () => {
       window.Comeals.pusher.unsubscribe = vi.fn();
 
       const mealData = {
-        id: 1, date: "2023-06-15", description: "Meal", closed: false,
-        closed_at: null, reconciled: false, max: null,
-        next_id: null, prev_id: null, residents: [], guests: [], bills: [],
+        id: 1,
+        date: "2023-06-15",
+        description: "Meal",
+        closed: false,
+        closed_at: null,
+        reconciled: false,
+        max: null,
+        next_id: null,
+        prev_id: null,
+        residents: [],
+        guests: [],
+        bills: [],
       };
       store.loadData(mealData);
       expect(window.Comeals.mealChannel.name).toBe("meal-1");
 
       const calendarData = {
-        id: 1, year: 2023, month: 6,
-        meals: [], bills: [], rotations: [], birthdays: [],
-        common_house_reservations: [], guest_room_reservations: [], events: [],
+        id: 1,
+        year: 2023,
+        month: 6,
+        meals: [],
+        bills: [],
+        rotations: [],
+        birthdays: [],
+        common_house_reservations: [],
+        guest_room_reservations: [],
+        events: [],
       };
       store.loadMonth(calendarData);
 
@@ -1029,7 +1040,9 @@ describe("DataStore", () => {
       store.switchMeals(2);
 
       // Before localforage resolves, user navigates to meal 3
-      runInAction(() => { store.meal = 3; });
+      runInAction(() => {
+        store.meal = 3;
+      });
       store.loadData(makeMealData(3, { late: true }));
 
       // Now let localforage resolve (for the stale meal 2 request)
@@ -1046,7 +1059,9 @@ describe("DataStore", () => {
 
   describe("extras view type consistency", () => {
     it("returns string 'n/a' when meal is open", () => {
-      const store = createDataStore({ mealProps: { closed: false, extras: 5 } });
+      const store = createDataStore({
+        mealProps: { closed: false, extras: 5 },
+      });
       expect(store.extras).toBe("n/a");
       expect(typeof store.extras).toBe("string");
     });
@@ -1057,7 +1072,9 @@ describe("DataStore", () => {
     });
 
     it("returns empty string when meal is closed with null max", () => {
-      const store = createDataStore({ mealProps: { closed: true, extras: null } });
+      const store = createDataStore({
+        mealProps: { closed: true, extras: null },
+      });
       expect(store.extras).toBe("");
       expect(typeof store.extras).toBe("string");
     });
@@ -1137,7 +1154,9 @@ describe("DataStore", () => {
 
       store.loadData(data);
       expect(store.meal.closed_at).toBeInstanceOf(Date);
-      expect(store.meal.closed_at.getTime()).toBe(new Date("2023-06-15T18:00:00Z").getTime());
+      expect(store.meal.closed_at.getTime()).toBe(
+        new Date("2023-06-15T18:00:00Z").getTime(),
+      );
     });
   });
 
@@ -1184,16 +1203,32 @@ describe("DataStore", () => {
       axios.get.mockResolvedValueOnce({
         status: 200,
         data: {
-          id: 1, date: "2023-06-15", description: "", closed: false,
-          closed_at: null, reconciled: false, max: null,
-          next_id: null, prev_id: null,
+          id: 1,
+          date: "2023-06-15",
+          description: "",
+          closed: false,
+          closed_at: null,
+          reconciled: false,
+          max: null,
+          next_id: null,
+          prev_id: null,
           residents: [
-            { id: 10, meal_id: 1, name: "Alice", attending: false,
-              attending_at: null, late: false, vegetarian: false,
-              can_cook: true, active: true },
+            {
+              id: 10,
+              meal_id: 1,
+              name: "Alice",
+              attending: false,
+              attending_at: null,
+              late: false,
+              vegetarian: false,
+              can_cook: true,
+              active: true,
+            },
           ],
           guests: [],
-          bills: [{ id: "bill-1", resident_id: 10, amount: "25.00", no_cost: false }],
+          bills: [
+            { id: "bill-1", resident_id: 10, amount: "25.00", no_cost: false },
+          ],
         },
       });
 
@@ -1219,7 +1254,13 @@ describe("DataStore", () => {
         id: 1,
         year: 2023,
         month: 6,
-        meals: [{ title: "Test", start: "2023-06-15T18:00:00", end: "2023-06-15T19:00:00" }],
+        meals: [
+          {
+            title: "Test",
+            start: "2023-06-15T18:00:00",
+            end: "2023-06-15T19:00:00",
+          },
+        ],
         // All other arrays omitted
       };
 
@@ -1259,9 +1300,17 @@ describe("DataStore", () => {
         next_id: null,
         prev_id: null,
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: false,
-            attending_at: null, late: false, vegetarian: false,
-            can_cook: true, active: true },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: false,
+            attending_at: null,
+            late: false,
+            vegetarian: false,
+            can_cook: true,
+            active: true,
+          },
         ],
         guests: [],
         bills: [
@@ -1275,7 +1324,9 @@ describe("DataStore", () => {
 
       // Valid bill with resident 10 should be loadable and accessible
       const bills = Array.from(store.bills.values());
-      const validBill = bills.find((b) => b.resident !== null && b.resident.id === 10);
+      const validBill = bills.find(
+        (b) => b.resident !== null && b.resident.id === 10,
+      );
       expect(validBill).toBeTruthy();
       expect(validBill.amount).toBe("15.00");
       spy.mockRestore();
@@ -1288,10 +1339,18 @@ describe("DataStore", () => {
     it("handles completely empty data (no residents, guests, or bills)", () => {
       const store = createDataStore();
       const data = {
-        id: 1, date: "2023-06-15", description: "", closed: false,
-        closed_at: null, reconciled: false, max: null,
-        next_id: null, prev_id: null,
-        residents: [], guests: [], bills: [],
+        id: 1,
+        date: "2023-06-15",
+        description: "",
+        closed: false,
+        closed_at: null,
+        reconciled: false,
+        max: null,
+        next_id: null,
+        prev_id: null,
+        residents: [],
+        guests: [],
+        bills: [],
       };
 
       store.loadData(data);
@@ -1305,18 +1364,41 @@ describe("DataStore", () => {
     it("handles max=0 (capacity set to exactly the current attendees)", () => {
       const store = createDataStore();
       const data = {
-        id: 1, date: "2023-06-15", description: "", closed: true,
-        closed_at: "2023-06-15T18:00:00Z", reconciled: false, max: 2,
-        next_id: null, prev_id: null,
+        id: 1,
+        date: "2023-06-15",
+        description: "",
+        closed: true,
+        closed_at: "2023-06-15T18:00:00Z",
+        reconciled: false,
+        max: 2,
+        next_id: null,
+        prev_id: null,
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: true,
-            attending_at: null, late: false, vegetarian: false,
-            can_cook: true, active: true },
-          { id: 11, meal_id: 1, name: "Bob", attending: true,
-            attending_at: null, late: false, vegetarian: false,
-            can_cook: true, active: true },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: true,
+            attending_at: null,
+            late: false,
+            vegetarian: false,
+            can_cook: true,
+            active: true,
+          },
+          {
+            id: 11,
+            meal_id: 1,
+            name: "Bob",
+            attending: true,
+            attending_at: null,
+            late: false,
+            vegetarian: false,
+            can_cook: true,
+            active: true,
+          },
         ],
-        guests: [], bills: [],
+        guests: [],
+        bills: [],
       };
 
       store.loadData(data);
@@ -1329,20 +1411,36 @@ describe("DataStore", () => {
         residents: [{ id: 10, meal_id: 1, name: "Alice" }],
       });
       const data = {
-        id: 1, date: "2023-06-15", description: "", closed: false,
-        closed_at: null, reconciled: false, max: null,
-        next_id: null, prev_id: null,
+        id: 1,
+        date: "2023-06-15",
+        description: "",
+        closed: false,
+        closed_at: null,
+        reconciled: false,
+        max: null,
+        next_id: null,
+        prev_id: null,
         residents: [
-          { id: 10, meal_id: 1, name: "Alice", attending: false,
-            attending_at: null, late: false, vegetarian: false,
-            can_cook: true, active: true },
+          {
+            id: 10,
+            meal_id: 1,
+            name: "Alice",
+            attending: false,
+            attending_at: null,
+            late: false,
+            vegetarian: false,
+            can_cook: true,
+            active: true,
+          },
         ],
         guests: [],
         bills: [{ id: "b1", resident_id: 10, amount: "0", no_cost: false }],
       };
 
       store.loadData(data);
-      const bill = Array.from(store.bills.values()).find((b) => b.resident !== null);
+      const bill = Array.from(store.bills.values()).find(
+        (b) => b.resident !== null,
+      );
       expect(bill.amount).toBe("");
     });
   });
@@ -1382,7 +1480,9 @@ describe("DataStore", () => {
       const store = createDataStore({
         mealProps: { closed: false },
         residents: [{ id: 10, meal_id: 1, name: "Alice", can_cook: true }],
-        bills: [{ id: "bill-1", resident: 10, amount: "25.00", no_cost: false }],
+        bills: [
+          { id: "bill-1", resident: 10, amount: "25.00", no_cost: false },
+        ],
       });
 
       toastStore.clearAll();
@@ -1408,9 +1508,16 @@ describe("DataStore", () => {
     it("handles empty arrays (valid but no events)", () => {
       const store = createDataStore();
       const data = {
-        id: 1, year: 2023, month: 6,
-        meals: [], bills: [], rotations: [], birthdays: [],
-        common_house_reservations: [], guest_room_reservations: [], events: [],
+        id: 1,
+        year: 2023,
+        month: 6,
+        meals: [],
+        bills: [],
+        rotations: [],
+        birthdays: [],
+        common_house_reservations: [],
+        guest_room_reservations: [],
+        events: [],
       };
 
       store.loadMonth(data);
@@ -1430,10 +1537,22 @@ describe("DataStore", () => {
     it("converts event dates to fake-local Dates in Pacific timezone", () => {
       const store = createDataStore();
       const data = {
-        id: 1, year: 2023, month: 6,
-        meals: [{ title: "Dinner", start: "2023-06-15T18:30:00", end: "2023-06-15T19:30:00" }],
-        bills: [], rotations: [], birthdays: [],
-        common_house_reservations: [], guest_room_reservations: [], events: [],
+        id: 1,
+        year: 2023,
+        month: 6,
+        meals: [
+          {
+            title: "Dinner",
+            start: "2023-06-15T18:30:00",
+            end: "2023-06-15T19:30:00",
+          },
+        ],
+        bills: [],
+        rotations: [],
+        birthdays: [],
+        common_house_reservations: [],
+        guest_room_reservations: [],
+        events: [],
       };
 
       store.loadMonth(data);
@@ -1447,15 +1566,22 @@ describe("DataStore", () => {
       const store = createDataStore();
       // 4 PM Pacific (-07:00) to 6 PM Pacific (-07:00) on June 15
       const data = {
-        id: 1, year: 2023, month: 6,
+        id: 1,
+        year: 2023,
+        month: 6,
         meals: [],
-        bills: [], rotations: [], birthdays: [],
-        common_house_reservations: [{
-          title: "Reservation",
-          start: "2023-06-15T16:00:00.000-07:00",
-          end: "2023-06-15T18:00:00.000-07:00",
-        }],
-        guest_room_reservations: [], events: [],
+        bills: [],
+        rotations: [],
+        birthdays: [],
+        common_house_reservations: [
+          {
+            title: "Reservation",
+            start: "2023-06-15T16:00:00.000-07:00",
+            end: "2023-06-15T18:00:00.000-07:00",
+          },
+        ],
+        guest_room_reservations: [],
+        events: [],
       };
 
       store.loadMonth(data);
@@ -1471,14 +1597,22 @@ describe("DataStore", () => {
       // 2023-06-16T01:00:00Z = June 15 6 PM Pacific (PDT)
       // 2023-06-16T03:00:00Z = June 15 8 PM Pacific (PDT)
       const data = {
-        id: 1, year: 2023, month: 6,
-        meals: [{
-          title: "Late Dinner",
-          start: "2023-06-16T01:00:00Z",
-          end: "2023-06-16T03:00:00Z",
-        }],
-        bills: [], rotations: [], birthdays: [],
-        common_house_reservations: [], guest_room_reservations: [], events: [],
+        id: 1,
+        year: 2023,
+        month: 6,
+        meals: [
+          {
+            title: "Late Dinner",
+            start: "2023-06-16T01:00:00Z",
+            end: "2023-06-16T03:00:00Z",
+          },
+        ],
+        bills: [],
+        rotations: [],
+        birthdays: [],
+        common_house_reservations: [],
+        guest_room_reservations: [],
+        events: [],
       };
 
       store.loadMonth(data);

@@ -14,7 +14,7 @@ var styles = {
     padding: "0.75rem 1rem",
     backgroundColor: "#c0392b",
     color: "#fff",
-    fontSize: "0.95rem"
+    fontSize: "0.95rem",
   },
   button: {
     backgroundColor: "#fff",
@@ -27,8 +27,8 @@ var styles = {
     fontSize: "0.95rem",
     lineHeight: 1,
     display: "inline-flex",
-    alignItems: "center"
-  }
+    alignItems: "center",
+  },
 };
 
 function SessionExpiredBanner({ store }) {

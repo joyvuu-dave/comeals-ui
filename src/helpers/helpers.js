@@ -38,7 +38,7 @@ export function generateTimes() {
 
         var time = {
           display: null,
-          value: null
+          value: null,
         };
 
         var valueHour = hour;

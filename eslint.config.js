@@ -37,7 +37,7 @@ module.exports = [
       "no-console": ["warn", { allow: ["error", "warn"] }],
 
       // --- React rules (conservative) ---
-      "react/jsx-uses-react": "off",   // Not needed with automatic JSX runtime
+      "react/jsx-uses-react": "off", // Not needed with automatic JSX runtime
       "react/jsx-uses-vars": "error",
       "react/no-direct-mutation-state": "error",
       "react/no-deprecated": "warn",
@@ -47,11 +47,11 @@ module.exports = [
       "react/no-unknown-property": "error",
 
       // Disable rules that would cause mass noise in this codebase
-      "react/prop-types": "off",         // No PropTypes used anywhere
-      "react/display-name": "off",       // MobX inject/observer wrappers lose display names
+      "react/prop-types": "off", // No PropTypes used anywhere
+      "react/display-name": "off", // MobX inject/observer wrappers lose display names
       "react/react-in-jsx-scope": "off", // Not needed with React 17+ JSX transform
-                                         // (classic runtime still imports React explicitly,
-                                         //  but the rule is unnecessary either way)
+      // (classic runtime still imports React explicitly,
+      //  but the rule is unnecessary either way)
 
       // --- Hooks rules (light touch) ---
       "react-hooks/rules-of-hooks": "error",
@@ -73,7 +73,7 @@ module.exports = [
     },
     rules: {
       "no-unused-vars": "warn",
-      "no-console": "off",  // Console is expected in server/tooling code
+      "no-console": "off", // Console is expected in server/tooling code
     },
   },
 

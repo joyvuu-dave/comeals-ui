@@ -11,7 +11,7 @@ class ResidentsPasswordNew extends Component {
       ready: false,
       name: "",
       password: "",
-      loading: false
+      loading: false,
     };
   }
 
@@ -19,15 +19,15 @@ class ResidentsPasswordNew extends Component {
     var self = this;
     axios
       .get(`/api/v1/residents/name/${self.props.match.params.token}`)
-      .then(function(response) {
+      .then(function (response) {
         if (response.status === 200) {
           self.setState({
             name: response.data.name,
-            ready: true
+            ready: true,
           });
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         handleAxiosError(error, { silent: true });
         if (error.response) {
           self.props.history.push("/");
@@ -44,10 +44,10 @@ class ResidentsPasswordNew extends Component {
       .post(
         `/api/v1/residents/password-reset/${self.props.match.params.token}`,
         {
-          password: self.state.password
-        }
+          password: self.state.password,
+        },
       )
-      .then(function(response) {
+      .then(function (response) {
         self.setState({ loading: false });
         if (response.status === 200) {
           if (response.data.message) {
@@ -56,7 +56,7 @@ class ResidentsPasswordNew extends Component {
           self.props.history.push("/");
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         self.setState({ loading: false });
         handleAxiosError(error);
       });
@@ -66,7 +66,7 @@ class ResidentsPasswordNew extends Component {
     return (
       <div>
         {this.state.ready && (
-          <form onSubmit={e => this.handleSubmit(e)}>
+          <form onSubmit={(e) => this.handleSubmit(e)}>
             <fieldset className="w-100">
               <legend>Reset Password for {this.state.name}</legend>
               <label className="w-75">
@@ -74,7 +74,7 @@ class ResidentsPasswordNew extends Component {
                   type="password"
                   placeholder="New Password"
                   value={this.state.password}
-                  onChange={e => this.setState({ password: e.target.value })}
+                  onChange={(e) => this.setState({ password: e.target.value })}
                   disabled={this.state.loading}
                 />
               </label>

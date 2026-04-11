@@ -9,7 +9,7 @@ class ResidentsPasswordReset extends Component {
 
     this.state = {
       email: "",
-      loading: false
+      loading: false,
     };
   }
 
@@ -20,9 +20,9 @@ class ResidentsPasswordReset extends Component {
     var self = this;
     axios
       .post(`/api/v1/residents/password-reset`, {
-        email: self.state.email
+        email: self.state.email,
       })
-      .then(function(response) {
+      .then(function (response) {
         self.setState({ loading: false });
         if (response.status === 200) {
           if (response.data.message) {
@@ -31,7 +31,7 @@ class ResidentsPasswordReset extends Component {
           self.props.history.push("/");
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         self.setState({ loading: false });
         handleAxiosError(error);
       });
@@ -39,7 +39,7 @@ class ResidentsPasswordReset extends Component {
 
   render() {
     return (
-      <form onSubmit={e => this.handleSubmit(e)}>
+      <form onSubmit={(e) => this.handleSubmit(e)}>
         <fieldset>
           <legend>Password Reset</legend>
           <label className="w-100">
@@ -49,7 +49,7 @@ class ResidentsPasswordReset extends Component {
               autoCapitalize="none"
               disabled={this.state.loading}
               value={this.state.email}
-              onChange={e => this.setState({ email: e.target.value })}
+              onChange={(e) => this.setState({ email: e.target.value })}
             />
           </label>
         </fieldset>

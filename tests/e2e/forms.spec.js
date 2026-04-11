@@ -39,9 +39,7 @@ test.describe("Form CRUD", () => {
       await submitButton.click();
 
       // API: POST with title in the payload
-      await expect
-        .poll(() => eventPayload, { timeout: 5000 })
-        .toBeTruthy();
+      await expect.poll(() => eventPayload, { timeout: 5000 }).toBeTruthy();
       expect(eventMethod).toBe("POST");
       expect(eventPayload.title).toBe("Test Event");
     });
@@ -134,15 +132,17 @@ test.describe("Form CRUD", () => {
       await modal.locator("button:has-text('Delete')").click();
 
       // Confirmation modal should appear
-      const confirmOverlay = page.locator('.ReactModal__Overlay').last();
-      await expect(confirmOverlay.locator("text=Do you really want to delete this event?")).toBeVisible({ timeout: 5000 });
+      const confirmOverlay = page.locator(".ReactModal__Overlay").last();
+      await expect(
+        confirmOverlay.locator("text=Do you really want to delete this event?"),
+      ).toBeVisible({ timeout: 5000 });
       // Click Delete in the confirmation modal
-      await confirmOverlay.locator('.button-warning:has-text("Delete")').click();
+      await confirmOverlay
+        .locator('.button-warning:has-text("Delete")')
+        .click();
 
       // API: DELETE to /events/70/delete
-      await expect
-        .poll(() => deleteMethod, { timeout: 5000 })
-        .toBe("DELETE");
+      await expect.poll(() => deleteMethod, { timeout: 5000 }).toBe("DELETE");
       expect(deleteUrl).toContain("/events/70");
     });
   });
@@ -187,9 +187,7 @@ test.describe("Form CRUD", () => {
       await submitButton.click();
 
       // API: POST with resident_id
-      await expect
-        .poll(() => postPayload, { timeout: 5000 })
-        .toBeTruthy();
+      await expect.poll(() => postPayload, { timeout: 5000 }).toBeTruthy();
       expect(postMethod).toBe("POST");
       expect(postPayload.resident_id).toBeDefined();
     });
@@ -200,9 +198,7 @@ test.describe("Form CRUD", () => {
       await setupAuthenticatedPage(page, context);
     });
 
-    test("create a new guest room reservation sends POST", async ({
-      page,
-    }) => {
+    test("create a new guest room reservation sends POST", async ({ page }) => {
       let postPayload = null;
       let postMethod = null;
       await page.route("**/api/v1/guest-room-reservations?*", (route) => {
@@ -235,9 +231,7 @@ test.describe("Form CRUD", () => {
       await submitButton.click();
 
       // API: POST with resident_id
-      await expect
-        .poll(() => postPayload, { timeout: 5000 })
-        .toBeTruthy();
+      await expect.poll(() => postPayload, { timeout: 5000 }).toBeTruthy();
       expect(postMethod).toBe("POST");
       expect(postPayload.resident_id).toBeDefined();
     });

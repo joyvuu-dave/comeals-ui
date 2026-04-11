@@ -6,7 +6,7 @@ class DayPickerInputWrapper extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: false
+      isOpen: false,
     };
     this.wrapperRef = React.createRef();
     this.handleInputClick = this.handleInputClick.bind(this);
@@ -23,7 +23,10 @@ class DayPickerInputWrapper extends Component {
   }
 
   handleClickOutside(event) {
-    if (this.wrapperRef.current && !this.wrapperRef.current.contains(event.target)) {
+    if (
+      this.wrapperRef.current &&
+      !this.wrapperRef.current.contains(event.target)
+    ) {
       this.setState({ isOpen: false });
     }
   }
@@ -48,7 +51,10 @@ class DayPickerInputWrapper extends Component {
 
   render() {
     return (
-      <div ref={this.wrapperRef} style={{ display: "inline-block", position: "relative" }}>
+      <div
+        ref={this.wrapperRef}
+        style={{ display: "inline-block", position: "relative" }}
+      >
         <input
           type="text"
           readOnly
@@ -58,18 +64,27 @@ class DayPickerInputWrapper extends Component {
           placeholder={this.props.placeholder || ""}
         />
         {this.state.isOpen && (
-          <div style={{
-            position: "absolute",
-            left: 0,
-            zIndex: 1,
-            background: "#fff",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.15)"
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              zIndex: 1,
+              background: "#fff",
+              boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
+            }}
+          >
             <DayPicker
               mode="single"
-              selected={this.props.value ? dayjs(this.props.value).toDate() : undefined}
+              selected={
+                this.props.value ? dayjs(this.props.value).toDate() : undefined
+              }
               onSelect={this.handleDaySelect}
-              defaultMonth={this.props.defaultMonth || (this.props.value ? dayjs(this.props.value).toDate() : undefined)}
+              defaultMonth={
+                this.props.defaultMonth ||
+                (this.props.value
+                  ? dayjs(this.props.value).toDate()
+                  : undefined)
+              }
               disabled={this.props.disabledDays}
             />
           </div>

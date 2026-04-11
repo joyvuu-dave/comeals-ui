@@ -13,12 +13,12 @@ const Resident = types
     late: false,
     vegetarian: false,
     can_cook: true,
-    active: true
+    active: true,
   })
-  .views(self => ({
+  .views((self) => ({
     get guests() {
       return Array.from(self.form.form.guestStore.guests.values()).filter(
-        guest => guest.resident_id === self.id
+        (guest) => guest.resident_id === self.id,
       );
     },
     get guestsCount() {
@@ -41,7 +41,7 @@ const Resident = types
         self.form.form.meal.closed &&
         self.form.form.meal.closed_at !== null &&
         self.guests.filter(
-          guest => guest.created_at > self.form.form.meal.closed_at
+          (guest) => guest.created_at > self.form.form.meal.closed_at,
         ).length > 0
       ) {
         return true;
@@ -53,7 +53,7 @@ const Resident = types
         self.form.form.meal.closed &&
         self.form.form.meal.closed_at !== null &&
         Array.from(self.guests).filter(
-          guest => guest.created_at <= self.form.form.meal.closed_at
+          (guest) => guest.created_at <= self.form.form.meal.closed_at,
         ).length > 0
       ) {
         return false;
@@ -98,9 +98,9 @@ const Resident = types
     },
     get form() {
       return getParent(self, 2);
-    }
+    },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     setAttending(val) {
       self.attending = val;
       return val;
@@ -159,17 +159,17 @@ const Resident = types
           data: {
             socket_id: window.Comeals.socketId,
             late: currentLate,
-            vegetarian: currentVeg
+            vegetarian: currentVeg,
           },
-          withCredentials: true
+          withCredentials: true,
         })
-          .then(function(response) {
+          .then(function (response) {
             if (!isAlive(self)) return;
             if (response.status === 200) {
               self.setAttendingAt(new Date());
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             if (!isAlive(self)) return;
             self.setAttending(false);
             self.setAttendingAt(null);
@@ -197,17 +197,17 @@ const Resident = types
             self.id
           }?token=${Cookie.get("token")}`,
           data: {
-            socket_id: window.Comeals.socketId
+            socket_id: window.Comeals.socketId,
           },
-          withCredentials: true
+          withCredentials: true,
         })
-          .then(function(response) {
+          .then(function (response) {
             if (!isAlive(self)) return;
             if (response.status === 200) {
               self.setAttendingAt(null);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             if (!isAlive(self)) return;
             self.setAttending(true);
             self.setLate(previousLate);
@@ -233,10 +233,10 @@ const Resident = types
         }?token=${Cookie.get("token")}`,
         data: {
           late: val,
-          socket_id: window.Comeals.socketId
+          socket_id: window.Comeals.socketId,
         },
-        withCredentials: true
-      }).catch(function(error) {
+        withCredentials: true,
+      }).catch(function (error) {
         if (!isAlive(self)) return;
         self.setLate(!val);
 
@@ -259,10 +259,10 @@ const Resident = types
         }?token=${Cookie.get("token")}`,
         data: {
           vegetarian: val,
-          socket_id: window.Comeals.socketId
+          socket_id: window.Comeals.socketId,
         },
-        withCredentials: true
-      }).catch(function(error) {
+        withCredentials: true,
+      }).catch(function (error) {
         if (!isAlive(self)) return;
         self.setVeg(!val);
 
@@ -279,11 +279,11 @@ const Resident = types
         }/guests?token=${Cookie.get("token")}`,
         data: {
           socket_id: window.Comeals.socketId,
-          vegetarian: options.vegetarian
+          vegetarian: options.vegetarian,
         },
-        withCredentials: true
+        withCredentials: true,
       })
-        .then(function(response) {
+        .then(function (response) {
           if (!isAlive(self)) return;
           if (response.status === 200) {
             const guest = response.data;
@@ -291,7 +291,7 @@ const Resident = types
             self.form.form.appendGuest(guest);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if (!isAlive(self)) return;
           self.form.form.meal.incrementExtras();
 
@@ -321,21 +321,21 @@ const Resident = types
           self.id
         }/guests/${guestId}?token=${Cookie.get("token")}`,
         data: {
-          socket_id: window.Comeals.socketId
+          socket_id: window.Comeals.socketId,
         },
-        withCredentials: true
+        withCredentials: true,
       })
-        .then(function(response) {
+        .then(function (response) {
           if (!isAlive(self)) return;
           if (response.status === 200) {
             self.form.form.guestStore.removeGuest(guestId);
             self.form.form.meal.incrementExtras();
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error);
         });
-    }
+    },
   }));
 
 export default Resident;

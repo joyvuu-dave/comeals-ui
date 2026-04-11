@@ -3,17 +3,17 @@ import Guest from "./guest";
 
 const GuestStore = types
   .model("GuestStore", {
-    guests: types.map(Guest)
+    guests: types.map(Guest),
   })
-  .views(self => ({
+  .views((self) => ({
     get form() {
       return getParent(self);
-    }
+    },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     removeGuest(id) {
       self.guests.delete(id.toString());
-    }
+    },
   }));
 
 export default GuestStore;

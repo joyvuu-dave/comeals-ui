@@ -16,7 +16,7 @@ var styles = {
     padding: "0.75rem 1rem",
     backgroundColor: "#444",
     color: "#fff",
-    fontSize: "0.95rem"
+    fontSize: "0.95rem",
   },
   button: {
     backgroundColor: "#CCDEEA",
@@ -29,8 +29,8 @@ var styles = {
     fontSize: "0.95rem",
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 };
 
 class VersionBanner extends Component {
@@ -47,7 +47,9 @@ class VersionBanner extends Component {
     // between when the browser loaded index.html and when this component
     // mounts, a network-fetched baseline would reflect the new build while
     // the running code is old — the banner would never fire.
-    var script = document.querySelector('script[type="module"][src^="/assets/"]');
+    var script = document.querySelector(
+      'script[type="module"][src^="/assets/"]',
+    );
     if (script) {
       // Strip leading "/" so the value matches the manifest's "file" field
       // (manifest: "assets/index-abc.js", DOM: "/assets/index-abc.js")

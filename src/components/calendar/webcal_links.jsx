@@ -9,7 +9,7 @@ class WebcalLinks extends Component {
 
     this.state = {
       resident_id: Cookie.get("resident_id"),
-      ready: false
+      ready: false,
     };
   }
 
@@ -18,38 +18,39 @@ class WebcalLinks extends Component {
       var self = this;
       axios
         .get(`/api/v1/residents/id?token=${Cookie.get("token")}`)
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) {
             Cookie.set("resident_id", response.data, {
-              expires: 7300
+              expires: 7300,
             });
 
             self.setState({
               resident_id: response.data,
-              ready: true
+              ready: true,
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           handleAxiosError(error, { silent: true });
         });
     } else {
       this.setState({
-        ready: true
+        ready: true,
       });
     }
   }
 
   render() {
-    var apiHost = window.location.hostname === "localhost"
-      ? "localhost:3000"
-      : "api.comeals.com";
+    var apiHost =
+      window.location.hostname === "localhost"
+        ? "localhost:3000"
+        : "api.comeals.com";
 
     return (
       <div className="flex space-between w-100">
         <a
           href={`webcal://${apiHost}/api/v1/communities/${Cookie.get(
-            "community_id"
+            "community_id",
           )}/ical.ics`}
         >
           Subscribe to All Meals

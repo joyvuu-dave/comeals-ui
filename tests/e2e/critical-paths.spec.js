@@ -72,9 +72,7 @@ test.describe("Critical Paths", () => {
     await expect(modal.locator("text=Rotation 10")).toBeVisible({
       timeout: 5000,
     });
-    await expect(
-      modal.locator("text=Kitchen cleaning rotation")
-    ).toBeVisible();
+    await expect(modal.locator("text=Kitchen cleaning rotation")).toBeVisible();
 
     // Signed-up residents should be struck through (muted)
     const janeEntry = modal.locator("text=Jane Smith");
@@ -109,18 +107,16 @@ test.describe("Critical Paths", () => {
     await page.waitForLoadState("networkidle");
 
     // Should show RECONCILED status
-    await expect(
-      page.locator("h1", { hasText: "RECONCILED" })
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1", { hasText: "RECONCILED" })).toBeVisible({
+      timeout: 10000,
+    });
 
     // Open/Close button should be disabled
     const closeButton = page.locator("text=Open / Close Meal");
     await expect(closeButton).toBeDisabled();
 
     // Cook select should be disabled
-    const cookSelect = page
-      .locator('[aria-label="Select meal cook"]')
-      .first();
+    const cookSelect = page.locator('[aria-label="Select meal cook"]').first();
     await expect(cookSelect).toBeDisabled();
 
     // Cost input should be disabled
@@ -134,9 +130,7 @@ test.describe("Critical Paths", () => {
     await expect(page.locator("#veg_switch_1")).toBeDisabled();
 
     // Extras radio buttons should be disabled
-    await expect(
-      page.locator('[aria-label="Set Extras to 0"]')
-    ).toBeDisabled();
+    await expect(page.locator('[aria-label="Set Extras to 0"]')).toBeDisabled();
   });
 
   test("close meal is prevented when cook has no cost set", async ({
@@ -206,7 +200,7 @@ test.describe("Critical Paths", () => {
     await page.goto("/meals/42/edit/");
     await page.waitForLoadState("networkidle");
     await expect(
-      page.getByRole("cell", { name: "Jane Smith", exact: true })
+      page.getByRole("cell", { name: "Jane Smith", exact: true }),
     ).toBeVisible({ timeout: 10000 });
 
     const mealIndicator = page.locator("span.online, span.offline");
@@ -260,7 +254,7 @@ test.describe("Critical Paths", () => {
           const text = await totalCircle.textContent();
           return parseInt(text.match(/\d+/)?.[0] || "99");
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       )
       .toBeLessThan(3);
 

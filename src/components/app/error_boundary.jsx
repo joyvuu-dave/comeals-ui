@@ -42,8 +42,12 @@ class ErrorBoundary extends Component {
       return (
         <div style={styles.container}>
           <h2>Something went wrong with Comeals.</h2>
-          <p>Try refreshing the page. If that doesn't fix it, email David at{" "}
-            <a href="mailto:david.paul.riddle@gmail.com">david.paul.riddle@gmail.com</a>.
+          <p>
+            Try refreshing the page. If that doesn't fix it, email David at{" "}
+            <a href="mailto:david.paul.riddle@gmail.com">
+              david.paul.riddle@gmail.com
+            </a>
+            .
           </p>
           <button
             style={styles.button}

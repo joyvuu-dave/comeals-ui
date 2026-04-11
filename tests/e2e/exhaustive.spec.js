@@ -130,7 +130,7 @@ test.describe("Exhaustive Coverage", () => {
       const containerText = await dateContainer.textContent();
       // Should contain either "Today", "Yesterday", "Tomorrow", or "ago"/"in"
       expect(
-        containerText.match(/Today|Yesterday|Tomorrow|ago|in \d/)
+        containerText.match(/Today|Yesterday|Tomorrow|ago|in \d/),
       ).toBeTruthy();
     });
 

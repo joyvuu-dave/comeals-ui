@@ -3,10 +3,10 @@ import Bill from "./bill";
 
 const BillStore = types
   .model("BillStore", { bills: types.map(Bill) })
-  .views(self => ({
+  .views((self) => ({
     get form() {
       return getParent(self);
-    }
+    },
   }));
 
 export default BillStore;

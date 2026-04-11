@@ -6,9 +6,9 @@ const Bill = types
     id: types.identifier,
     resident: types.maybeNull(types.reference(Resident)),
     amount: "",
-    no_cost: false
+    no_cost: false,
   })
-  .views(self => ({
+  .views((self) => ({
     get resident_id() {
       return self.resident && self.resident.id ? self.resident.id : "";
     },
@@ -18,9 +18,9 @@ const Bill = types
     },
     get form() {
       return getParent(self, 2);
-    }
+    },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     setResident(val) {
       if (val === "") {
         self.resident = null;
@@ -48,7 +48,7 @@ const Bill = types
       }
       self.form.form.saveBills();
       return val;
-    }
+    },
   }));
 
 export default Bill;

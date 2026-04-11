@@ -34,8 +34,8 @@ const CloseButton = inject("store")(
           </button>
         );
       }
-    }
-  )
+    },
+  ),
 );
 
 export default CloseButton;

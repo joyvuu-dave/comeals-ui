@@ -9,18 +9,25 @@ class ToastStore {
   }
 
   addToast(message, type) {
-    var isDuplicate = this.toasts.some(function(t) {
+    var isDuplicate = this.toasts.some(function (t) {
       return t.message === message && t.type === type;
     });
     if (isDuplicate) return;
 
     var id = ++this._nextId;
-    this.toasts.push({ id: id, message: message, type: type, timestamp: Date.now() });
+    this.toasts.push({
+      id: id,
+      message: message,
+      type: type,
+      timestamp: Date.now(),
+    });
     return id;
   }
 
   removeToast(id) {
-    this.toasts = this.toasts.filter(function(t) { return t.id !== id; });
+    this.toasts = this.toasts.filter(function (t) {
+      return t.id !== id;
+    });
   }
 
   clearAll() {
@@ -29,7 +36,9 @@ class ToastStore {
 
   replaceAll(message, type) {
     var id = ++this._nextId;
-    this.toasts = [{ id: id, message: message, type: type, timestamp: Date.now() }];
+    this.toasts = [
+      { id: id, message: message, type: type, timestamp: Date.now() },
+    ];
     return id;
   }
 }

@@ -80,9 +80,7 @@ test.describe("Meal Editing", () => {
       .locator('[aria-label="Select meal cook"]')
       .first();
     await expect(firstCookSelect).toHaveValue("1");
-    const firstCostInput = page
-      .locator('[aria-label="Set meal cost"]')
-      .first();
+    const firstCostInput = page.locator('[aria-label="Set meal cost"]').first();
     await expect(firstCostInput).toHaveValue("25.50");
   });
 
@@ -142,7 +140,7 @@ test.describe("Meal Editing", () => {
     await page.goto("/meals/42/edit/");
     await page.waitForLoadState("networkidle");
     await expect(
-      page.getByRole("cell", { name: "Jane Smith", exact: true })
+      page.getByRole("cell", { name: "Jane Smith", exact: true }),
     ).toBeVisible({ timeout: 10000 });
 
     // Before: Jane not late, late count = 1 (only Alice)
@@ -177,7 +175,7 @@ test.describe("Meal Editing", () => {
     await page.goto("/meals/42/edit/");
     await page.waitForLoadState("networkidle");
     await expect(
-      page.getByRole("cell", { name: "Jane Smith", exact: true })
+      page.getByRole("cell", { name: "Jane Smith", exact: true }),
     ).toBeVisible({ timeout: 10000 });
 
     // Before: Jane not veg, veg count = 0
@@ -216,11 +214,9 @@ test.describe("Meal Editing", () => {
     await expect(textarea).toHaveValue("Updated: Spaghetti and meatballs");
 
     // Wait for debounce (700ms) to trigger the API call
-    await expect
-      .poll(() => descriptionPayload, { timeout: 3000 })
-      .toBeTruthy();
+    await expect.poll(() => descriptionPayload, { timeout: 3000 }).toBeTruthy();
     expect(descriptionPayload.description).toBe(
-      "Updated: Spaghetti and meatballs"
+      "Updated: Spaghetti and meatballs",
     );
   });
 
@@ -268,8 +264,11 @@ test.describe("Meal Editing", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          id: 999, meal_id: 42, resident_id: 1,
-          vegetarian: false, created_at: new Date().toISOString(),
+          id: 999,
+          meal_id: 42,
+          resident_id: 1,
+          vegetarian: false,
+          created_at: new Date().toISOString(),
         }),
       });
     });
@@ -295,12 +294,8 @@ test.describe("Meal Editing", () => {
     // Dropdown should show cow and carrot options
     const dropdownMenu = janeRow.locator(".dropdown-menu");
     await expect(dropdownMenu).toBeVisible({ timeout: 3000 });
-    await expect(
-      dropdownMenu.locator("img[alt='cow-icon']")
-    ).toBeVisible();
-    await expect(
-      dropdownMenu.locator("img[alt='carrot-icon']")
-    ).toBeVisible();
+    await expect(dropdownMenu.locator("img[alt='cow-icon']")).toBeVisible();
+    await expect(dropdownMenu.locator("img[alt='carrot-icon']")).toBeVisible();
 
     // Click cow icon to add non-veg guest
     await dropdownMenu.locator("img[alt='cow-icon']").click();
@@ -328,7 +323,7 @@ test.describe("Meal Editing", () => {
 
     // Remove button should exist with correct aria-label
     const removeButton = janeRow.locator(
-      '[aria-label="Remove Guest of Jane Smith"]'
+      '[aria-label="Remove Guest of Jane Smith"]',
     );
     await expect(removeButton).toBeVisible();
 
@@ -342,7 +337,7 @@ test.describe("Meal Editing", () => {
     });
     const bobRow = bobCell.locator("xpath=ancestor::tr");
     const bobRemove = bobRow.locator(
-      '[aria-label="Remove Guest of Bob Johnson"]'
+      '[aria-label="Remove Guest of Bob Johnson"]',
     );
     await expect(bobRemove).toBeDisabled();
   });
@@ -362,9 +357,7 @@ test.describe("Meal Editing", () => {
     await page.waitForLoadState("networkidle");
 
     // First cook select is pre-populated with Jane (value="1") and cost=25.50
-    const cookSelect = page
-      .locator('[aria-label="Select meal cook"]')
-      .first();
+    const cookSelect = page.locator('[aria-label="Select meal cook"]').first();
     await expect(cookSelect).toHaveValue("1", { timeout: 10000 });
     const costInput = page.locator('[aria-label="Set meal cost"]').first();
     await expect(costInput).toHaveValue("25.50");
@@ -374,9 +367,7 @@ test.describe("Meal Editing", () => {
     await expect(costInput).toHaveValue("35.00");
 
     // API should be called with updated bills
-    await expect
-      .poll(() => billsPayload, { timeout: 3000 })
-      .toBeTruthy();
+    await expect.poll(() => billsPayload, { timeout: 3000 }).toBeTruthy();
     expect(billsPayload.bills).toBeDefined();
   });
 
@@ -402,11 +393,9 @@ test.describe("Meal Editing", () => {
     expect(naturalWidth).toBeGreaterThan(0);
 
     // Guest dropdown also has cow and carrot images (for adding guests)
-    const dropdownCow = janeRow.locator(
-      ".dropdown-menu img[alt='cow-icon']"
-    );
+    const dropdownCow = janeRow.locator(".dropdown-menu img[alt='cow-icon']");
     const dropdownCarrot = janeRow.locator(
-      ".dropdown-menu img[alt='carrot-icon']"
+      ".dropdown-menu img[alt='carrot-icon']",
     );
     // Open dropdown to make images visible
     await janeRow.locator(".dropdown-add").click();
@@ -430,22 +419,18 @@ test.describe("Meal Editing", () => {
     });
 
     // Now extras radio buttons should be visible
-    await expect(
-      page.locator('[aria-label="Set Extras to 0"]')
-    ).toBeVisible({ timeout: 3000 });
-    await expect(
-      page.locator('[aria-label="Set Extras to 3"]')
-    ).toBeVisible();
+    await expect(page.locator('[aria-label="Set Extras to 0"]')).toBeVisible({
+      timeout: 3000,
+    });
+    await expect(page.locator('[aria-label="Set Extras to 3"]')).toBeVisible();
 
     // Click extras = 3
-    await page
-      .locator('[aria-label="Set Extras to 3"]')
-      .click({ force: true });
+    await page.locator('[aria-label="Set Extras to 3"]').click({ force: true });
 
     // The checkbox for 3 should be checked
-    await expect(
-      page.locator('[aria-label="Set Extras to 3"]')
-    ).toBeChecked({ timeout: 3000 });
+    await expect(page.locator('[aria-label="Set Extras to 3"]')).toBeChecked({
+      timeout: 3000,
+    });
   });
 
   test("meal history modal shows audit entries with correct data", async ({
@@ -465,22 +450,28 @@ test.describe("Meal Editing", () => {
 
     // Should show all 3 history entries from fixture
     await expect(
-      modal.getByRole("cell", { name: "Jane Smith" }).first()
+      modal.getByRole("cell", { name: "Jane Smith" }).first(),
     ).toBeVisible();
     await expect(
-      modal.getByRole("cell", { name: "signed up", exact: true })
+      modal.getByRole("cell", { name: "signed up", exact: true }),
     ).toBeVisible();
     await expect(
-      modal.getByRole("cell", { name: "signed up late" })
+      modal.getByRole("cell", { name: "signed up late" }),
     ).toBeVisible();
     await expect(
-      modal.getByRole("cell", { name: "added a guest" })
+      modal.getByRole("cell", { name: "added a guest" }),
     ).toBeVisible();
 
     // Table should have header columns
-    await expect(modal.getByRole("columnheader", { name: "User" })).toBeVisible();
-    await expect(modal.getByRole("columnheader", { name: "Action" })).toBeVisible();
-    await expect(modal.getByRole("columnheader", { name: "Time" })).toBeVisible();
+    await expect(
+      modal.getByRole("columnheader", { name: "User" }),
+    ).toBeVisible();
+    await expect(
+      modal.getByRole("columnheader", { name: "Action" }),
+    ).toBeVisible();
+    await expect(
+      modal.getByRole("columnheader", { name: "Time" }),
+    ).toBeVisible();
   });
 
   test("prev/next meal arrows navigate and fire API calls", async ({
@@ -504,7 +495,7 @@ test.describe("Meal Editing", () => {
     await page.goto("/meals/42/edit/");
     await page.waitForLoadState("networkidle");
     await expect(
-      page.getByRole("cell", { name: "Jane Smith", exact: true })
+      page.getByRole("cell", { name: "Jane Smith", exact: true }),
     ).toBeVisible({ timeout: 10000 });
 
     // Next arrow should be visible (fixture has next_id: 43)

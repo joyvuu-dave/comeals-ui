@@ -16,7 +16,7 @@ app.use(
     target: API_URL,
     changeOrigin: true,
     pathFilter: "/api",
-  })
+  }),
 );
 
 const buildPath = path.join(__dirname, "build");
@@ -49,7 +49,7 @@ app.use(
   express.static(path.join(buildPath, "assets"), {
     maxAge: "1y",
     immutable: true,
-  })
+  }),
 );
 
 // Everything else (index.html, manifest.json, icons) — always revalidate
@@ -59,7 +59,7 @@ app.use(
     setHeaders: function (res) {
       res.setHeader("Cache-Control", "no-cache");
     },
-  })
+  }),
 );
 
 // SPA fallback — serve index.html for all non-file routes.
