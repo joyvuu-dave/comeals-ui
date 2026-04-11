@@ -57,6 +57,6 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "postinstall": "test \"$NODE_ENV\" != production && npx --no-install playwright install || true",
-    "prepare": "husky"
+    "prepare": "husky && git config blame.ignoreRevsFile .git-blame-ignore-revs"
   }
 }

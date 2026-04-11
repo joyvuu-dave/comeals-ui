@@ -1,0 +1,4 @@
+# One-off Prettier formatting pass across the codebase.
+# Pure whitespace/punctuation; no behavioral changes.
+# See: https://git-scm.com/docs/git-blame#Documentation/git-blame.txt---ignore-revs-fileltfilegt
+ba892cbc67d70be86adf9f4c2af07d5527e9651c
