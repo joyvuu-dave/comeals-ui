@@ -22,6 +22,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # AI tooling (Claude Code, AIWG)
+# Framework-installed content is ignored; project-specific intake docs
+# live in .aiwg/intake/ and are explicitly tracked.
 .claude/
-.aiwg/
 AIWG.md
+.aiwg/*
+!.aiwg/intake/
