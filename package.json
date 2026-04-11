@@ -54,6 +54,8 @@
     "test:e2e": "npx playwright test",
     "test:e2e:update": "npx playwright test --update-snapshots",
     "lint": "eslint src/",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "postinstall": "test \"$NODE_ENV\" != production && npx --no-install playwright install || true",
     "prepare": "husky"
   }
