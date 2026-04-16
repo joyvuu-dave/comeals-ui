@@ -1,3 +1,5 @@
+## Frontend and backend consolidated into [comeals-monorepo](https://github.com/joyvuu-dave/comeals-monorepo)
+
 Front end for Comeals.
 
 ## Prerequisites
